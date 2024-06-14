@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum jurusan_sekolah {
+  ips
+  ipa
+}
+
+model user {
+  id         String           @id @default(uuid()) @db.Uuid
+  name       String           @db.VarChar(256)
+  email      String           @unique @db.VarChar(256)
+  jurusan    jurusan_sekolah?
+  avatar_url String           @db.VarChar(256)
+}

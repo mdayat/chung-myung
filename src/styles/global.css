@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* neutral = foreground & backgroud */
+    --neutral-0: 0, 0%, 100%;
+    --neutral-25: 210, 20%, 98%;
+    --neutral-50: 225, 20%, 96%;
+    --neutral-100: 220, 20%, 94%;
+    --neutral-200: 225, 16%, 85%;
+    --neutral-300: 222, 16%, 75%;
+    --neutral-400: 223, 14%, 55%;
+    --neutral-500: 222, 13%, 35%;
+    --neutral-600: 223, 18%, 26%;
+    --neutral-700: 223, 24%, 15%;
+    --neutral-800: 224, 42%, 12%;
+    --neutral-900: 225, 40%, 8%;
+    --neutral-950: 0, 0%, 0%;
+
+    --primary-50: 55, 100%, 95%;
+    --primary-100: 45, 100%, 61%;
+    --primary-200: 45, 100%, 56%;
+    --primary-300: 45, 100%, 54%;
+    --primary-400: 45, 96%, 48%;
+    --primary-500: 45, 96%, 43%;
+    --primary-600: 45, 96%, 38%;
+
+    --secondary-50: 212, 100%, 97%;
+    --secondary-100: 214, 100%, 95%;
+    --secondary-200: 217, 100%, 86%;
+    --secondary-300: 219, 100%, 78%;
+    --secondary-400: 221, 100%, 71%;
+    --secondary-500: 223, 100%, 63%;
+    --secondary-600: 225, 70%, 51%;
+
+    --success-50: 148, 100%, 97%;
+    --success-100: 152, 100%, 89%;
+    --success-200: 154, 77%, 77%;
+    --success-300: 156, 71%, 66%;
+    --success-400: 158, 66%, 56%;
+    --success-500: 160, 74%, 46%;
+    --success-600: 162, 81%, 36%;
+
+    --warning-50: 48, 100%, 95%;
+    --warning-100: 46, 100%, 82%;
+    --warning-200: 44, 100%, 74%;
+    --warning-300: 42, 86%, 63%;
+    --warning-400: 40, 79%, 52%;
+    --warning-500: 38, 100%, 43%;
+    --warning-600: 36, 100%, 35%;
+
+    --error-50: 8, 100%, 97%;
+    --error-100: 9, 100%, 89%;  
+    --error-200: 6, 77%, 77%;
+    --error-300: 4, 71%, 66%;
+    --error-400: 2, 66%, 56%;
+    --error-500: 0, 74%, 46%;
+    --error-600: 358, 81%, 36%;
+
+    --tags-red: 6, 64%, 37%;
+    --tags-orange: 24, 64%, 33%;
+    --tags-yellow: 37, 64%, 41%;
+    --tags-pink: 334, 64%, 38%;
+    --tags-purple: 282, 64%, 38%;
+    --tags-blue: 204, 64%, 35%;
+    --tags-light-green: 145, 64%, 33%;
+    --tags-green: 168, 64%, 28%;
+
+    --border: 217, 100%, 86%;
+    --border-secondary: 39, 100%, 25%;
+
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+
+    --radius: 0.5rem;
+  }
+
+  @layer base {
+    * {
+      @apply border-border;
+    }
+    body {
+      @apply bg-neutral-0 text-neutral-700;
+    }
+  }
+}

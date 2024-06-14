@@ -1,0 +1,9 @@
+pnpm check-lint || {
+  echo "Code Lint Check Failed"
+  exit 1
+}
+
+pnpm check-format || {
+  echo "Code Format Check Failed."
+  exit 1
+}

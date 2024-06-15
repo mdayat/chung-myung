@@ -44,7 +44,9 @@ function Input({
       </div>
 
       {description !== "" && (
-        <p className={`${error ? "text-error-500" : ""} text-xs`}>{description}</p>
+        <p className={`${error ? "text-error-500" : ""} text-xs`}>
+          {description}
+        </p>
       )}
     </div>
   );

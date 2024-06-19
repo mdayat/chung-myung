@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+
+import { handleInvalidMethod } from "@utils/server/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
 
 export default function handler(
@@ -21,13 +23,6 @@ export default function handler(
       .status(200)
       .json({ status: "success", data: "the deleted data of " + materialID });
   } else {
-    const resBody: FailedResponse = {
-      status: "failed",
-      error: { statusCode: 405, message: "Invalid HTTP method" },
-    };
-
-    res.setHeader("Allow", "GET, PUT, PATCH, DELETE");
-    res.setHeader("Content-Type", "application/json");
-    res.status(resBody.error.statusCode).json(resBody);
+    handleInvalidMethod(res, ["GET", "PUT", "PATCH", "DELETE"]);
   }
 }

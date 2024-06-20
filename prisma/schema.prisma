@@ -8,15 +8,21 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum jurusan_sekolah {
+enum school_major {
   ips
   ipa
 }
 
 model user {
-  id         String           @id @default(uuid()) @db.Uuid
-  name       String           @db.VarChar(256)
-  email      String           @unique @db.VarChar(256)
-  jurusan    jurusan_sekolah?
-  avatar_url String           @db.VarChar(256)
+  id         String        @id @default(uuid()) @db.Uuid
+  name       String        @db.VarChar(256)
+  email      String        @unique @db.VarChar(256)
+  major      school_major?
+  avatar_url String        @db.VarChar(256)
+}
+
+model material {
+  id          String @id @default(uuid()) @db.Uuid
+  name        String @db.VarChar(256)
+  description String @db.Text
 }

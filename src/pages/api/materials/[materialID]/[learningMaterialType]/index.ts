@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { handleInvalidMethod } from "@utils/server/middlewares";
+import { handleInvalidMethod } from "@utils/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
 import type { LearningMaterialType } from "@customTypes/soal";
 

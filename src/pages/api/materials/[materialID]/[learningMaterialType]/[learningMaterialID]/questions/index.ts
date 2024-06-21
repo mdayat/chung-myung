@@ -4,7 +4,7 @@ import { z as zod } from "zod";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { supabase } from "@libs/supabase";
-import { handleInvalidMethod } from "@utils/server/middlewares";
+import { handleInvalidMethod } from "@utils/middlewares";
 import {
   editorSchema,
   type Editor,

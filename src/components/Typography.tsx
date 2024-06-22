@@ -1,27 +1,27 @@
-import { forwardRef } from "react";
-import type { TypographyProps } from "../types/typography";
+import { type ReactNode, forwardRef } from "react";
+// import type { TypographyProps } from "../types/typography";
 
-function determineFontWeight(fontWeight: string): string {
-  let tailwindClass = "";
-
-  switch (fontWeight) {
-    case "normal": {
-      tailwindClass = "font-normal";
-      break;
-    }
-
-    case "light": {
-      tailwindClass = "font-light";
-      break;
-    }
-
-    case "bold": {
-      tailwindClass = "font-bold";
-      break;
-    }
-  }
-
-  return tailwindClass;
+interface TypographyProps {
+  children?: ReactNode;
+  className?: string;
+  variant:
+    | "d1"
+    | "d2"
+    | "h1"
+    | "h2"
+    | "h3"
+    | "h4"
+    | "h5"
+    | "h6"
+    | "p1"
+    | "p2"
+    | "p3"
+    | "p4"
+    | "p5"
+    | "caption"
+    | "footer";
+  font?: "nunito" | "karla";
+  weight?: "bold" | "light" | "normal";
 }
 
 const Typography = forwardRef<
@@ -195,5 +195,28 @@ const Typography = forwardRef<
 );
 
 Typography.displayName = "Typography";
+
+function determineFontWeight(fontWeight: string): string {
+  let tailwindClass = "";
+
+  switch (fontWeight) {
+    case "normal": {
+      tailwindClass = "font-normal";
+      break;
+    }
+
+    case "light": {
+      tailwindClass = "font-light";
+      break;
+    }
+
+    case "bold": {
+      tailwindClass = "font-bold";
+      break;
+    }
+  }
+
+  return tailwindClass;
+}
 
 export { Typography };

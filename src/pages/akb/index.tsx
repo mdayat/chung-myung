@@ -128,6 +128,12 @@ export default function AKB() {
                   <div
                     key={index}
                     className="bg-secondary-50 rounded-[8px] px-4 py-2 mb-4"
+                    onClick={() => {
+                      const radio = document.getElementById(choice.id);
+                      if (radio != null) {
+                        radio.click();
+                      }
+                    }}
                   >
                     <div className="flex items-center space-x-2 my-2">
                       <RadioGroupItem value={choice.id} id={choice.id} />

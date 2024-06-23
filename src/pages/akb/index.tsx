@@ -10,10 +10,6 @@ import { Button } from "@components/Button";
 
 export default function AKB() {
   const [data, setData] = useState<AKBSample[]>([]);
-  const [selectedData, setSelectedData] = useState<AKBSample | null>(null);
-  const [selectedQuestion, setSelectedQuestion] = useState<question | null>(
-    null
-  );
   const [timer, setTimer] = useState(0);
   const [questionPage, setQuestionPage] = useState(1);
   const [dataPage, setDataPage] = useState(1);
@@ -29,8 +25,6 @@ export default function AKB() {
       (a, b) => a.sequence_number - b.sequence_number
     );
     setData(dataSorted);
-    setSelectedData(dataSorted[dataPage - 1]);
-    setSelectedQuestion(dataSorted[dataPage - 1].questions[questionPage - 1]);
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].intersectionRatio === 1) {
@@ -48,13 +42,7 @@ export default function AKB() {
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    if (selectedData == null) return;
-    setSelectedQuestion(selectedData?.questions[questionPage - 1]);
-  }, [questionPage]);
-  useEffect(() => {
-    if (selectedData == null) return;
     setAtRestRoom(false);
-    setSelectedData(data[dataPage - 1]);
     setQuestionPage(1);
     setTimer(15);
   }, [dataPage]);
@@ -78,7 +66,9 @@ export default function AKB() {
       {!atRestRoom && (
         <div className="px-20 py-10">
           <div className="flex flex-row items-center justify-between">
-            <p className="text-[2rem] font-bold">{selectedData?.name}</p>
+            <p className="text-[2rem] font-bold">
+              {dataJson[dataPage - 1].name}
+            </p>
             <p className="text-base font-normal rounded-full border-[1px] border-neutral-950 px-4 py-2">
               <span className="font-bold">{dataPage}</span>/{data.length}{" "}
               <span className="font-bold">Subtes</span>
@@ -86,7 +76,7 @@ export default function AKB() {
           </div>
           <div className="mt-4 p-4 bg-secondary-50 rounded-[8px] flex flex-row items-center justify-between">
             <div className="flex flex-row">
-              {selectedData?.questions?.map((question, index) => (
+              {dataJson[dataPage - 1].questions?.map((question, index) => (
                 <p
                   key={question.id}
                   className={`hover:cursor-pointer text-center w-10 h-10 rounded-full font-medium flex items-center justify-center ml-2 ${index + 1 === questionPage ? "bg-secondary-500 text-neutral-0" : "bg-neutral-0"}`}
@@ -115,16 +105,23 @@ export default function AKB() {
           </div>
           <div className="mt-6 flex flex-row">
             <div className="w-[calc(100%-35%)]">
-              <p className="text-xl font-base">{selectedQuestion?.content}</p>
+              <p className="text-xl font-base">
+                {dataJson[dataPage - 1].questions[questionPage - 1].content}
+              </p>
             </div>
             <div
               id="frame-jawaban"
               className="w-[calc(100%-65%)] flex flex-col justify-between"
             >
               <RadioGroup
-                defaultValue={selectedQuestion?.id_jawaban_user ?? ""}
+                defaultValue={
+                  dataJson[dataPage - 1].questions[questionPage - 1]
+                    .id_jawaban_user ?? ""
+                }
               >
-                {selectedQuestion?.multiple_choices.map((choice, index) => (
+                {dataJson[dataPage - 1].questions[
+                  questionPage - 1
+                ].multiple_choices.map((choice, index) => (
                   <div
                     key={index}
                     className="bg-secondary-50 rounded-[8px] px-4 py-2 mb-4 hover:cursor-pointer"
@@ -163,14 +160,20 @@ export default function AKB() {
                 <Button
                   className="ml-3"
                   onClick={() => {
-                    if (questionPage < selectedData?.questions?.length! ?? 0)
+                    if (
+                      questionPage <
+                        dataJson[dataPage - 1].questions?.length! ??
+                      0
+                    )
                       setQuestionPage((prev) => prev + 1);
-                    if (questionPage === selectedData?.questions?.length!) {
+                    if (
+                      questionPage === dataJson[dataPage - 1].questions?.length!
+                    ) {
                       setAtRestRoom(true);
                     }
                   }}
                 >
-                  {questionPage === selectedData?.questions?.length!
+                  {questionPage === dataJson[dataPage - 1].questions?.length!
                     ? "Subtes Selanjutnya"
                     : "Selanjutnya"}
                 </Button>

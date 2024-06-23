@@ -7,6 +7,7 @@ import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@components/shadcn/RadioButton";
 import { Label } from "@components/shadcn/Label";
 import { Button } from "@components/shadcn/Button";
+import RestArea from "@components/asesmen/RestArea";
 
 export default function AKB() {
   const [data, setData] = useState<AKBSample[]>([]);
@@ -183,15 +184,13 @@ export default function AKB() {
         </div>
       )}
       {atRestRoom && (
-        <Button
-          className="ml-3"
-          onClick={() => {
-            if (dataPage === data.length) return;
-            setDataPage((prev) => prev + 1);
-          }}
-        >
-          {dataPage === data.length ? "Selesai" : "Subtes Selanjutnya"}
-        </Button>
+        <div className="flex items-center justify-center">
+          <RestArea
+            setDataPage={setDataPage}
+            dataJson={dataJson}
+            dataPage={dataPage}
+          />
+        </div>
       )}
     </div>
   );

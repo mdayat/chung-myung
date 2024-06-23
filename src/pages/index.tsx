@@ -1,7 +1,18 @@
+import { Navbar } from "@components/Navbar";
+
+import { Jumbotron } from "@components/home/Jumbotron";
+import { AsesmenStart } from "@components/home/MulaiAsesmen";
+
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-4xl font-bold">Hello World</h1>
-    </div>
+    <>
+      <Navbar />
+
+      <main>
+        <Jumbotron />
+
+        <AsesmenStart />
+      </main>
+    </>
   );
 }

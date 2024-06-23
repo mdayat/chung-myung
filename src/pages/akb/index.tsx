@@ -4,9 +4,9 @@ import EmtekaLogo from "../../../public/Emteka-Logo.svg";
 import Timer from "../../../public/timer.svg";
 import dataJson from "../../data/AKBSample.json";
 import Image from "next/image";
-import { RadioGroup, RadioGroupItem } from "@components/RadioButton";
-import { Label } from "@components/Label";
-import { Button } from "@components/Button";
+import { RadioGroup, RadioGroupItem } from "@components/shadcn/RadioButton";
+import { Label } from "@components/shadcn/Label";
+import { Button } from "@components/shadcn/Button";
 
 export default function AKB() {
   const [data, setData] = useState<AKBSample[]>([]);

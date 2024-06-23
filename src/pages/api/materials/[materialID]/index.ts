@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { z as zod } from "zod";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { prisma } from "@libs/prismaClient";
+import { prisma } from "@lib/prismaClient";
 import { handleInvalidMethod } from "@utils/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
 

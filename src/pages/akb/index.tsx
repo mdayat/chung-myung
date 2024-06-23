@@ -89,7 +89,7 @@ export default function AKB() {
               {selectedData?.questions?.map((question, index) => (
                 <p
                   key={question.id}
-                  className={`text-center w-10 h-10 rounded-full font-medium flex items-center justify-center ml-2 ${index + 1 === questionPage ? "bg-secondary-500 text-neutral-0" : "bg-neutral-0"}`}
+                  className={`hover:cursor-pointer text-center w-10 h-10 rounded-full font-medium flex items-center justify-center ml-2 ${index + 1 === questionPage ? "bg-secondary-500 text-neutral-0" : "bg-neutral-0"}`}
                   onClick={() => setQuestionPage(index + 1)}
                 >
                   {addLeadingZero(index + 1, 2)}

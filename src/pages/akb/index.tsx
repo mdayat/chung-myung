@@ -127,7 +127,7 @@ export default function AKB() {
                 {selectedQuestion?.multiple_choices.map((choice, index) => (
                   <div
                     key={index}
-                    className="bg-secondary-50 rounded-[8px] px-4 py-2 mb-4"
+                    className="bg-secondary-50 rounded-[8px] px-4 py-2 mb-4 hover:cursor-pointer"
                     onClick={() => {
                       const radio = document.getElementById(choice.id);
                       if (radio != null) {

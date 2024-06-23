@@ -12,7 +12,6 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": "./",
     "paths": {
       "@components/*": ["./src/components/*"],
       "@components/ui/*": ["./src/components/shadcn"],

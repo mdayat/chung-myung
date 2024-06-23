@@ -1,7 +1,10 @@
+import RestArea from "@components/asesmen/RestArea";
+
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-4xl font-bold">Hello World</h1>
+    <div className="flex items-center justify-center my-16">
+      {/* <h1 className="text-4xl font-bold">Hello World</h1> */}
+      <RestArea />
     </div>
   );
 }

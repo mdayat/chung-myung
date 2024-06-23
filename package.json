@@ -16,6 +16,7 @@
   "dependencies": {
     "@prisma/client": "5.14.0",
     "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@supabase/supabase-js": "^2.43.4",
     "busboy": "^1.6.0",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type AKBSample, type question } from "../../data/AKBSample";
+import { type AKBSample } from "../../data/AKBSample";
 import EmtekaLogo from "../../../public/Emteka-Logo.svg";
 import Timer from "../../../public/timer.svg";
 import dataJson from "../../data/AKBSample.json";

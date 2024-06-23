@@ -1,5 +1,5 @@
-import { Button } from "@components/Button";
-import { Typography } from "@components/Typography";
+import { Button } from "@components/shadcn/Button";
+import { Typography } from "@components/shadcn/Typography";
 
 import { ChevronRight } from "@components/icons/ChevronRight";
 import { School } from "@components/icons/School";

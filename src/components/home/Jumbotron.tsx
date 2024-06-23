@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-import { Button } from "@components/Button";
-import { Typography } from "@components/Typography";
+import { Button } from "@components/shadcn/Button";
+import { Typography } from "@components/shadcn/Typography";
 
 import RubahImage from "@images/home/rubah2.png";
 

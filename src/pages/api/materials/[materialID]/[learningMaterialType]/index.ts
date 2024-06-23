@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { handleInvalidMethod } from "@utils/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
-import type { LearningMaterialType } from "@customTypes/soal";
+import type { LearningMaterialType } from "@customTypes/question";
 
 export default function handler(
   req: NextApiRequest,

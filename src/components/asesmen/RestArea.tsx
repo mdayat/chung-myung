@@ -3,15 +3,25 @@ import { Progress } from "@components/shadcn/Progress";
 import Image from "next/image";
 import ContentTitle from "./ContentTitle";
 import { Button } from "@components/shadcn/Button";
+import type { Dispatch, SetStateAction } from "react";
+import type { AKBSample } from "../../data/AKBSample";
 
-export default function RestArea() {
+export default function RestArea({
+  dataJson,
+  dataPage,
+  setDataPage,
+}: {
+  dataJson: AKBSample[];
+  dataPage: number;
+  setDataPage: Dispatch<SetStateAction<number>>;
+}) {
   return (
     <div className="flex flex-col gap-6 w-2/4 rounded-3xl border border-neutral-300 p-8">
       {/* Info */}
       <div className="flex flex-row items-center justify-center gap-6 bg-primary-400 px-6 py-2 rounded-2xl">
         <span className="flex items-center justify-center bg-neutral-0 rounded-full w-12 h-12 ">
           <Typography variant="h6" weight="bold" className="text-neutral-950">
-            1/2
+            {dataPage}/{dataJson.length}
           </Typography>
         </span>
         <Typography variant="h6" weight="bold" className="text-neutral-0">
@@ -151,7 +161,15 @@ export default function RestArea() {
             }
           />
         </div>
-        <Button size="medium">Lanjutan Subtes Selanjutnya</Button>
+        <Button
+          size="medium"
+          onClick={() => {
+            if (dataPage === dataJson.length) return;
+            setDataPage((prev) => prev + 1);
+          }}
+        >
+          Lanjutan Subtes Selanjutnya
+        </Button>
       </div>
     </div>
   );

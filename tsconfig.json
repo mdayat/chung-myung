@@ -14,10 +14,11 @@
     "incremental": true,
     "baseUrl": "./",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@libs/*": ["src/libs/*"],
-      "@utils/*": ["src/utils/*"],
-      "@customTypes/*": ["src/types/*"]
+      "@components/*": ["./src/components/*"],
+      "@components/ui/*": ["./src/components/shadcn"],
+      "@lib/*": ["./src/libs/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@customTypes/*": ["./src/types/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

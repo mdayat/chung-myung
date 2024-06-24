@@ -15,7 +15,7 @@ export default function RestArea({
   dataPage: number;
   setDataPage: Dispatch<SetStateAction<number>>;
 }) {
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState<number | null>(null);
   useEffect(() => {
     setTimer(30);
   }, []);
@@ -28,10 +28,10 @@ export default function RestArea({
     }
     const interval = setInterval(() => {
       console.log(timer);
-      setTimer((prev: number) => prev - 1);
+      setTimer((prev) => prev! - 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer]);
+  }, [timer, dataJson.length, dataPage, setDataPage]);
   return (
     <div className="flex flex-col gap-6 w-2/4 rounded-3xl border border-neutral-300 p-8">
       {/* Info */}
@@ -80,7 +80,7 @@ export default function RestArea({
             </Typography>
           </span>
           {/* Progress Bar */}
-          <Progress value={(timer / 30) * 100} />
+          <Progress value={(timer! / 30) * 100} />
         </div>
       </div>
 

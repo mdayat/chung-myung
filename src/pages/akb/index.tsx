@@ -19,6 +19,7 @@ export default function AKB() {
   const [atRestRoom, setAtRestRoom] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
   const [popUpPath, setPopUpPath] = useState("");
+  const [disabled, setDisabled] = useState(true);
   function addLeadingZero(num: number, size: number) {
     let s = num + "";
     while (s.length < size) s = "0" + s;
@@ -33,7 +34,6 @@ export default function AKB() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        console.log(entries[0].intersectionRatio);
         if (entries[0].intersectionRatio === 1) {
           setIsAnswerVisible(true);
         } else {
@@ -56,6 +56,7 @@ export default function AKB() {
     setAtRestRoom(false);
     setQuestionPage(1);
     setTimer(15);
+    setDisabled(true);
   }, [dataPage]);
   useEffect(() => {
     if (timer === 0) {
@@ -155,6 +156,14 @@ export default function AKB() {
                     questionPage - 1
                   ].id_jawaban_user = value;
                   setData(newData);
+                  const userAnswer = dataJson[dataPage - 1].questions?.map(
+                    (question) => question.id_jawaban_user
+                  );
+                  if (userAnswer[userAnswer.length - 1] == "") {
+                    setDisabled(true);
+                    return;
+                  }
+                  setDisabled(false);
                 }}
               >
                 {dataJson[dataPage - 1].questions[
@@ -204,7 +213,25 @@ export default function AKB() {
                   Kembali
                 </Button>
                 <Button
-                  className="ml-3"
+                  className={`ml-3 ${
+                    questionPage === dataJson[dataPage - 1].questions?.length!
+                      ? disabled
+                        ? "!bg-neutral-300 !text-neutral-50"
+                        : ""
+                      : ""
+                  }`}
+                  variant={
+                    questionPage === dataJson[dataPage - 1].questions?.length!
+                      ? disabled
+                        ? "ghost"
+                        : "primary"
+                      : "primary"
+                  }
+                  disabled={
+                    questionPage === dataJson[dataPage - 1].questions?.length!
+                      ? disabled
+                      : false
+                  }
                   onClick={() => {
                     if (
                       questionPage <
@@ -219,7 +246,6 @@ export default function AKB() {
                         (question) => question.id_jawaban_user
                       );
                       if (userAnswer[userAnswer.length - 1] == "") {
-                        alert("Kamu belum menjawab pertanyaan ini!");
                         return;
                       }
                       setAtRestRoom(true);

@@ -7,28 +7,30 @@ import RubahImage from "@images/home/rubah2.png";
 
 export function Jumbotron() {
   return (
-    <section className="">
-      <figure className="flex justify-between items-center bg-[url('/images/home/background.png')] relative px-20 min-h-[155px] bg-cover bg-right">
-        <div className="overflow-hidden">
-          <Typography
-            variant="h2"
-            className="text-neutral-50 mb-1"
-            weight="bold"
-          >
-            Selamat datang, Sobat Emteka
-          </Typography>
-          <Typography variant="p3" className="text-neutral-50">
-            Tingkatkan terus kemampuan matematika Anda bersama Emteka
-          </Typography>
-        </div>
+    <section>
+      <figure className="bg-[url('/images/home/background.png')] relative h-[155px] bg-cover bg-right">
+        <div className="flex justify-between items-center px-20 relative h-full xl:w-[1366px] xl:mx-auto">
+          <div className="overflow-hidden">
+            <Typography
+              variant="h2"
+              className="text-neutral-50 mb-1"
+              weight="bold"
+            >
+              Selamat datang, Sobat Emteka
+            </Typography>
+            <Typography variant="p3" className="text-neutral-50">
+              Tingkatkan terus kemampuan matematika Anda bersama Emteka
+            </Typography>
+          </div>
 
-        <div className="absolute w-[204px] h-[204px] right-0 mr-40 mt-5">
-          <Image
-            src={RubahImage}
-            alt="Sobat Emteka"
-            className="object-contain"
-            fill
-          />
+          <div className="absolute w-[204px] h-[204px] right-0 mr-40 mt-5">
+            <Image
+              src={RubahImage}
+              alt="Sobat Emteka"
+              className="object-contain"
+              fill
+            />
+          </div>
         </div>
       </figure>
 

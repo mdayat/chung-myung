@@ -8,7 +8,7 @@ import RubahImage from "@images/home/rubah1.png";
 
 export function AsesmenStart() {
   return (
-    <section className="flex justify-between max-h-[280px] overflow-hidden mx-20 mt-8 rounded-xl shadow-lg border-t-2 border-neutral-50">
+    <section className="flex justify-between max-h-[280px] overflow-hidden mx-10 mt-8 rounded-xl shadow-lg border-t-2 border-neutral-50 xl:w-[1206px] xl:mx-auto">
       <div className="w-[600px] relative">
         <Image
           src={RubahImage}

@@ -15,7 +15,7 @@ export default function Home() {
 
         <AsesmenStart />
 
-        <ul className="mt-8 mx-20 grid grid-cols-2 gap-x-8 items-center">
+        <ul className="mt-8 mx-20 grid grid-cols-2 gap-x-8 items-center xl:w-[1206px] xl:mx-auto xl:flex xl:gap-x-0 xl:justify-between">
           <li>
             <HasilAsesmen />
           </li>

@@ -3,7 +3,7 @@ import { Progress } from "@components/shadcn/Progress";
 import Image from "next/image";
 import ContentTitle from "./ContentTitle";
 import { Button } from "@components/shadcn/Button";
-import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import type { AKBSample } from "../../data/AKBSample";
 
 export default function RestArea({
@@ -15,6 +15,23 @@ export default function RestArea({
   dataPage: number;
   setDataPage: Dispatch<SetStateAction<number>>;
 }) {
+  const [timer, setTimer] = useState(0);
+  useEffect(() => {
+    setTimer(30);
+  }, []);
+  useEffect(() => {
+    if (timer === 0) {
+      console.log("Time's up");
+      if (dataPage === dataJson.length) return;
+      setDataPage((prev) => prev + 1);
+      return;
+    }
+    const interval = setInterval(() => {
+      console.log(timer);
+      setTimer((prev: number) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
   return (
     <div className="flex flex-col gap-6 w-2/4 rounded-3xl border border-neutral-300 p-8">
       {/* Info */}
@@ -56,14 +73,14 @@ export default function RestArea({
           {/* Counter */}
           <span className="flex items-end gap-1">
             <Typography variant="h3" weight="bold" className="text-[#090C18]">
-              20
+              {timer}
             </Typography>
             <Typography variant="p3" weight="bold" className="text-neutral-950">
               detik
             </Typography>
           </span>
           {/* Progress Bar */}
-          <Progress value={70} />
+          <Progress value={(timer / 30) * 100} />
         </div>
       </div>
 
@@ -72,7 +89,7 @@ export default function RestArea({
         <div className="flex flex-row gap-6">
           <ContentTitle
             title="Judul Subtes"
-            description="Bidang Ruang Part 3"
+            description={dataJson[dataPage].name ?? ""}
             icon={
               <svg
                 width="21"
@@ -102,7 +119,7 @@ export default function RestArea({
           />
           <ContentTitle
             title="Jumlah Soal"
-            description="10 Soal"
+            description={dataJson[dataPage].questions.length.toString() ?? ""}
             icon={
               <svg
                 width="21"

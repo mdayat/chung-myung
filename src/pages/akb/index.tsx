@@ -12,7 +12,7 @@ import PopUp from "@components/asesmen/PopUp";
 
 export default function AKB() {
   const [data, setData] = useState<AKBSample[]>([]);
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState<number | null>(null);
   const [questionPage, setQuestionPage] = useState(1);
   const [dataPage, setDataPage] = useState(1);
   const [isAnswerVisible, setIsAnswerVisible] = useState(false);
@@ -33,6 +33,7 @@ export default function AKB() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        console.log(entries[0].intersectionRatio);
         if (entries[0].intersectionRatio === 1) {
           setIsAnswerVisible(true);
         } else {
@@ -45,7 +46,12 @@ export default function AKB() {
     if (frameJawaban != null) {
       observer.observe(frameJawaban);
     }
-  }, []);
+    return () => {
+      if (frameJawaban != null) {
+        observer.unobserve(frameJawaban);
+      }
+    };
+  }, [dataPage, questionPage]);
   useEffect(() => {
     setAtRestRoom(false);
     setQuestionPage(1);
@@ -58,12 +64,12 @@ export default function AKB() {
     }
     const interval = setInterval(() => {
       console.log(timer);
-      setTimer((prev: number) => prev - 1);
+      setTimer((prev) => prev! - 1);
     }, 1000);
     return () => clearInterval(interval);
   }, [timer]);
   return (
-    <div>
+    <div className="w-[1366px]">
       <div className="p-4 flex flex-row items-center justify-between">
         <Image src={EmtekaLogo} alt="" className="h-8 max-w-fit" />
         <div className="w-8 h-8 bg-neutral-500 rounded-full"></div>
@@ -95,15 +101,15 @@ export default function AKB() {
               <Image src={Timer} alt="" className="h-6 w-6 mr-4" />
               <div className="font-medium text-lg flex flex-row justify-center items-center">
                 <p className="bg-secondary-200 w-10 h-10 rounded-md flex items-center justify-center mr-2">
-                  {addLeadingZero(Math.floor(timer / 3600), 2)}
+                  {addLeadingZero(Math.floor(timer! / 3600), 2)}
                 </p>
                 <p className="mr-2">:</p>
                 <p className="bg-secondary-200 w-10 h-10 rounded-md flex items-center justify-center mr-2">
-                  {addLeadingZero(Math.floor((timer / 60) % 60), 2)}
+                  {addLeadingZero(Math.floor((timer! / 60) % 60), 2)}
                 </p>
                 <p className="mr-2">:</p>
                 <p className="bg-secondary-200 w-10 h-10 rounded-md flex items-center justify-center">
-                  {addLeadingZero(Math.floor(timer % 60), 2)}
+                  {addLeadingZero(Math.floor(timer! % 60), 2)}
                 </p>
               </div>
             </div>

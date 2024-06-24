@@ -227,7 +227,7 @@ export default function AKB() {
                   }}
                 >
                   {questionPage === dataJson[dataPage - 1].questions?.length!
-                    ? "Subtes Selanjutnya"
+                    ? "Serahkan"
                     : "Selanjutnya"}
                 </Button>
               </div>

@@ -11,7 +11,10 @@ interface PopupProps {
 const PopUp: React.FC<PopupProps> = ({ show, onClose, path }) => {
   if (!show) return null;
   return (
-    <div className="bg-[#0C101C]/[.4] inset-0 fixed flex flex-col justify-center items-center z-50">
+    <div
+      className="bg-[#0C101C]/[.4] inset-0 fixed flex flex-col justify-center items-center z-50 cursor-pointer"
+      onClick={onClose}
+    >
       <div>
         <button
           type="button"

@@ -176,10 +176,6 @@ export default function AKB() {
                             alt=""
                             width={200}
                             height={200}
-                            onClick={() => {
-                              setShowPopUp(true);
-                              setPopUpPath(`/${choice.url_gambar}`);
-                            }}
                           />
                         )}
                         {choice?.content! ?? ""}

@@ -89,7 +89,7 @@ export default function RestArea({
         <div className="flex flex-row gap-6">
           <ContentTitle
             title="Judul Subtes"
-            description={dataJson[dataPage].name ?? ""}
+            description={dataJson[dataPage]?.name ?? "Fin"}
             icon={
               <svg
                 width="21"
@@ -119,7 +119,9 @@ export default function RestArea({
           />
           <ContentTitle
             title="Jumlah Soal"
-            description={dataJson[dataPage].questions.length.toString() ?? ""}
+            description={
+              dataJson[dataPage]?.questions.length.toString() ?? "Fin"
+            }
             icon={
               <svg
                 width="21"

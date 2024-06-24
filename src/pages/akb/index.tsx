@@ -141,6 +141,13 @@ export default function AKB() {
                   dataJson[dataPage - 1].questions[questionPage - 1]
                     .id_jawaban_user ?? ""
                 }
+                onValueChange={(value) => {
+                  const newData = dataJson;
+                  newData[dataPage - 1].questions[
+                    questionPage - 1
+                  ].id_jawaban_user = value;
+                  setData(newData);
+                }}
               >
                 {dataJson[dataPage - 1].questions[
                   questionPage - 1
@@ -204,6 +211,13 @@ export default function AKB() {
                     if (
                       questionPage === dataJson[dataPage - 1].questions?.length!
                     ) {
+                      const userAnswer = dataJson[dataPage - 1].questions?.map(
+                        (question) => question.id_jawaban_user
+                      );
+                      if (userAnswer[userAnswer.length - 1] == "") {
+                        alert("Kamu belum menjawab pertanyaan ini!");
+                        return;
+                      }
                       setAtRestRoom(true);
                     }
                   }}

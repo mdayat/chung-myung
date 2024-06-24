@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Close from "../../../public/close.svg";
 
 interface PopupProps {
@@ -9,12 +9,24 @@ interface PopupProps {
 }
 
 const PopUp: React.FC<PopupProps> = ({ show, onClose, path }) => {
+  function useOutsideAlerter(ref: React.RefObject<HTMLElement>) {
+    useEffect(() => {
+      function handleClickOutside(event: MouseEvent) {
+        if (ref.current && !ref.current.contains(event.target as Node)) {
+          onClose();
+        }
+      }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref]);
+  }
+  const wrapperRef = useRef(null);
+  useOutsideAlerter(wrapperRef);
   if (!show) return null;
   return (
-    <div
-      className="bg-[#0C101C]/[.4] inset-0 fixed flex flex-col justify-center items-center z-50 cursor-pointer"
-      onClick={onClose}
-    >
+    <div className="bg-[#0C101C]/[.4] inset-0 fixed flex flex-col justify-center items-center z-50 cursor-pointer">
       <div>
         <button
           type="button"
@@ -32,7 +44,10 @@ const PopUp: React.FC<PopupProps> = ({ show, onClose, path }) => {
           {""}
         </button>
       </div>
-      <div className="bg-[#EDEFF3] rounded-lg shadow-lg relative w-[770px] h-[538px] flex justify-center">
+      <div
+        className="bg-[#EDEFF3] rounded-lg shadow-lg relative w-[770px] h-[538px] flex justify-center"
+        ref={wrapperRef}
+      >
         <Image src={path} alt="Popup Image" width={538} height={538} />
       </div>
     </div>

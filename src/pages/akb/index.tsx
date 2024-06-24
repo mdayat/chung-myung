@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@components/shadcn/RadioButton";
 import { Label } from "@components/shadcn/Label";
 import { Button } from "@components/shadcn/Button";
 import RestArea from "@components/asesmen/RestArea";
+import PopUp from "@components/asesmen/PopUp";
 
 export default function AKB() {
   const [data, setData] = useState<AKBSample[]>([]);
@@ -16,6 +17,8 @@ export default function AKB() {
   const [dataPage, setDataPage] = useState(1);
   const [isAnswerVisible, setIsAnswerVisible] = useState(false);
   const [atRestRoom, setAtRestRoom] = useState(false);
+  const [showPopUp, setShowPopUp] = useState(false);
+  const [popUpPath, setPopUpPath] = useState("");
   function addLeadingZero(num: number, size: number) {
     let s = num + "";
     while (s.length < size) s = "0" + s;
@@ -105,7 +108,26 @@ export default function AKB() {
             </div>
           </div>
           <div className="mt-6 flex flex-row">
-            <div className="w-[calc(100%-35%)]">
+            <div className="w-[calc(100%-35%)] flex flex-col">
+              {dataJson[dataPage - 1].questions[questionPage - 1]
+                .url_gambar && (
+                <p className="text-xl font-base">Perhatikan gambar berikut!</p>
+              )}
+              {dataJson[dataPage - 1].questions[questionPage - 1]
+                .url_gambar && (
+                <Image
+                  src={`/${dataJson[dataPage - 1].questions[questionPage - 1].url_gambar}`}
+                  alt=""
+                  width={280}
+                  height={280}
+                  onClick={() => {
+                    setShowPopUp(true);
+                    setPopUpPath(
+                      `/${dataJson[dataPage - 1].questions[questionPage - 1].url_gambar}`
+                    );
+                  }}
+                />
+              )}
               <p className="text-xl font-base">
                 {dataJson[dataPage - 1].questions[questionPage - 1].content}
               </p>
@@ -136,10 +158,22 @@ export default function AKB() {
                     <div className="flex items-center space-x-2 my-2">
                       <RadioGroupItem value={choice.id} id={choice.id} />
                       <Label
-                        className="font-normal text-base"
+                        className="font-normal text-base flex flex-row items-center space-x-2"
                         htmlFor={choice.id}
                       >
-                        {choice.content}
+                        {choice.url_gambar && (
+                          <Image
+                            src={`/${choice.url_gambar}`}
+                            alt=""
+                            width={200}
+                            height={200}
+                            onClick={() => {
+                              setShowPopUp(true);
+                              setPopUpPath(`/${choice.url_gambar}`);
+                            }}
+                          />
+                        )}
+                        {choice?.content! ?? ""}
                       </Label>
                     </div>
                   </div>
@@ -192,6 +226,14 @@ export default function AKB() {
           />
         </div>
       )}
+      <PopUp
+        show={showPopUp}
+        onClose={() => {
+          setShowPopUp(false);
+          setPopUpPath("");
+        }}
+        path={popUpPath}
+      />
     </div>
   );
 }

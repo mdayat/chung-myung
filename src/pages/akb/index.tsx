@@ -29,6 +29,8 @@ export default function AKB() {
       (a, b) => a.sequence_number - b.sequence_number
     );
     setData(dataSorted);
+  }, []);
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].intersectionRatio === 1) {
@@ -43,7 +45,6 @@ export default function AKB() {
     if (frameJawaban != null) {
       observer.observe(frameJawaban);
     }
-    return () => observer.disconnect();
   }, []);
   useEffect(() => {
     setAtRestRoom(false);
@@ -118,6 +119,7 @@ export default function AKB() {
                 <Image
                   src={`/${dataJson[dataPage - 1].questions[questionPage - 1].url_gambar}`}
                   alt=""
+                  className="cursor-pointer"
                   width={280}
                   height={280}
                   onClick={() => {

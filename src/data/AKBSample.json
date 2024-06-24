@@ -12,15 +12,18 @@
                 "content": "Apa hasil dari 2 + 2?",
                 "explanation": "Ini adalah operasi penjumlahan dasar.",
                 "id_jawaban_user": "",
+                "url_gambar": "C1011001.png",
                 "indicator_name": "Penjumlahan",
                 "multiple_choices": [
                     {
                         "id": "1",
+                        "url_gambar": "C1011001.png",
                         "content": "3",
                         "is_correct_answer": false
                     },
                     {
                         "id": "2",
+                        "url_gambar": "C1011001.png",
                         "content": "4",
                         "is_correct_answer": true
                     }
@@ -35,12 +38,12 @@
                 "multiple_choices": [
                     {
                         "id": "3",
-                        "content": "5",
+                        "url_gambar": "C1011001.png",
                         "is_correct_answer": false
                     },
                     {
                         "id": "4",
-                        "content": "6",
+                        "url_gambar": "C1011001.png",
                         "is_correct_answer": true
                     }
                 ]
@@ -60,44 +63,6 @@
                     {
                         "id": "6",
                         "content": "8",
-                        "is_correct_answer": true
-                    }
-                ]
-            },
-            {
-                "id": "4",
-                "content": "Apa hasil dari 5 + 5?",
-                "explanation": "Ini adalah operasi penjumlahan dasar.",
-                "id_jawaban_user": "",
-                "indicator_name": "Penjumlahan",
-                "multiple_choices": [
-                    {
-                        "id": "7",
-                        "content": "9",
-                        "is_correct_answer": false
-                    },
-                    {
-                        "id": "8",
-                        "content": "10",
-                        "is_correct_answer": true
-                    }
-                ]
-            },
-            {
-                "id": "5",
-                "content": "Apa hasil dari 6 + 6?",
-                "explanation": "Ini adalah operasi penjumlahan dasar.",
-                "id_jawaban_user": "",
-                "indicator_name": "Penjumlahan",
-                "multiple_choices": [
-                    {
-                        "id": "9",
-                        "content": "11",
-                        "is_correct_answer": false
-                    },
-                    {
-                        "id": "10",
-                        "content": "12",
                         "is_correct_answer": true
                     }
                 ]

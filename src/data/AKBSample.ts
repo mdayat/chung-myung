@@ -14,11 +14,13 @@ export interface question {
   explanation: string;
   indicator_name: string;
   id_jawaban_user: string;
+  url_gambar?: string | null | undefined;
   multiple_choices: multipleChoice[];
 }
 
 export interface multipleChoice {
   id: string;
-  content: string;
+  url_gambar?: string | null | undefined;
+  content?: string | null | undefined;
   is_correct_answer: boolean;
 }

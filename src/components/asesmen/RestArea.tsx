@@ -20,9 +20,11 @@ export default function RestArea({
     setTimer(30);
   }, []);
   useEffect(() => {
+    if (timer === null) return;
     if (timer === 0) {
       console.log("Time's up");
       if (dataPage === dataJson.length) return;
+      setTimer(null);
       setDataPage((prev) => prev + 1);
       return;
     }

@@ -59,8 +59,11 @@ export default function AKB() {
     setDisabled(true);
   }, [dataPage]);
   useEffect(() => {
+    if (atRestRoom) return;
+    if (timer === null) return;
     if (timer === 0) {
       console.log("Time's up");
+      setTimer(null);
       return;
     }
     const interval = setInterval(() => {

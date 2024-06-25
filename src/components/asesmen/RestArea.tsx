@@ -3,15 +3,44 @@ import { Progress } from "@components/shadcn/Progress";
 import Image from "next/image";
 import ContentTitle from "./ContentTitle";
 import { Button } from "@components/shadcn/Button";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import type { AKBSample } from "../../data/AKBSample";
 
-export default function RestArea() {
+export default function RestArea({
+  dataJson,
+  dataPage,
+  setDataPage,
+}: {
+  dataJson: AKBSample[];
+  dataPage: number;
+  setDataPage: Dispatch<SetStateAction<number>>;
+}) {
+  const [timer, setTimer] = useState<number | null>(null);
+  useEffect(() => {
+    setTimer(30);
+  }, []);
+  useEffect(() => {
+    if (timer === null) return;
+    if (timer === 0) {
+      console.log("Time's up");
+      if (dataPage === dataJson.length) return;
+      setTimer(null);
+      setDataPage((prev) => prev + 1);
+      return;
+    }
+    const interval = setInterval(() => {
+      console.log(timer);
+      setTimer((prev) => prev! - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timer, dataJson.length, dataPage, setDataPage]);
   return (
     <div className="flex flex-col gap-6 w-2/4 rounded-3xl border border-neutral-300 p-8">
       {/* Info */}
       <div className="flex flex-row items-center justify-center gap-6 bg-primary-400 px-6 py-2 rounded-2xl">
         <span className="flex items-center justify-center bg-neutral-0 rounded-full w-12 h-12 ">
           <Typography variant="h6" weight="bold" className="text-neutral-950">
-            1/2
+            {dataPage}/{dataJson.length}
           </Typography>
         </span>
         <Typography variant="h6" weight="bold" className="text-neutral-0">
@@ -46,14 +75,14 @@ export default function RestArea() {
           {/* Counter */}
           <span className="flex items-end gap-1">
             <Typography variant="h3" weight="bold" className="text-[#090C18]">
-              20
+              {timer}
             </Typography>
             <Typography variant="p3" weight="bold" className="text-neutral-950">
               detik
             </Typography>
           </span>
           {/* Progress Bar */}
-          <Progress value={70} />
+          <Progress value={(timer! / 30) * 100} />
         </div>
       </div>
 
@@ -62,7 +91,7 @@ export default function RestArea() {
         <div className="flex flex-row gap-6">
           <ContentTitle
             title="Judul Subtes"
-            description="Bidang Ruang Part 3"
+            description={dataJson[dataPage]?.name ?? "Fin"}
             icon={
               <svg
                 width="21"
@@ -92,7 +121,9 @@ export default function RestArea() {
           />
           <ContentTitle
             title="Jumlah Soal"
-            description="10 Soal"
+            description={
+              dataJson[dataPage]?.questions.length.toString() ?? "Fin"
+            }
             icon={
               <svg
                 width="21"
@@ -151,7 +182,15 @@ export default function RestArea() {
             }
           />
         </div>
-        <Button size="medium">Lanjutan Subtes Selanjutnya</Button>
+        <Button
+          size="medium"
+          onClick={() => {
+            if (dataPage === dataJson.length) return;
+            setDataPage((prev) => prev + 1);
+          }}
+        >
+          Lanjutan Subtes Selanjutnya
+        </Button>
       </div>
     </div>
   );

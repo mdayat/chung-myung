@@ -7,7 +7,7 @@ import UserImage from "@images/users/user.png";
 
 export function Navbar() {
   return (
-    <header className="bg-neutral-0 h-16">
+    <header className="bg-neutral-0 h-16 fixed top-0 z-50 w-full">
       <div className="flex justify-between items-center px-6 h-full w-full xl:w-[1366px] xl:mx-auto">
         <Image
           src={EmtekaLogoImage}

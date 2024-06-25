@@ -34,14 +34,12 @@ export function Jumbotron() {
         </div>
       </figure>
 
-      <div className="flex  items-center py-2 bg-secondary-200 text-center justify-center gap-x-2 rounded-b-2xl">
+      <div className="flex items-center xl:min-h-10 py-[6px] bg-secondary-200 text-center justify-center gap-x-2 rounded-b-2xl">
         <Typography variant="p3" className="text-neutral-500">
           Bagaimana kesan kamu menggunakan Emteka?
         </Typography>
 
-        <Button size="small" className="py-2">
-          Nilai Sekarang
-        </Button>
+        <Button size="small">Nilai Sekarang</Button>
       </div>
     </section>
   );

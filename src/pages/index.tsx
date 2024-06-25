@@ -10,12 +10,12 @@ export default function Home() {
     <>
       <Navbar />
 
-      <main className="mb-20">
+      <main className="mt-16 mb-10">
         <Jumbotron />
 
         <AsesmenStart />
 
-        <ul className="mt-8 mx-20 grid grid-cols-2 gap-x-8 items-center xl:w-[1206px] xl:mx-auto xl:flex xl:gap-x-0 xl:justify-between">
+        <ul className="mt-6 mx-20 grid grid-cols-2 gap-x-8 items-center xl:w-[1206px] xl:mx-auto xl:flex xl:gap-x-0 xl:justify-between">
           <li>
             <HasilAsesmen />
           </li>

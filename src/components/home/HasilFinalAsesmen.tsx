@@ -6,8 +6,8 @@ import { School } from "@components/icons/School";
 
 export function HasilFinal() {
   return (
-    <div className="bg-neutral-0 shadow-lg border-t-2 border-neutral-50 flex p-5 rounded-xl relative">
-      <div className="absolute w-20 h-20 block bg-secondary-100/80 top-0 left-0 rounded-full blur" />
+    <div className="bg-neutral-0 shadow-lg border-t-2 border-neutral-50 flex p-5 rounded-xl relative h-[148px] z-10 xl:overflow-hidden">
+      <div className="absolute w-24 h-24 block bg-secondary-100/80 -top-4 -left-4 rounded-full blur -z-10" />
       <div className="relative">
         <School className="w-8 h-8 fill-secondary-500" />
       </div>

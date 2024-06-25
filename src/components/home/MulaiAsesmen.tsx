@@ -8,12 +8,12 @@ import RubahImage from "@images/home/rubah1.png";
 
 export function AsesmenStart() {
   return (
-    <section className="flex justify-between max-h-[280px] overflow-hidden mx-10 mt-8 rounded-xl shadow-lg border-t-2 border-neutral-50 xl:w-[1206px] xl:mx-auto">
+    <section className="flex justify-between max-h-[256px] overflow-hidden mx-10 mt-6 rounded-xl shadow-lg border-t-2 border-neutral-50 xl:w-[1206px] xl:mx-auto">
       <div className="w-[600px] relative">
         <Image
           src={RubahImage}
           alt="Sobat Emteka"
-          className="object-contain w-[422px] h-[422px]"
+          className="object-contain w-[422px] h-[390px]"
         />
 
         <div className="w-[300px] h-[200px] block absolute rounded-tr-md bg-secondary-100 -bottom-10 -left-10 rounded- blur-md -z-10" />

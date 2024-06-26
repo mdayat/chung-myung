@@ -12,13 +12,13 @@ export function Navbar() {
         <Image
           src={EmtekaLogoImage}
           alt="Emteka Asesmen"
-          className="object-contain w-28 h-auto"
+          className="object-contain max-w-[105px] h-auto"
         />
 
         <ul className="flex gap-x-4 items-center">
           <li className="mt-2">
             <button type="button">
-              <HelpOutline className="w-7 h-7" />
+              <HelpOutline className="w-6 h-6" />
             </button>
           </li>
 
@@ -28,12 +28,12 @@ export function Navbar() {
                 <Image
                   src={UserImage}
                   alt="Sobat Emteka"
-                  className="object-contain w-10 h-10"
+                  className="object-contain max-w-8 max-h-8"
                 />
                 <h6 className="font-semibold">Sahabat Teka</h6>
               </div>
 
-              <DropdownDown className="w-6 h-6" />
+              <DropdownDown className="w-5 h-5" />
             </button>
           </li>
         </ul>

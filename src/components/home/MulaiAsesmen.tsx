@@ -10,15 +10,15 @@ import RubahImage from "@images/home/rubah1.png";
 
 interface AsesmenStartProps {
   startAsesmen: string;
-  setStartAsesmen: Dispatch<SetStateAction<string>>;
+  setIsOpenPopup: Dispatch<SetStateAction<boolean>>;
 }
 
 export function AsesmenStart({
   startAsesmen = "",
-  setStartAsesmen,
+  setIsOpenPopup,
 }: AsesmenStartProps) {
-  function SetMulaiAsesmen() {
-    setStartAsesmen("asesmen-berlangsung");
+  function openRulesAkb() {
+    setIsOpenPopup(true);
   }
 
   return (
@@ -43,8 +43,8 @@ export function AsesmenStart({
 
         <Button
           type="button"
+          onClick={openRulesAkb}
           className="mt-6 mb-2"
-          onClick={SetMulaiAsesmen}
           disabled={startAsesmen === "asesmen-berlangsung" ? true : false}
         >
           Mulai Asesmen Kesiapan Belajar

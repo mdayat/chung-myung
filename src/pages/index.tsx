@@ -8,22 +8,23 @@ import { AsesmenStart } from "@components/home/MulaiAsesmen";
 import { HasilFinal } from "@components/home/HasilFinalAsesmen";
 import { HasilAsesmen } from "@components/home/HasilAsesmen";
 import { Jumbotron } from "@components/home/Jumbotron";
+import { Popup } from "@components/home/Popup";
 
 import { Warning } from "@components/icons/Warning";
 
 export default function Home() {
   const [startAsesmen, setStartAsesmen] = useState("mulai-asesmen");
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
 
   return (
     <>
       <Navbar />
-
       <main className="mt-16 mb-10">
         <Jumbotron />
 
         <AsesmenStart
           startAsesmen={startAsesmen}
-          setStartAsesmen={setStartAsesmen}
+          setIsOpenPopup={setIsOpenPopup}
         />
 
         {startAsesmen === "asesmen-berlangsung" && (
@@ -67,6 +68,13 @@ export default function Home() {
           </li>
         </ul>
       </main>
+      {isOpenPopup && (
+        <Popup
+          isOpenPopup={isOpenPopup}
+          setIsClosePopup={setIsOpenPopup}
+          setStartAsesmen={setStartAsesmen}
+        />
+      )}
     </>
   );
 }

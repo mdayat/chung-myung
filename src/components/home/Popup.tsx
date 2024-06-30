@@ -41,12 +41,14 @@ export function Popup({
       <DialogOverlay className="bg-neutral-800/30">
         <DialogContent className="bg-neutral-0 w-[526px] min-h-[395px] p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              Peraturan Asesmen
-            </DialogTitle>
-            <DialogDescription className="text-base">
-              Pastikan kamu membaca seluruh peraturan asesmen ini.
-            </DialogDescription>
+            <div>
+              <DialogTitle className="text-2xl font-bold">
+                Peraturan Asesmen
+              </DialogTitle>
+              <DialogDescription className="text-base">
+                Pastikan kamu membaca seluruh peraturan asesmen ini.
+              </DialogDescription>
+            </div>
           </DialogHeader>
           <div>
             <ul className="list-decimal flex px-5 flex-col gap-y-0.5 text-justify">

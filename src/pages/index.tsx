@@ -10,7 +10,7 @@ import { HasilAsesmen } from "@components/home/HasilAsesmen";
 import { Jumbotron } from "@components/home/Jumbotron";
 import { Popup } from "@components/home/Popup";
 
-import { Warning } from "@components/icons/Warning";
+import { WarningIcon } from "@components/icons/WarningIcon";
 
 export default function Home() {
   const [startAsesmen, setStartAsesmen] = useState("mulai-asesmen");
@@ -33,7 +33,7 @@ export default function Home() {
 
             <div className="flex gap-x-10 items-center">
               <div className="relative">
-                <Warning className="w-8 h-8 fill-error-500" />
+                <WarningIcon className="w-8 h-8 fill-error-500" />
               </div>
 
               <div>

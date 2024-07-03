@@ -5,7 +5,7 @@ import type { SetStateAction } from "react";
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
 
-import { ChevronRight } from "@components/icons/ChevronRight";
+import { ChevronRightIcon } from "@components/icons/ChevronRightIcon";
 import RubahImage from "@images/home/rubah1.png";
 
 interface AsesmenStartProps {
@@ -48,7 +48,7 @@ export function AsesmenStart({
           disabled={startAsesmen === "asesmen-berlangsung" ? true : false}
         >
           Mulai Asesmen Kesiapan Belajar
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRightIcon className="w-5 h-5" />
         </Button>
         <Typography variant="p4" className="text-neutral-400">
           {"*"}Saat ini, kamu hanya bisa belajar materi Bidang Ruang. Materi

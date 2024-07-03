@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React, { useEffect, useRef } from "react";
-import Close from "../../../public/close.svg";
+import { CloseIcon } from "@components/icons/CloseIcon";
 
 interface PopupProps {
   show: boolean;
@@ -33,15 +33,7 @@ const PopUp: React.FC<PopupProps> = ({ show, onClose, path }) => {
           className="border-[white] border-2 rounded-full p-2 mb-6"
           onClick={onClose}
         >
-          <Image
-            src={Close}
-            color="#fff"
-            alt="Close Icon"
-            className=""
-            width={24}
-            height={24}
-          />
-          {""}
+          <CloseIcon className="fill-neutral-50 w-6 h-6" />
         </button>
       </div>
       <div

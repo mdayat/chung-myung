@@ -1,15 +1,15 @@
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
 
-import { ChevronRight } from "@components/icons/ChevronRight";
-import { School } from "@components/icons/School";
+import { ChevronRightIcon } from "@components/icons/ChevronRightIcon";
+import { SchoolIcon } from "@components/icons/SchoolIcon";
 
 export function HasilFinal() {
   return (
     <div className="bg-neutral-0 shadow-lg border-t-2 border-neutral-50 flex p-5 rounded-xl relative h-[148px] z-10 xl:overflow-hidden">
       <div className="absolute w-24 h-24 block bg-secondary-100/80 -top-4 -left-4 rounded-full blur -z-10" />
       <div className="relative">
-        <School className="w-8 h-8 fill-secondary-500" />
+        <SchoolIcon className="w-8 h-8 fill-secondary-500" />
       </div>
 
       <div className="flex py-2 ml-10 items-center justify-between w-full">
@@ -23,7 +23,7 @@ export function HasilFinal() {
         </div>
 
         <Button size="medium" disabled>
-          Lihat hasil <ChevronRight className="w-7 h-7" />
+          Lihat hasil <ChevronRightIcon className="w-7 h-7" />
         </Button>
       </div>
     </div>

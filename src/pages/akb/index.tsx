@@ -1,80 +1,80 @@
-import { useEffect, useState } from "react";
-import { type AKBSample } from "../../data/AKBSample";
-import EmtekaLogo from "../../../public/Emteka-Logo.svg";
-import Timer from "../../../public/timer.svg";
-import dataJson from "../../data/AKBSample.json";
-import Image from "next/image";
-import { RadioGroup, RadioGroupItem } from "@components/shadcn/RadioButton";
-import { Label } from "@components/shadcn/Label";
-import { Button } from "@components/shadcn/Button";
-import RestArea from "@components/asesmen/RestArea";
-import PopUp from "@components/asesmen/PopUp";
+// import { useEffect, useState } from "react";
+// import { type AKBSample } from "../../data/AKBSample";
+// import EmtekaLogo from "../../../public/Emteka-Logo.svg";
+// import Timer from "../../../public/timer.svg";
+// import dataJson from "../../data/AKBSample.json";
+// import Image from "next/image";
+// import { RadioGroup, RadioGroupItem } from "@components/shadcn/RadioButton";
+// import { Label } from "@components/shadcn/Label";
+// import { Button } from "@components/shadcn/Button";
+// import RestArea from "@components/asesmen/RestArea";
+// import PopUp from "@components/asesmen/PopUp";
 
 export default function AKB() {
-  const [data, setData] = useState<AKBSample[]>([]);
-  const [timer, setTimer] = useState<number | null>(null);
-  const [questionPage, setQuestionPage] = useState(1);
-  const [dataPage, setDataPage] = useState(1);
-  const [isAnswerVisible, setIsAnswerVisible] = useState(false);
-  const [atRestRoom, setAtRestRoom] = useState(false);
-  const [showPopUp, setShowPopUp] = useState(false);
-  const [popUpPath, setPopUpPath] = useState("");
-  const [disabled, setDisabled] = useState(true);
-  function addLeadingZero(num: number, size: number) {
-    let s = num + "";
-    while (s.length < size) s = "0" + s;
-    return s;
-  }
-  useEffect(() => {
-    const dataSorted = dataJson.sort(
-      (a, b) => a.sequence_number - b.sequence_number
-    );
-    setData(dataSorted);
-  }, []);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].intersectionRatio === 1) {
-          setIsAnswerVisible(true);
-        } else {
-          setIsAnswerVisible(false);
-        }
-      },
-      { threshold: 0.25 }
-    );
-    const frameJawaban = document.getElementById("frame-jawaban");
-    if (frameJawaban != null) {
-      observer.observe(frameJawaban);
-    }
-    return () => {
-      if (frameJawaban != null) {
-        observer.unobserve(frameJawaban);
-      }
-    };
-  }, [dataPage, questionPage]);
-  useEffect(() => {
-    setAtRestRoom(false);
-    setQuestionPage(1);
-    setTimer(15);
-    setDisabled(true);
-  }, [dataPage]);
-  useEffect(() => {
-    if (atRestRoom) return;
-    if (timer === null) return;
-    if (timer === 0) {
-      console.log("Time's up");
-      setTimer(null);
-      return;
-    }
-    const interval = setInterval(() => {
-      console.log(timer);
-      setTimer((prev) => prev! - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timer]);
+  // const [data, setData] = useState<AKBSample[]>([]);
+  // const [timer, setTimer] = useState<number | null>(null);
+  // const [questionPage, setQuestionPage] = useState(1);
+  // const [dataPage, setDataPage] = useState(1);
+  // const [isAnswerVisible, setIsAnswerVisible] = useState(false);
+  // const [atRestRoom, setAtRestRoom] = useState(false);
+  // const [showPopUp, setShowPopUp] = useState(false);
+  // const [popUpPath, setPopUpPath] = useState("");
+  // const [disabled, setDisabled] = useState(true);
+  // function addLeadingZero(num: number, size: number) {
+  //   let s = num + "";
+  //   while (s.length < size) s = "0" + s;
+  //   return s;
+  // }
+  // useEffect(() => {
+  //   const dataSorted = dataJson.sort(
+  //     (a, b) => a.sequence_number - b.sequence_number
+  //   );
+  //   setData(dataSorted);
+  // }, []);
+  // useEffect(() => {
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       if (entries[0].intersectionRatio === 1) {
+  //         setIsAnswerVisible(true);
+  //       } else {
+  //         setIsAnswerVisible(false);
+  //       }
+  //     },
+  //     { threshold: 0.25 }
+  //   );
+  //   const frameJawaban = document.getElementById("frame-jawaban");
+  //   if (frameJawaban != null) {
+  //     observer.observe(frameJawaban);
+  //   }
+  //   return () => {
+  //     if (frameJawaban != null) {
+  //       observer.unobserve(frameJawaban);
+  //     }
+  //   };
+  // }, [dataPage, questionPage]);
+  // useEffect(() => {
+  //   setAtRestRoom(false);
+  //   setQuestionPage(1);
+  //   setTimer(15);
+  //   setDisabled(true);
+  // }, [dataPage]);
+  // useEffect(() => {
+  //   if (atRestRoom) return;
+  //   if (timer === null) return;
+  //   if (timer === 0) {
+  //     console.log("Time's up");
+  //     setTimer(null);
+  //     return;
+  //   }
+  //   const interval = setInterval(() => {
+  //     console.log(timer);
+  //     setTimer((prev) => prev! - 1);
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, [timer]);
   return (
     <div className="w-[1366px] mx-auto">
-      <div className="p-4 flex flex-row items-center justify-between">
+      {/* <div className="p-4 flex flex-row items-center justify-between">
         <Image src={EmtekaLogo} alt="" className="h-8 max-w-fit" />
         <div className="w-8 h-8 bg-neutral-500 rounded-full"></div>
       </div>
@@ -280,7 +280,7 @@ export default function AKB() {
           setPopUpPath("");
         }}
         path={popUpPath}
-      />
+      /> */}
     </div>
   );
 }

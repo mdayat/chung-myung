@@ -1,6 +1,5 @@
 import { Dispatch, useState } from "react";
 import { Button } from "@components/shadcn/Button";
-import { Checkbox } from "@components/shadcn/Checkbox";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,8 @@ import {
 import { Label } from "@components/shadcn/Label";
 import { Typography } from "@components/shadcn/Typography";
 import type { SetStateAction } from "react";
+import { CheckboxIcon } from "@components/icons/CheckboxIcon";
+import { CheckboxOutlineBlankIcon } from "@components/icons/CheckboxOutlineBlankIcon";
 
 interface PopupProps {
   isOpenPopup: boolean;
@@ -32,14 +33,10 @@ export function Popup({
     setIsClosePopup(false);
   }
 
-  function RememberFunc() {
-    setRemember(!remember);
-  }
-
   return (
     <Dialog onOpenChange={setIsClosePopup} open={isOpenPopup}>
-      <DialogOverlay className="bg-neutral-800/30">
-        <DialogContent className="bg-neutral-0 w-[526px] min-h-[395px] p-8">
+      <DialogOverlay>
+        <DialogContent className="w-[526px] min-h-[395px]">
           <DialogHeader>
             <div>
               <DialogTitle className="text-2xl font-bold">
@@ -79,7 +76,16 @@ export function Popup({
             </ul>
 
             <form className="flex items-center gap-x-1.5 mt-[18px]">
-              <Checkbox id="remember" onClick={RememberFunc} />
+              {remember ? (
+                <button onClick={() => setRemember(false)} type="button">
+                  <CheckboxIcon className="fill-secondary-600 w-6 h-6" />
+                </button>
+              ) : (
+                <button onClick={() => setRemember(true)} type="button">
+                  <CheckboxOutlineBlankIcon className="fill-neutral-900 w-6 h-6" />
+                </button>
+              )}
+
               <Label htmlFor="remember" className="text-base">
                 Saya sudah membaca peraturan asesmen.
               </Label>

@@ -68,13 +68,11 @@ export default function Home() {
           </li>
         </ul>
       </main>
-      {isOpenPopup && (
-        <Popup
-          isOpenPopup={isOpenPopup}
-          setIsClosePopup={setIsOpenPopup}
-          setStartAsesmen={setStartAsesmen}
-        />
-      )}
+      <Popup
+        isOpenPopup={isOpenPopup}
+        setIsClosePopup={setIsOpenPopup}
+        setStartAsesmen={setStartAsesmen}
+      />
     </>
   );
 }

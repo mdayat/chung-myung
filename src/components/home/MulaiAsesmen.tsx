@@ -6,7 +6,7 @@ import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
 
 import { ChevronRightIcon } from "@components/icons/ChevronRightIcon";
-import RubahImage from "@images/home/rubah1.png";
+import MaskotBodyImage from "@public/maskot-body.png";
 
 interface AsesmenStartProps {
   startAsesmen: string;
@@ -25,7 +25,7 @@ export function AsesmenStart({
     <section className="flex justify-between max-h-[256px] overflow-hidden mx-10 mt-6 rounded-xl shadow-lg border-t-2 border-neutral-50 xl:w-[1206px] xl:mx-auto bg-neutral-0">
       <div className="w-[600px] relative z-10">
         <Image
-          src={RubahImage}
+          src={MaskotBodyImage}
           alt="Sobat Emteka"
           className="object-contain w-[422px] h-[390px]"
         />

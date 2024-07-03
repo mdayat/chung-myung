@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { ArrowDropDownIcon } from "./icons/ArrowDropDownIcon";
 import { HelpOutlineIcon } from "./icons/HelpOutlineIcon";
-import UserImage from "@images/users/user.png";
+import AvatarImage from "@public/avatar.png";
 import { EmtekaLogo } from "./icons/EmtekaLogo";
 
 export function Navbar() {
@@ -22,7 +22,7 @@ export function Navbar() {
             <button type="button" className="flex items-center gap-x-2">
               <div className="flex items-center gap-x-1">
                 <Image
-                  src={UserImage}
+                  src={AvatarImage}
                   alt="Sobat Emteka"
                   className="object-contain max-w-8 max-h-8"
                 />

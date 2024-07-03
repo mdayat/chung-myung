@@ -18,7 +18,7 @@
       "@lib/*": ["./src/libs/*"],
       "@utils/*": ["./src/utils/*"],
       "@customTypes/*": ["./src/types/*"],
-      "@images/*": ["./public/images/*"]
+      "@public/*": ["./public/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

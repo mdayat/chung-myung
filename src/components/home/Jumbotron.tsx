@@ -3,12 +3,12 @@ import Image from "next/image";
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
 
-import RubahImage from "@images/home/rubah2.png";
+import MaskotHeadImage from "@public/maskot-head.png";
 
 export function Jumbotron() {
   return (
     <section>
-      <figure className="bg-[url('/images/home/background.png')] relative h-[155px] bg-cover bg-right">
+      <figure className="bg-[url('/emteka-banner.jpg')] relative h-[155px] bg-cover bg-right">
         <div className="flex justify-between items-center px-20 relative h-full xl:w-[1366px] xl:mx-auto">
           <div className="overflow-hidden">
             <Typography
@@ -25,7 +25,7 @@ export function Jumbotron() {
 
           <div className="absolute w-[204px] h-[204px] right-0 mr-40 mt-5">
             <Image
-              src={RubahImage}
+              src={MaskotHeadImage}
               alt="Sobat Emteka"
               className="object-contain"
               fill

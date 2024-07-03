@@ -9,7 +9,6 @@ import {
   DialogOverlay,
   DialogFooter,
 } from "@components/shadcn/Dialog";
-import { Label } from "@components/shadcn/Label";
 import { Typography } from "@components/shadcn/Typography";
 import type { SetStateAction } from "react";
 import { CheckboxIcon } from "@components/icons/CheckboxIcon";
@@ -86,9 +85,13 @@ export function Popup({
                 </button>
               )}
 
-              <Label htmlFor="remember" className="text-base">
+              <label
+                onClick={() => setRemember(!remember)}
+                htmlFor="remember"
+                className="text-base select-none cursor-pointer"
+              >
                 Saya sudah membaca peraturan asesmen.
-              </Label>
+              </label>
             </form>
 
             <DialogFooter className="mt-6">

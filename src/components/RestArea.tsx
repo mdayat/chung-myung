@@ -54,7 +54,7 @@ export default function RestArea({
       <div className="flex flex-col items-center justify-center text-center gap-4">
         <Image
           alt="Restarea Illustration"
-          src="/restarea-illustration.png"
+          src="/maskot-head.png"
           width={138}
           height={110}
         />
@@ -93,7 +93,7 @@ export default function RestArea({
         <div className="flex flex-row gap-6">
           <div className="flex flex-row gap-2">
             <span className="flex items-center justify-center h-10 w-10 rounded-full border border-secondary-400">
-              <AssignmentIcon />
+              <AssignmentIcon className="fill-secondary-400 w-5 h-5" />
             </span>
             <div className="flex flex-col">
               <Typography
@@ -111,7 +111,7 @@ export default function RestArea({
 
           <div className="flex flex-row gap-2">
             <span className="flex items-center justify-center h-10 w-10 rounded-full border border-secondary-400">
-              <CalculateIcon />
+              <CalculateIcon className="fill-secondary-400 w-5 h-5" />
             </span>
             <div className="flex flex-col">
               <Typography
@@ -129,7 +129,7 @@ export default function RestArea({
 
           <div className="flex flex-row gap-2">
             <span className="flex items-center justify-center h-10 w-10 rounded-full border border-secondary-400">
-              <WatchLaterIcon />
+              <WatchLaterIcon className="fill-secondary-400 w-5 h-5" />
             </span>
             <div className="flex flex-col">
               <Typography

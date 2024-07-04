@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import { Karla, Nunito } from "next/font/google";
+import Script from "next/script";
 
 import "../styles/global.css";
 
@@ -17,8 +18,11 @@ const nunito = Nunito({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <main className={`${karla.variable} ${nunito.variable} font-karla`}>
-      <Component {...pageProps} />
-    </main>
+    <>
+      <Script src="https://accounts.google.com/gsi/client" />
+      <main className={`${karla.variable} ${nunito.variable} font-karla`}>
+        <Component {...pageProps} />
+      </main>
+    </>
   );
 }

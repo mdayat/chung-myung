@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-import { Navbar } from "@components/Navbar";
-
 import { CardHasilAsesmenAkhir } from "@components/home/CardHasilAsesmenAkhir";
 import { CardHasilAKB } from "@components/home/CardHasilAKB";
 import { CardWarningNoCompletedAKB } from "@components/home/CardWarningNoCompletedAKB";
@@ -14,7 +12,6 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
       <main className="mt-16 mb-10">
         <HomeHeroBanner />
 

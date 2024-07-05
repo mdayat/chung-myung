@@ -20,7 +20,7 @@ interface PopupProps {
   setStartAsesmen: Dispatch<SetStateAction<string>>;
 }
 
-export function Popup({
+export function AsesmenRulesPopup({
   isOpenPopup = false,
   setIsClosePopup,
   setStartAsesmen,
@@ -30,14 +30,14 @@ export function Popup({
   function AsesmenStartFunc() {
     setStartAsesmen("asesmen-berlangsung");
     setIsClosePopup(false);
+    setRemember(false);
   }
-
   return (
     <Dialog onOpenChange={setIsClosePopup} open={isOpenPopup}>
       <DialogOverlay>
         <DialogContent className="w-[526px] min-h-[395px]">
           <DialogHeader>
-            <div>
+            <div className="flex flex-col">
               <DialogTitle className="text-2xl font-bold">
                 Peraturan Asesmen
               </DialogTitle>
@@ -46,7 +46,7 @@ export function Popup({
               </DialogDescription>
             </div>
           </DialogHeader>
-          <div>
+          <div className="mt-6">
             <ul className="list-decimal flex px-5 flex-col gap-y-0.5 text-justify">
               <li>
                 <Typography variant="p3">

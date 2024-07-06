@@ -1,3 +1,4 @@
 export function AssessmentResultContent() {
-  return <></>;
+  return <>
+  <h1>Assessment Result Content</h1></>;
 }

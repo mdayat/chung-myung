@@ -14,8 +14,8 @@ const assessmentResultProfileData = {
   nilai: 100,
   attempt: 1,
 };
-const assessmentResultContentData = {
-  subtest1: {
+const assessmentResultContentData = [
+  {
     judulSubtest: "Bidang Ruang Part 3",
     jumlahSoal: 10,
     waktuPengerjaan: 20,
@@ -46,7 +46,7 @@ const assessmentResultContentData = {
           { title: "d. 3", isAnswer: false },
           { title: "e. 4", isAnswer: false },
         ],
-        isTrue: false,
+        isTrue: true,
         pembahasan:
           "Dari opsi-opsi tersebut akan kita bedah: \n1. Memiliki titik puncak, adalah pernyataan yang salah mengenai prisma segi-n karena puncak prisma segi-n berbentuk segi-n tersebut maka dapat disimpulkan bahwa prisma segi-n tidak memiliki titik puncak \n2. Memiliki sisi alas dan tutup, adalah pernyataan yang benar mengenai prisma segi-n karena pasti prisma segi-n memiliki sisi alas dan tutup yang mana sisi alas dan tutupnya sama besar berbentuk segi-n tersebut \n3. Memiliki n+2 sisi, adalah pernyataan yang benar karena n menyatakan sisi dari bangun tersebut, dan 2 adalah alas dan tutup bangun tersebut \n4. Semua sisi tegak berbentuk segitiga, adalah pernyataan yang salah mengenai prisma segi-n karena jika prisma segi-4 sisi tegaknya berbentuk segi-4 juga \nJadi, pernyataan yang benar mengenai prisma segi-n ada 2 pernyataan (d).",
       },
@@ -67,11 +67,11 @@ const assessmentResultContentData = {
       },
     ],
   },
-  subtest2: {
+  {
     judulSubtest: "Bidang Ruang Part 3",
     jumlahSoal: 10,
     waktuPengerjaan: 20,
-    soalSubtes: [
+    soalSubtest: [
       {
         soal: "Perhatikan gambar berikut! \rMelalui titik A dan B dapat dibuat satu garis, yaitu garis g. Pada garis g terdapat ruas garis AB. Jarak titik A dan B ditunjukkan oleh ruas garis AB tersebut. \r\nBerdasarkan ilustrasi tersebut, definisi jarak antara dua titik adalah…",
         options: [
@@ -116,25 +116,27 @@ const assessmentResultContentData = {
       },
     ],
   },
-};
+];
 
 export default function HasilAsesmen() {
   // console.log(assessmentResultContentData);
   // console.log(assessmentResultProfileData);
   return (
-    <main className="w-full h-screen bg-secondary-100">
+    <main className="w-full min-h-screen">
       <Navbar />
-      <div className="pt-[88px] px-6 gap-6">
-        <AssessmentResultProfileCard
-          createdAt={assessmentResultProfileData.createdAt}
-          materialName={assessmentResultProfileData.materialName}
-          assessmentType={assessmentResultProfileData.assessmentType}
-          nilai={assessmentResultProfileData.nilai}
-          attempt={assessmentResultProfileData.attempt}
-        />
-        {/* <div className="fixed">
-        </div> */}
-        <AssessmentResultContent />
+      <div className="pt-[88px] px-6 gap-6 bg-secondary-100">
+        <div className="fixed">
+          <AssessmentResultProfileCard
+            createdAt={assessmentResultProfileData.createdAt}
+            materialName={assessmentResultProfileData.materialName}
+            assessmentType={assessmentResultProfileData.assessmentType}
+            nilai={assessmentResultProfileData.nilai}
+            attempt={assessmentResultProfileData.attempt}
+          />
+        </div>
+        <div className="ml-[448px]">
+          <AssessmentResultContent data={assessmentResultContentData} />
+        </div>
       </div>
     </main>
   );

@@ -34,7 +34,7 @@ export function AssessmentResultContent({
   return (
     <>
       {/* Navbar Subtest Section */}
-      <div className="fixed flex items-center w-full max-w-[1366px] bg-neutral-0 text-secondary-500 h-[52px] px-6 mb-6 gap-5 rounded-lg shadow-lg z-10">
+      <div className="fixed flex items-center w-full max-w-[1366px] bg-neutral-0 text-secondary-500 h-[52px] px-6 mb-6 gap-5 rounded-lg z-20">
         {data.map((subtest, index) => (
           <Button
             key={index}
@@ -47,6 +47,8 @@ export function AssessmentResultContent({
           </Button>
         ))}
       </div>
+      <div className="fixed w-full bg-secondary-100 h-[140px] mb-6 top-0 rounded-lg z-10"></div>
+      <div className="fixed w-full max-w-[1366px] bg-neutral-0 h-[52px] mb-6 rounded-lg shadow-lg"></div>
 
       {/* Subtest Section */}
       <div className="flex flex-col gap-4">

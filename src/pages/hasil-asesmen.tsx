@@ -134,7 +134,7 @@ export default function HasilAsesmen() {
             attempt={assessmentResultProfileData.attempt}
           />
         </div>
-        <div className="ml-[448px]">
+        <div className="ml-[448px] max-w-[1366px]">
           <AssessmentResultContent data={assessmentResultContentData} />
         </div>
       </div>

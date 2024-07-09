@@ -34,7 +34,7 @@ export function AssessmentResultContent({
   return (
     <>
       {/* Navbar Subtest Section */}
-      <div className="fixed flex items-center w-[870px] bg-neutral-0 text-secondary-500 h-[52px] px-6 mb-6 gap-5 rounded-lg shadow-lg">
+      <div className="fixed flex items-center w-full max-w-[1366px] bg-neutral-0 text-secondary-500 h-[52px] px-6 mb-6 gap-5 rounded-lg shadow-lg z-10">
         {data.map((subtest, index) => (
           <Button
             key={index}
@@ -68,16 +68,15 @@ export function AssessmentResultContent({
                 </Typography>
                 <div className="flex flex-row gap-4">
                   {subtest.soalSubtest.map((soal, soalIndex) => (
-                    <span
-                      className={`flex items-center justify-center rounded-full w-10 h-10 ${soal.isTrue ? "bg-success-300" : "bg-error-300 text-neutral-0"}`}
-                      key={soalIndex}
-                    >
-                      <Link href={`#soal-${soalIndex + 1}`}>
+                    <Link key={soalIndex} href={`#soal-${soalIndex + 1}`}>
+                      <span
+                        className={`flex items-center justify-center rounded-full w-10 h-10 ${soal.isTrue ? "bg-success-300" : "bg-error-300 text-neutral-0"}`}
+                      >
                         <Typography variant="p3" weight="bold">
                           {soalIndex + 1}
                         </Typography>
-                      </Link>
-                    </span>
+                      </span>
+                    </Link>
                   ))}
                 </div>
               </div>

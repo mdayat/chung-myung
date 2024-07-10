@@ -19,8 +19,7 @@ const questionsDummyData = [
       { insert: "Gandalf " },
       {
         insert: {
-          formula:
-            "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+          formula: "c = \\pm\\sqrt{a^2 + b^2}",
         },
       },
       {
@@ -57,8 +56,7 @@ const questionsDummyData = [
         content: JSON.stringify([
           {
             insert: {
-              formula:
-                "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+              formula: "c = \\pm\\sqrt{a^2 + b^2}",
             },
           },
         ]),
@@ -73,8 +71,7 @@ const questionsDummyData = [
       { insert: "Oyakatasama " },
       {
         insert: {
-          formula:
-            "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+          formula: "c = \\pm\\sqrt{a^2 + b^2}",
         },
       },
       {
@@ -111,8 +108,7 @@ const questionsDummyData = [
         content: JSON.stringify([
           {
             insert: {
-              formula:
-                "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+              formula: "c = \\pm\\sqrt{a^2 + b^2}",
             },
           },
         ]),
@@ -127,8 +123,7 @@ const questionsDummyData = [
       { insert: "Giyu san " },
       {
         insert: {
-          formula:
-            "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+          formula: "c = \\pm\\sqrt{a^2 + b^2}",
         },
       },
       {
@@ -165,8 +160,7 @@ const questionsDummyData = [
         content: JSON.stringify([
           {
             insert: {
-              formula:
-                "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+              formula: "c = \\pm\\sqrt{a^2 + b^2}",
             },
           },
         ]),
@@ -181,8 +175,7 @@ const questionsDummyData = [
       { insert: "Inosuke dono " },
       {
         insert: {
-          formula:
-            "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+          formula: "c = \\pm\\sqrt{a^2 + b^2}",
         },
       },
       {
@@ -217,8 +210,7 @@ const questionsDummyData = [
         content: JSON.stringify([
           {
             insert: {
-              formula:
-                "\\f\\relax{x} = int_{-infty}^infty\\fhat\\xi,e^{2 pi i \\xi x},d\\xi",
+              formula: "c = \\pm\\sqrt{a^2 + b^2}",
             },
           },
         ]),

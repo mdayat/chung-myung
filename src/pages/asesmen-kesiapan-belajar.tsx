@@ -232,6 +232,13 @@ export default function AsesmenKesiapanBelajar() {
     return (
       <div className="mt-20">
         <p>LOADING...</p>
+        <button
+          onClick={() => {
+            deleteDB("assessment-tracker");
+          }}
+        >
+          Drop DB
+        </button>
       </div>
     );
   }

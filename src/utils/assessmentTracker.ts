@@ -95,15 +95,9 @@ async function putManyQuestion(
         return tx.store.put({
           id: question.id,
           subtestID,
-          content: JSON.stringify(question.content),
+          content: question.content,
           answeredAnswerChoiceID: "",
-          multipleChoice: question.multipleChoice.map((answerChoice) => {
-            return {
-              id: answerChoice.id,
-              isCorrectAnswer: answerChoice.isCorrectAnswer,
-              content: JSON.stringify(answerChoice.content),
-            };
-          }),
+          multipleChoice: question.multipleChoice,
         });
       })
     );

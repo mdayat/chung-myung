@@ -10,13 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-secondary-500 text-neutral-0 [&_svg]:fill-neutral-0 hover:bg-secondary-600 active:shadow-xs disabled:bg-neutral-500/50 disabled:text-neutral-50 [&_svg]:disabled:fill-neutral-50",
+          "bg-secondary-500 text-neutral-0 [&_svg]:fill-neutral-0 hover:bg-secondary-600 active:bg-secondary-600 active:shadow-xs disabled:bg-neutral-300 disabled:text-neutral-25 [&_svg]:disabled:fill-neutral-25",
         secondary:
-          "bg-transparent text-secondary-600 [&_svg]:fill-secondary-500 border-2 border-secondary-500 !py-2 hover:bg-secondary-500/20 active:shadow-xs disabled:text-neutral-500/50 [&_svg]:disabled:fill-neutral-500/50 disabled:border-neutral-500/50",
+          "bg-transparent text-secondary-500 [&_svg]:fill-secondary-500 border-2 border-secondary-500 !py-2 hover:bg-secondary-500/20 active:bg-secondary-500/20 active:shadow-xs disabled:text-neutral-300 [&_svg]:disabled:fill-neutral-300 disabled:border-neutral-300",
         tertiary:
-          "bg-neutral-300 text-neutral-50 [&_svg]:fill-neutral-50 hover:bg-neutral-500 active:shadow-xs disabled:bg-neutral-500/50",
+          "bg-neutral-500 text-neutral-25 [&_svg]:fill-neutral-25 hover:bg-neutral-600 active:bg-neutral-600 active:shadow-xs disabled:bg-neutral-300",
         ghost:
-          "bg-transparent text-secondary-500 [&_svg]:fill-secondary-500 hover:underline disabled:text-neutral-500/50 [&_svg]:disabled:fill-neutral-500/50",
+          "bg-transparent text-secondary-500 [&_svg]:fill-secondary-500 hover:underline disabled:text-neutral-300 [&_svg]:disabled:fill-neutral-300",
       },
       size: {
         small: "text-sm [&_svg]:w-5 [&_svg]:h-5 gap-1.5 py-2.5 px-3",

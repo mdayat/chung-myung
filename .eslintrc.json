@@ -9,5 +9,8 @@
   "parserOptions": {
     "sourceType": "module",
     "ecmaVersion": "latest"
+  },
+  "globals": {
+    "NodeJS": true
   }
 }

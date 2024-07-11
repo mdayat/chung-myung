@@ -1,24 +1,33 @@
+import type { NextPage } from "next";
 import type { AppProps } from "next/app";
-import { Karla, Nunito } from "next/font/google";
+import type { ReactElement, ReactNode } from "react";
 
+import { Navbar } from "@components/Navbar";
+import { karla, nunito } from "@utils/fonts";
 import "../styles/global.css";
 
-const karla = Karla({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-karla",
-});
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  // eslint-disable-next-line no-unused-vars
+  getLayout?: (page: ReactElement) => ReactNode;
+};
 
-const nunito = Nunito({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nunito",
-});
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <main className={`${karla.variable} ${nunito.variable} font-karla`}>
-      <Component {...pageProps} />
-    </main>
-  );
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout =
+    Component.getLayout ??
+    ((page: ReactElement) => {
+      return (
+        <>
+          <Navbar />
+          <main className={`${karla.variable} ${nunito.variable} font-karla`}>
+            {page}
+          </main>
+        </>
+      );
+    });
+
+  return getLayout(<Component {...pageProps} />);
 }

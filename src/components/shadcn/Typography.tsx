@@ -1,27 +1,31 @@
-import { type ReactNode, forwardRef } from "react";
-// import type { TypographyProps } from "../types/typography";
+import { forwardRef, type PropsWithChildren } from "react";
 
-interface TypographyProps {
-  children?: ReactNode;
+type Variant =
+  | "d1"
+  | "d2"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "b1"
+  | "b2"
+  | "b3"
+  | "b4"
+  | "b5"
+  | "caption"
+  | "footer";
+type FontWeight = "bold" | "light" | "normal";
+type FontFamily = "nunito" | "karla";
+type AllowedElements = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
+
+interface TypographyProps extends PropsWithChildren {
+  variant: Variant;
+  as?: AllowedElements;
   className?: string;
-  variant:
-    | "d1"
-    | "d2"
-    | "h1"
-    | "h2"
-    | "h3"
-    | "h4"
-    | "h5"
-    | "h6"
-    | "p1"
-    | "p2"
-    | "p3"
-    | "p4"
-    | "p5"
-    | "caption"
-    | "footer";
-  font?: "nunito" | "karla";
-  weight?: "bold" | "light" | "normal";
+  font?: FontFamily;
+  weight?: FontWeight;
 }
 
 const Typography = forwardRef<
@@ -29,194 +33,146 @@ const Typography = forwardRef<
   TypographyProps
 >(
   (
-    { children, font = "karla", variant, weight = "normal", className = "" },
+    {
+      font = "karla",
+      weight = "normal",
+      as = "p",
+      className = "",
+      children,
+      variant,
+    },
     ref
   ) => {
+    const variantStyles = generateStyles(variant);
     const fontWeight = determineFontWeight(weight);
-    const variantFont = font === "karla" ? "font-karla" : "font-nunito";
+    const fontVariant = font === "karla" ? "font-karla" : "font-nunito";
+    const Component = as || determineDefaultElement(variant);
 
-    switch (variant) {
-      // Font Display
-      case "d1":
-        return (
-          <h1
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[72px] leading-[80px] tracking-[-2.88px]`}
-          >
-            {children}
-          </h1>
-        );
-
-      case "d2":
-        return (
-          <h2
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[60px] leading-[72px] tracking-[-2.4px]`}
-          >
-            {children}
-          </h2>
-        );
-
-      // Font Heading
-      case "h1":
-        return (
-          <h1
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[48px] leading-[56px] tracking-[-1.92px]`}
-          >
-            {children}
-          </h1>
-        );
-
-      case "h2":
-        return (
-          <h2
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[36px] leading-[40px] tracking-[-0.72px]`}
-          >
-            {children}
-          </h2>
-        );
-
-      case "h3":
-        return (
-          <h3
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[32px] leading-none tracking-[-0.64px]`}
-          >
-            {children}
-          </h3>
-        );
-
-      case "h4":
-        return (
-          <h4
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[28px] leading-none tracking-[-0.56px]`}
-          >
-            {children}
-          </h4>
-        );
-
-      case "h5":
-        return (
-          <h5
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[24px] leading-none`}
-          >
-            {children}
-          </h5>
-        );
-
-      case "h6":
-        return (
-          <h6
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[20px] leading-none`}
-          >
-            {children}
-          </h6>
-        );
-
-      // Font Body / Paragraph
-      case "p1":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[24px]`}
-          >
-            {children}
-          </p>
-        );
-
-      case "p2":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[20px]`}
-          >
-            {children}
-          </p>
-        );
-
-      case "p3":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[16px] leading-[125%]`}
-          >
-            {children}
-          </p>
-        );
-
-      case "p4":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[14px]`}
-          >
-            {children}
-          </p>
-        );
-
-      case "p5":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[12px]`}
-          >
-            {children}
-          </p>
-        );
-
-      // Font Caption
-      case "caption":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[11px]`}
-          >
-            {children}
-          </p>
-        );
-
-      // Font Footer
-      case "footer":
-        return (
-          <p
-            ref={ref}
-            className={`${variantFont} ${fontWeight} ${className} text-[10px]`}
-          >
-            {children}
-          </p>
-        );
-    }
+    return (
+      <Component
+        ref={ref}
+        className={`text-neutral-700 ${variantStyles} ${fontVariant} ${fontWeight} ${className}`}
+      >
+        {children}
+      </Component>
+    );
   }
 );
 
 Typography.displayName = "Typography";
 
-function determineFontWeight(fontWeight: string): string {
-  let tailwindClass = "";
+function determineDefaultElement(variant: Variant): AllowedElements {
+  let element: AllowedElements = "p";
+  if (variant === "d1" || variant === "h1") {
+    element = "h1";
+  } else if (variant === "d2" || variant === "h2") {
+    element = "h2";
+  } else if (variant === "h3") {
+    element = "h3";
+  } else if (variant === "h4") {
+    element = "h4";
+  } else if (variant === "h5") {
+    element = "h5";
+  } else if (variant === "h6") {
+    element = "h6";
+  } else if (
+    variant === "b1" ||
+    variant === "b2" ||
+    variant === "b3" ||
+    variant === "b4" ||
+    variant === "b5" ||
+    variant === "caption" ||
+    variant === "footer"
+  ) {
+    element = "p";
+  }
+  return element;
+}
 
+function determineFontWeight(fontWeight: FontWeight): string {
+  let className = "";
   switch (fontWeight) {
     case "normal": {
-      tailwindClass = "font-normal";
+      className = "font-normal";
       break;
     }
-
     case "light": {
-      tailwindClass = "font-light";
+      className = "font-light";
       break;
     }
-
     case "bold": {
-      tailwindClass = "font-bold";
+      className = "font-bold";
       break;
     }
   }
+  return className;
+}
 
-  return tailwindClass;
+function generateStyles(variant: Variant): string {
+  let className = "";
+  switch (variant) {
+    case "d1": {
+      className = "text-7xl leading-[80px] tracking-[-2.88px]";
+      break;
+    }
+    case "d2": {
+      className = "text-6xl leading-[72px] tracking-[-2.4px]";
+      break;
+    }
+    case "h1": {
+      className = "text-5xl leading-[56px] tracking-[-1.92px]";
+      break;
+    }
+    case "h2": {
+      className = "text-4xl tracking-[-0.72px]";
+      break;
+    }
+    case "h3": {
+      className = "text-[32px] leading-none tracking-[-0.64px]";
+      break;
+    }
+    case "h4": {
+      className = "text-[28px] leading-none tracking-[-0.56px]";
+      break;
+    }
+    case "h5": {
+      className = "text-2xl leading-none";
+      break;
+    }
+    case "h6": {
+      className = "text-xl leading-none";
+      break;
+    }
+    case "b1": {
+      className = "text-2xl";
+      break;
+    }
+    case "b2": {
+      className = "text-xl";
+      break;
+    }
+    case "b3": {
+      className = "text-base leading-5";
+      break;
+    }
+    case "b4": {
+      className = "text-sm";
+      break;
+    }
+    case "b5": {
+      className = "text-xs";
+      break;
+    }
+    case "caption": {
+      className = "text-[11px]";
+      break;
+    }
+    case "footer": {
+      className = "text-[10px]";
+      break;
+    }
+  }
+  return className;
 }
 
 export { Typography };

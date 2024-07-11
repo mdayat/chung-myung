@@ -55,7 +55,7 @@ export function AssessmentResultContent({
         {data.map((subtest, index) => (
           <div
             id={`subtes${index + 1}`}
-            className={`flex flex-col gap-4 ${index === 0 ? "mt-[76px]" : ""}`}
+            className={`flex flex-col gap-4 scroll-mt-[160px] ${index === 0 ? "mt-[76px]" : ""}`}
             key={index}
           >
             {/* Uppper Subtes Section*/}
@@ -70,7 +70,10 @@ export function AssessmentResultContent({
                 </Typography>
                 <div className="flex flex-row gap-4">
                   {subtest.soalSubtest.map((soal, soalIndex) => (
-                    <Link key={soalIndex} href={`#soal-${soalIndex + 1}`}>
+                    <Link
+                      key={soalIndex}
+                      href={`#soal-${index + 1}.${soalIndex + 1}  `}
+                    >
                       <span
                         className={`flex items-center justify-center rounded-full w-10 h-10 ${soal.isTrue ? "bg-success-300" : "bg-error-300 text-neutral-0"}`}
                       >
@@ -147,8 +150,8 @@ export function AssessmentResultContent({
               {subtest.soalSubtest.map((soal, soalIndex) => (
                 <div
                   key={soalIndex}
-                  id={`soal-${soalIndex + 1}`}
-                  className={`flex flex-col bg-neutral-0 p-6 gap-4 rounded-lg border ${soal.isTrue ? "border-success-300" : "border-error-300"}`}
+                  id={`soal-${index + 1}.${soalIndex + 1}`}
+                  className={`flex flex-col bg-neutral-0 p-6 gap-4 rounded-lg border scroll-mt-[150px] ${soal.isTrue ? "border-success-300" : "border-error-300"}`}
                 >
                   <Typography variant="h6" weight="bold">
                     Soal {soalIndex + 1}

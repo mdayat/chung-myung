@@ -52,7 +52,7 @@ export function ReConfirmAsesmenPopup({
               <span className="text-error-600">memulai ulang</span> asesmen?
             </Typography>
 
-            <Typography variant="p2" className="" weight="light">
+            <Typography variant="b2" className="" weight="light">
               Semua progres sebelumnya akan hilang.
             </Typography>
           </DialogDescription>

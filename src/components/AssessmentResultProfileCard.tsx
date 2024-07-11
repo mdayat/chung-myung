@@ -28,15 +28,15 @@ export function AssessmentResultProfileCard({
       </div>
       <div className="flex flex-col justify-between h-full">
         <div className="z-30">
-          <div className="flex flex-col gap-3 text-neutral-25">
-            <Typography variant="h5" weight="bold">
+          <div className="flex flex-col gap-3">
+            <Typography className="!text-neutral-25" variant="h5" weight="bold">
               {assessmentType === typeAssessment.kesiapanBelajar
                 ? `Hasil ${typeAssessment.kesiapanBelajar}`
                 : `Hasil ${typeAssessment.akhir}`}
             </Typography>
             <div className="flex flex-row items-center justify-center gap-2">
               <AccessTimeIcon className="fill-neutral-200 h-5 w-5" />
-              <Typography variant="p4" className="text-neutral-200">
+              <Typography variant="b4" className="!text-neutral-200">
                 {createdAt}
               </Typography>
             </div>
@@ -44,12 +44,12 @@ export function AssessmentResultProfileCard({
           <Typography
             variant="d1"
             weight="bold"
-            className="mt-10 text-neutral-100"
+            className="mt-10 !text-neutral-100"
           >
             {nilai}%
           </Typography>
           <div className="mt-8 gap-1">
-            <Typography variant="p3" className="text-neutral-200">
+            <Typography variant="b3" className="!text-neutral-200">
               Materi
             </Typography>
             <Typography
@@ -70,7 +70,7 @@ export function AssessmentResultProfileCard({
                 <RedHeartIcon className="w-16 h-16" />
                 <RedHeartIcon className="w-16 h-16" />
               </div>
-              <Typography variant="p3" className="text-neutral-100 mt-6">
+              <Typography variant="b3" className="!text-neutral-100 mt-6">
                 Keren! Kamu langsung dapat nilai sempurna! Yuk, lanjut belajar!
               </Typography>
               <div className="flex flex-row gap-3 mt-12">
@@ -97,7 +97,7 @@ export function AssessmentResultProfileCard({
                 <RedHeartIcon className="w-16 h-16" />
                 <HeartOutlineIcon className="fill-neutral-0 w-16 h-16" />
               </div>
-              <Typography variant="p3" className="text-neutral-100 mt-6">
+              <Typography variant="b3" className="!text-neutral-100 mt-6">
                 Semangat! Masih ada kesempatan, <br /> Coba lagi agar nilai Kamu
                 lebih baik!
               </Typography>
@@ -122,7 +122,7 @@ export function AssessmentResultProfileCard({
                 <HeartOutlineIcon className="fill-neutral-0 w-16 h-16" />
                 <HeartOutlineIcon className="fill-neutral-0 w-16 h-16" />
               </div>
-              <Typography variant="p3" className="text-neutral-100 mt-6">
+              <Typography variant="b3" className="!text-neutral-100 mt-6">
                 Hore! Akhirnya Kamu dapat nilai sempurna! <br /> Ayo Lanjut
                 belajar!
               </Typography>
@@ -150,7 +150,7 @@ export function AssessmentResultProfileCard({
                 <HeartOutlineIcon className="fill-neutral-0 w-16 h-16" />
                 <HeartOutlineIcon className="fill-neutral-0 w-16 h-16" />
               </div>
-              <Typography variant="p3" className="text-neutral-100 mt-6">
+              <Typography variant="b3" className="!text-neutral-100 mt-6">
                 Jangan khawatir, <br /> ayo pelajari materi yang belum dikuasai!
               </Typography>
               <div className="flex flex-row gap-3 mt-12">

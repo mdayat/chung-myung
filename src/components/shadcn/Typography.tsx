@@ -9,11 +9,11 @@ type Variant =
   | "h4"
   | "h5"
   | "h6"
-  | "p1"
-  | "p2"
-  | "p3"
-  | "p4"
-  | "p5"
+  | "b1"
+  | "b2"
+  | "b3"
+  | "b4"
+  | "b5"
   | "caption"
   | "footer";
 type FontWeight = "bold" | "light" | "normal";
@@ -76,11 +76,11 @@ function determineDefaultElement(variant: Variant): AllowedElements {
   } else if (variant === "h6") {
     element = "h6";
   } else if (
-    variant === "p1" ||
-    variant === "p2" ||
-    variant === "p3" ||
-    variant === "p4" ||
-    variant === "p5" ||
+    variant === "b1" ||
+    variant === "b2" ||
+    variant === "b3" ||
+    variant === "b4" ||
+    variant === "b5" ||
     variant === "caption" ||
     variant === "footer"
   ) {
@@ -143,23 +143,23 @@ function generateStyles(variant: Variant): string {
       className = "text-xl leading-none";
       break;
     }
-    case "p1": {
+    case "b1": {
       className = "text-2xl";
       break;
     }
-    case "p2": {
+    case "b2": {
       className = "text-xl";
       break;
     }
-    case "p3": {
+    case "b3": {
       className = "text-base leading-5";
       break;
     }
-    case "p4": {
+    case "b4": {
       className = "text-sm";
       break;
     }
-    case "p5": {
+    case "b5": {
       className = "text-xs";
       break;
     }

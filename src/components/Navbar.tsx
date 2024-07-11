@@ -1,39 +1,37 @@
 import Image from "next/image";
 
+import { EmtekaLogo } from "./icons/EmtekaLogo";
 import { ArrowDropDownIcon } from "./icons/ArrowDropDownIcon";
 import { HelpOutlineIcon } from "./icons/HelpOutlineIcon";
 import AvatarImage from "@public/avatar.png";
-import { EmtekaLogo } from "./icons/EmtekaLogo";
 
 export function Navbar() {
   return (
-    <header className="bg-neutral-0 h-16 fixed top-0 z-50 w-full">
-      <div className="flex justify-between items-center px-6 h-full w-full xl:w-[1366px] xl:mx-auto">
-        <EmtekaLogo className="max-w-[105px] h-auto" />
+    <div className="bg-neutral-25 fixed top-0 z-10 w-screen h-full max-h-16 flex justify-center items-center">
+      <nav className="w-full max-w-screen-desktop mx-auto px-6 desktop:px-0">
+        <div className="flex justify-between items-center">
+          <EmtekaLogo className="w-28" />
 
-        <ul className="flex gap-x-4 items-center">
-          <li className="mt-2">
-            <button type="button">
-              <HelpOutlineIcon className="w-6 h-6" />
-            </button>
-          </li>
+          <ul className="flex justify-between items-center gap-x-4">
+            <li>
+              <button type="button" className="block h-fit">
+                <HelpOutlineIcon className="w-6 h-6" />
+              </button>
+            </li>
 
-          <li>
-            <button type="button" className="flex items-center gap-x-2">
-              <div className="flex items-center gap-x-1">
+            <li>
+              <button type="button" className="flex items-center gap-x-2">
                 <Image
                   src={AvatarImage}
-                  alt="Sobat Emteka"
-                  className="object-contain max-w-8 max-h-8"
+                  alt=""
+                  className="object-cover object-center w-8 h-8"
                 />
-                <h6 className="font-semibold">Sahabat Teka</h6>
-              </div>
-
-              <ArrowDropDownIcon className="w-5 h-5" />
-            </button>
-          </li>
-        </ul>
-      </div>
-    </header>
+                <ArrowDropDownIcon className="w-5 h-5" />
+              </button>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
   );
 }

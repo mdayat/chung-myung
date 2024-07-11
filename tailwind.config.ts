@@ -3,6 +3,10 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: ["./src/pages/**/*.{ts,tsx}", "./src/components/**/*.{ts,tsx}"],
   theme: {
+    screens: {
+      mobile: "360px",
+      desktop: "1366px",
+    },
     colors: {
       inherit: "inherit",
       transparent: "transparent",
@@ -21,13 +25,6 @@ const config: Config = {
         800: "hsl(var(--neutral-800), <alpha-value>)",
         900: "hsl(var(--neutral-900), <alpha-value>)",
         950: "hsl(var(--neutral-950), <alpha-value>)",
-      },
-    },
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
       },
     },
     extend: {

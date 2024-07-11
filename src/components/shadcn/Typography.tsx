@@ -164,7 +164,7 @@ function generateStyles(variant: Variant): string {
       break;
     }
     case "caption": {
-      className = "text-[11px]";
+      className = "text-xs";
       break;
     }
     case "footer": {

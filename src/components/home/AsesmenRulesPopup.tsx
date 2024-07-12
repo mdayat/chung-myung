@@ -49,25 +49,25 @@ export function AsesmenRulesPopup({
           <div className="mt-6">
             <ul className="list-decimal flex px-5 flex-col gap-y-0.5 text-justify">
               <li>
-                <Typography variant="p3">
+                <Typography variant="b3">
                   Asesmen ini akan menguji kemampuan anda pada materi prasyarat
                   dari Bidang Ruang
                 </Typography>
               </li>
               <li>
-                <Typography variant="p3">
+                <Typography variant="b3">
                   Materi Bidang Ruang memiliki 3 sub-materi dan setiap
                   sub-materi memiliki 9 soal.
                 </Typography>
               </li>
               <li>
-                <Typography variant="p3">
+                <Typography variant="b3">
                   Anda harus mendapatkan nilai sempurna atau anda harus belajar
                   materi prasyarat yang anda belum kuasai
                 </Typography>
               </li>
               <li>
-                <Typography variant="p3">
+                <Typography variant="b3">
                   Selama asesmen, dilarang menggunakan bahan referensi eksternal
                   atau mencari jawaban dari luar Emteka.
                 </Typography>

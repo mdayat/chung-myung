@@ -17,7 +17,7 @@ export function CardHasilAKB() {
           <Typography variant="h5" weight="bold" className="mb-1.5">
             Hasil Asesmen Kesiapan Belajar
           </Typography>
-          <Typography variant="p3" className="text-neutral-400">
+          <Typography variant="b3" className="text-neutral-400">
             Lihat kembali hasil asesmen kesiapan belajar yang telah kamu
             kerjakan.
           </Typography>

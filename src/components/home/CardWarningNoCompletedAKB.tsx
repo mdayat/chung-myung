@@ -33,7 +33,7 @@ export function CardWarningNoCompletedAKB({
             <Typography variant="h5" className="text-error-600" weight="bold">
               Asesmen Kesiapan Belajar Kamu Belum Terselesaikan!
             </Typography>
-            <Typography variant="p3" className="mt-1">
+            <Typography variant="b3" className="mt-1">
               Ingin melanjutkan atau mengulang asesmen?
             </Typography>
           </div>

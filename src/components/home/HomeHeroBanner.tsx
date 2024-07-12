@@ -16,7 +16,7 @@ export function HomeHeroBanner() {
           >
             Selamat datang, Sobat Emteka
           </Typography>
-          <Typography variant="p3" className="text-neutral-50">
+          <Typography variant="b3" className="text-neutral-50">
             Tingkatkan terus kemampuan matematika Anda bersama Emteka
           </Typography>
         </div>

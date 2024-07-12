@@ -61,7 +61,7 @@ export default function RestArea({
         <Typography variant="h5" weight="bold" className="text-neutral-950">
           Saatnya Beristirahat!
         </Typography>
-        <Typography variant="p3" className="text-neutral-500">
+        <Typography variant="b3" className="text-neutral-500">
           Kamu telah bekerja keras! <br /> Mari luangkan waktu sejenak untuk
           beristirahat agar pikiranmu lebih segar. ✨
         </Typography>
@@ -70,7 +70,7 @@ export default function RestArea({
 
       {/* Timer */}
       <div className="flex flex-col items-center justify-center gap-6 text-center">
-        <Typography variant="p3" weight="bold" className="text-neutral-950">
+        <Typography variant="b3" weight="bold" className="text-neutral-950">
           Otomatis ke subtes selanjutnya dalam
         </Typography>
         <div className="flex flex-col gap-4 w-full items-center justify-center">
@@ -79,7 +79,7 @@ export default function RestArea({
             <Typography variant="h3" weight="bold" className="text-[#090C18]">
               {timer}
             </Typography>
-            <Typography variant="p3" weight="bold" className="text-neutral-950">
+            <Typography variant="b3" weight="bold" className="text-neutral-950">
               detik
             </Typography>
           </span>
@@ -97,13 +97,13 @@ export default function RestArea({
             </span>
             <div className="flex flex-col">
               <Typography
-                variant="p3"
+                variant="b3"
                 weight="bold"
                 className="text-neutral-950"
               >
                 Judul Subtes
               </Typography>
-              <Typography variant="p4" className="text-neutral-500">
+              <Typography variant="b4" className="text-neutral-500">
                 {dataJson[dataPage]?.name ?? "Fin"}
               </Typography>
             </div>
@@ -115,13 +115,13 @@ export default function RestArea({
             </span>
             <div className="flex flex-col">
               <Typography
-                variant="p3"
+                variant="b3"
                 weight="bold"
                 className="text-neutral-950"
               >
                 Jumlah Soal
               </Typography>
-              <Typography variant="p4" className="text-neutral-500">
+              <Typography variant="b4" className="text-neutral-500">
                 {dataJson[dataPage]?.questions.length.toString() ?? "Fin"}
               </Typography>
             </div>
@@ -133,13 +133,13 @@ export default function RestArea({
             </span>
             <div className="flex flex-col">
               <Typography
-                variant="p3"
+                variant="b3"
                 weight="bold"
                 className="text-neutral-950"
               >
                 Waktu Pengerjaan
               </Typography>
-              <Typography variant="p4" className="text-neutral-500">
+              <Typography variant="b4" className="text-neutral-500">
                 20 Menit
               </Typography>
             </div>

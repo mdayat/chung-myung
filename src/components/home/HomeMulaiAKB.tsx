@@ -43,7 +43,7 @@ export function HomeMulaiAKB({
           <Typography variant="h3" className="mb-3" weight="bold">
             Mulai Belajar
           </Typography>
-          <Typography variant="p2" className="text-neutral-500" weight="normal">
+          <Typography variant="b2" className="text-neutral-500" weight="normal">
             Mari mulai belajar! Ikuti asesmen kesiapan belajar, pelajari materi
             yang kami sediakan, dan selesaikan dengan final asesmen.
           </Typography>
@@ -57,7 +57,7 @@ export function HomeMulaiAKB({
             Mulai Asesmen Kesiapan Belajar
             <ChevronRightIcon className="w-5 h-5" />
           </Button>
-          <Typography variant="p4" className="text-neutral-400">
+          <Typography variant="b4" className="text-neutral-400">
             {"*"}Saat ini, kamu hanya bisa belajar materi Bidang Ruang. Materi
             tambahan akan segera hadir!
           </Typography>

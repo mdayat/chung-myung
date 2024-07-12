@@ -17,7 +17,7 @@ export function CardHasilAsesmenAkhir() {
           <Typography variant="h5" weight="bold" className="mb-1.5">
             Hasil Final Asesmen
           </Typography>
-          <Typography variant="p3" className="text-neutral-400">
+          <Typography variant="b3" className="text-neutral-400">
             Lihat kembali bukti dari perjuanganmu belajar di Emteka.
           </Typography>
         </div>

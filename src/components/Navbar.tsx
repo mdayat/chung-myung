@@ -7,7 +7,7 @@ import AvatarImage from "@public/avatar.png";
 
 export function Navbar() {
   return (
-    <div className="bg-neutral-25 fixed top-0 z-10 w-screen h-full max-h-16 flex justify-center items-center">
+    <div className="bg-neutral-25 fixed top-0 z-50 w-screen h-full max-h-16 flex justify-center items-center">
       <nav className="w-full max-w-screen-desktop mx-auto px-6 desktop:px-0">
         <div className="flex justify-between items-center">
           <EmtekaLogo className="w-28" />

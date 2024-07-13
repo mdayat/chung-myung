@@ -51,7 +51,7 @@ const Typography = forwardRef<
     return (
       <Component
         ref={ref}
-        className={`text-neutral-700 ${variantStyles} ${fontVariant} ${fontWeight} ${className}`}
+        className={`${variantStyles} ${fontVariant} ${fontWeight} ${className}`}
       >
         {children}
       </Component>

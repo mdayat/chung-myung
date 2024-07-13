@@ -64,7 +64,7 @@ export function AssessmentResultContent({
                 <Typography
                   variant="h6"
                   weight="bold"
-                  className="!text-neutral-25"
+                  className="text-neutral-25"
                 >
                   Subtes {index + 1}
                 </Typography>
@@ -78,7 +78,7 @@ export function AssessmentResultContent({
                         className={`flex items-center justify-center rounded-full w-10 h-10 ${soal.isTrue ? "bg-success-300" : "bg-error-300"}`}
                       >
                         <Typography
-                          className={`${soal.isTrue ? "" : "!text-neutral-0"}`}
+                          className={`${soal.isTrue ? "" : "text-neutral-0"}`}
                           variant="b3"
                           weight="bold"
                         >
@@ -99,11 +99,11 @@ export function AssessmentResultContent({
                     <Typography
                       variant="b3"
                       weight="bold"
-                      className="!text-neutral-950"
+                      className="text-neutral-950"
                     >
                       Judul Subtes
                     </Typography>
-                    <Typography variant="b4" className="!text-neutral-500">
+                    <Typography variant="b4" className="text-neutral-500">
                       {subtest.judulSubtest}
                     </Typography>
                   </div>
@@ -118,11 +118,11 @@ export function AssessmentResultContent({
                     <Typography
                       variant="b3"
                       weight="bold"
-                      className="!text-neutral-950"
+                      className="text-neutral-950"
                     >
                       Jumlah Soal
                     </Typography>
-                    <Typography variant="b4" className="!text-neutral-500">
+                    <Typography variant="b4" className="text-neutral-500">
                       {subtest.jumlahSoal} Soal
                     </Typography>
                   </div>
@@ -137,11 +137,11 @@ export function AssessmentResultContent({
                     <Typography
                       variant="b3"
                       weight="bold"
-                      className="!text-neutral-950"
+                      className="text-neutral-950"
                     >
                       Waktu Pengerjaan
                     </Typography>
-                    <Typography variant="b4" className="!text-neutral-500">
+                    <Typography variant="b4" className="text-neutral-500">
                       {subtest.waktuPengerjaan} Menit
                     </Typography>
                   </div>
@@ -157,19 +157,25 @@ export function AssessmentResultContent({
                   id={`soal-${index + 1}.${soalIndex + 1}`}
                   className={`flex flex-col bg-neutral-0 p-6 gap-4 rounded-lg border scroll-mt-[150px] ${soal.isTrue ? "border-success-300" : "border-error-300"}`}
                 >
-                  <Typography variant="h6" weight="bold">
+                  <Typography
+                    variant="h6"
+                    weight="bold"
+                    className="text-neutral-700"
+                  >
                     Soal {soalIndex + 1}
                   </Typography>
                   {/* Soal & Answer Section */}
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1">
-                      <Typography variant="b3">{soal.soal}</Typography>
+                      <Typography variant="b3" className="text-neutral-700">
+                        {soal.soal}
+                      </Typography>
                       <ul>
                         {soal.options.map((option, optionIndex) => (
                           <li key={optionIndex}>
                             <Typography
                               variant="b3"
-                              className={`${soal.isTrue && option.isAnswer ? "!text-success-500" : !soal.isTrue && option.isAnswer ? "!text-error-500" : ""}`}
+                              className={`${soal.isTrue && option.isAnswer ? "text-success-500" : !soal.isTrue && option.isAnswer ? "text-error-500" : ""}`}
                             >
                               {option.title}
                             </Typography>
@@ -179,14 +185,20 @@ export function AssessmentResultContent({
                     </div>
                     {soal.pembahasan ? (
                       <div className="flex flex-col gap-2">
-                        <Typography variant="b3" weight="bold">
+                        <Typography
+                          variant="b3"
+                          weight="bold"
+                          className="text-neutral-700"
+                        >
                           Pembahasan:
                         </Typography>
-                        <Typography variant="b3">{soal.pembahasan}</Typography>
+                        <Typography variant="b3" className="text-neutral-700">
+                          {soal.pembahasan}
+                        </Typography>
                       </div>
                     ) : (
                       <div className="flex flex-col items-start gap-2">
-                        <Typography variant="b3" className="!text-neutral-400">
+                        <Typography variant="b3" className="text-neutral-400">
                           Pelajari materi di bawah ini dan coba lagi untuk
                           menemukan jawabannya.
                         </Typography>

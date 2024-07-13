@@ -21,38 +21,43 @@ export function AssessmentRulesPopup() {
   return (
     <>
       <DialogTitle asChild>
-        <Typography as="h3" variant="h5" weight="bold" className="mb-2">
+        <Typography
+          as="h3"
+          variant="h5"
+          weight="bold"
+          className="text-neutral-700 mb-2"
+        >
           Peraturan Asesmen
         </Typography>
       </DialogTitle>
 
       <DialogDescription asChild>
-        <Typography variant="b3" className="!text-neutral-500 mb-6">
+        <Typography variant="b3" className="text-neutral-500 mb-6">
           Pastikan kamu membaca seluruh peraturan asesmen ini.
         </Typography>
       </DialogDescription>
 
       <ol className="list-decimal mb-4 ml-6">
         <li>
-          <Typography variant="b3" className="!text-neutral-500">
+          <Typography variant="b3" className="text-neutral-500">
             Asesmen ini akan menguji kemampuan anda pada materi prasyarat dari
             Bidang Ruang
           </Typography>
         </li>
         <li>
-          <Typography variant="b3" className="!text-neutral-500">
+          <Typography variant="b3" className="text-neutral-500">
             Materi Bidang Ruang memiliki 3 sub-materi dan setiap sub-materi
             memiliki 9 soal.
           </Typography>
         </li>
         <li>
-          <Typography variant="b3" className="!text-neutral-500">
+          <Typography variant="b3" className="text-neutral-500">
             Anda harus mendapatkan nilai sempurna atau anda harus belajar materi
             prasyarat yang anda belum kuasai
           </Typography>
         </li>
         <li>
-          <Typography variant="b3" className="!text-neutral-500">
+          <Typography variant="b3" className="text-neutral-500">
             Selama asesmen, dilarang menggunakan bahan referensi eksternal atau
             mencari jawaban dari luar Emteka.
           </Typography>
@@ -70,7 +75,7 @@ export function AssessmentRulesPopup() {
           <CheckboxOutlineBlankIcon className="w-5 h-5" />
         )}
 
-        <Typography variant="b3" className="!text-neutral-500">
+        <Typography variant="b3" className="text-neutral-500">
           Saya sudah membaca peraturan asesmen.
         </Typography>
       </button>

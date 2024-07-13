@@ -4,8 +4,9 @@ import type { ReactElement } from "react";
 
 import { EmtekaLogo } from "@components/icons/EmtekaLogo";
 import { Typography } from "@components/shadcn/Typography";
+import { BlurredCircle } from "@components/BlurredCircle";
 import { karla, nunito } from "@utils/fonts";
-import MaskotHead from "@public/maskot-head.png";
+import MaskotHeadImage from "@public/maskot-head.png";
 import type { NextPageWithLayout } from "../_app";
 
 const Login: NextPageWithLayout = () => {
@@ -13,60 +14,52 @@ const Login: NextPageWithLayout = () => {
     <>
       <Script src="https://accounts.google.com/gsi/client" />
 
-      <div className="overflow-x-hidden overflow-y-clip">
-        <div className="w-screen h-screen flex justify-center items-center overflow-y-hidden">
-          <div className="absolute w-24 h-24 bg-secondary-100/80 -top-4 right-0 rounded-full blur z-10" />
-          <div className="border-2 border-neutral-200 rounded-xl p-5 flex-col justify-center items-center max-w-[600px]">
-            <section className="w-full flex justify-center">
-              <div className="w-[200px] h-fit">
-                <EmtekaLogo />
-              </div>
-            </section>
+      <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 border border-neutral-300 rounded-3xl w-full max-w-[556px] p-8">
+        <EmtekaLogo className="w-40 mx-auto" />
+        <div className="relative">
+          <Image
+            src={MaskotHeadImage}
+            width={204}
+            height={204}
+            alt="Emteka Maskot (Head)"
+            className="object-cover object-center mx-auto"
+          />
+          <div className="bg-secondary-200 rounded-2xl absolute bottom-[26px] -z-10 w-full h-2"></div>
+        </div>
 
-            <section className="w-full flex justify-center">
-              <div className="w-[200px] h-[200px]">
-                <Image src={MaskotHead} alt="Maskot Head Login" />
-              </div>
-            </section>
-            <div className="h-3 w-[492px] bg-secondary-200 -mt-8 rounded-lg mx-auto"></div>
+        <Typography
+          as="h1"
+          variant="h2"
+          weight="bold"
+          className="text-neutral-700 text-center mb-4"
+        >
+          Selamat datang di Emteka!
+        </Typography>
 
-            <Typography
-              variant="h2"
-              className="text-neutral-950 mx-auto w-fit mt-5"
-              weight="bold"
-            >
-              Selamat Datang Di Emteka
-            </Typography>
-            <Typography
-              variant="h6"
-              className="text-neutral-700 mx-auto w-fit mt-5 text-center"
-              weight="normal"
-            >
-              Masuk menggunakan akun Google untuk mulai belajar matematika
-              dengan cara yang menyenangkan.
-            </Typography>
-            <div className="w-[300px] mx-auto mt-10">
-              <div
-                id="g_id_onload"
-                data-client_id="2931290381290312"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-login_uri="ethaniel"
-                data-auto_prompt="false"
-              ></div>
+        <Typography variant="b3" className="text-neutral-500 text-center mb-8">
+          Masuk menggunakan akun Google untuk mulai belajar matematika dengan
+          cara yang menyenangkan.
+        </Typography>
 
-              <div
-                className="g_id_signin font-bold"
-                data-type="standard"
-                data-shape="pill"
-                data-theme="filled_blue"
-                data-text="signin_with"
-                data-size="large"
-                data-logo_alignment="left"
-              ></div>
-            </div>
-          </div>
-          <div className="absolute w-24 h-24 bg-secondary-100 -bottom-4 left-0 rounded-full blur z-10" />
+        <div className="w-full max-w-[400px] mx-auto">
+          <div
+            id="g_id_onload"
+            data-client_id="2931290381290312"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-login_uri="ethaniel"
+            data-auto_prompt="false"
+          ></div>
+
+          <div
+            className="g_id_signin font-bold"
+            data-type="standard"
+            data-shape="pill"
+            data-theme="filled_blue"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left"
+          ></div>
         </div>
       </div>
     </>
@@ -75,8 +68,12 @@ const Login: NextPageWithLayout = () => {
 
 Login.getLayout = function getLayout(page: ReactElement) {
   return (
-    <main className={`${karla.variable} ${nunito.variable} font-karla`}>
+    <main
+      className={`${karla.variable} ${nunito.variable} bg-neutral-50 font-karla relative overflow-hidden w-screen h-screen`}
+    >
+      <BlurredCircle className="absolute top-[-42px] right-[-42px] w-[184px] h-[184px]" />
       {page}
+      <BlurredCircle className="absolute bottom-[-42px] left-[-42px] w-[184px] h-[184px]" />
     </main>
   );
 };

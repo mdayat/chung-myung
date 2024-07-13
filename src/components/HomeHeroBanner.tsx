@@ -18,13 +18,13 @@ export function HomeHeroBanner() {
           <Typography
             as="h1"
             variant="h2"
-            className="!text-neutral-0 mb-1"
+            className="text-neutral-0 mb-1"
             weight="bold"
           >
             Selamat datang, Sobat Emteka
           </Typography>
 
-          <Typography variant="b3" className="!text-neutral-0">
+          <Typography variant="b3" className="text-neutral-0">
             Tingkatkan terus kemampuan matematika Anda bersama Emteka
           </Typography>
         </div>

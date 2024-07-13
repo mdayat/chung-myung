@@ -73,14 +73,19 @@ function Home() {
             />
 
             <div className="flex flex-col justify-between w-full max-w-[617px]">
-              <Typography as="h2" variant="h3" weight="bold" className="mb-4">
+              <Typography
+                as="h2"
+                variant="h3"
+                weight="bold"
+                className="text-neutral-700 mb-4"
+              >
                 Mulai Belajar
               </Typography>
 
               <Typography
                 variant="b2"
                 weight="normal"
-                className="!text-neutral-500 mb-6"
+                className="text-neutral-500 mb-6"
               >
                 Mari mulai belajar! Ikuti asesmen kesiapan belajar, pelajari
                 materi yang kami sediakan, dan selesaikan dengan final asesmen.
@@ -97,7 +102,7 @@ function Home() {
                 </Button>
               </DialogTrigger>
 
-              <Typography variant="caption" className="!text-neutral-400">
+              <Typography variant="caption" className="text-neutral-400">
                 &#x2a;Saat ini, kamu hanya bisa belajar materi Bidang Ruang.
                 Materi tambahan akan segera hadir!
               </Typography>
@@ -148,13 +153,18 @@ function AssessmentResultCard({ type, isLoading }: AssessmentResultCardProps) {
 
         <div className="flex justify-between items-center w-full h-full">
           <div className="self-start flex flex-col justify-between w-full max-w-72">
-            <Typography as="h3" variant="h5" weight="bold" className="mb-2">
+            <Typography
+              as="h3"
+              variant="h5"
+              weight="bold"
+              className="text-neutral-700 mb-2"
+            >
               {type === "asesmen-kesiapan-belajar"
                 ? "Hasil Asesmen Kesiapan Belajar"
                 : "Hasil Final Asesmen"}
             </Typography>
 
-            <Typography as="h3" variant="b3" className="!text-neutral-500">
+            <Typography as="h3" variant="b3" className="text-neutral-500">
               {type === "asesmen-kesiapan-belajar"
                 ? "Lihat kembali hasil asesmen kesiapan belajar yang telah kamu kerjakan."
                 : "Lihat kembali bukti dari perjuanganmu belajar di Emteka."}

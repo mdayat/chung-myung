@@ -58,12 +58,12 @@ export function UnfinishedAssessmentCard({
               as="h3"
               variant="h5"
               weight="bold"
-              className="!text-[#590009] mb-1"
+              className="text-[#590009] mb-1"
             >
               Asesmen Kesiapan Belajar Kamu Belum Terselesaikan!
             </Typography>
 
-            <Typography variant="b3" className="!text-neutral-500">
+            <Typography variant="b3" className="text-neutral-500">
               Ingin melanjutkan atau mengulang asesmen?
             </Typography>
           </div>
@@ -97,7 +97,7 @@ export function UnfinishedAssessmentCard({
               as="h3"
               variant="h5"
               weight="bold"
-              className="text-center mb-2"
+              className="text-neutral-700 text-center mb-2"
             >
               Apakah Kamu yakin ingin&nbsp;
               <span className="text-error-600">memulai ulang</span> asesmen?
@@ -105,7 +105,7 @@ export function UnfinishedAssessmentCard({
           </DialogTitle>
 
           <DialogDescription asChild>
-            <Typography variant="b3" className="!text-neutral-500 text-center">
+            <Typography variant="b3" className="text-neutral-500 text-center">
               Semua progres sebelumnya akan hilang.
             </Typography>
           </DialogDescription>

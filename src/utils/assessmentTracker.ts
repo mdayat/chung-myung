@@ -5,6 +5,7 @@ interface Subtest {
   name: string;
   sequenceNumber: number;
   timer: number | null;
+  isSubmitted: boolean;
 }
 
 interface AnswerChoice {
@@ -61,7 +62,7 @@ async function openAssessmentTrackerDB(): Promise<
 }
 
 async function putManySubtest(
-  subtests: Omit<Subtest, "timer">[],
+  subtests: Omit<Subtest, "timer" | "isSubmitted">[],
   db: IDBPDatabase<AssessmentTrackerDBSchema>
 ) {
   const tx = db.transaction("subtest", "readwrite");
@@ -73,6 +74,7 @@ async function putManySubtest(
           name: subtest.name,
           sequenceNumber: subtest.sequenceNumber,
           timer: null,
+          isSubmitted: false,
         });
       })
     );

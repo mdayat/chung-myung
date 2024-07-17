@@ -105,7 +105,7 @@ export function UnfinishedAssessmentCard({
           </DialogTitle>
 
           <DialogDescription asChild>
-            <Typography variant="b3" className="text-neutral-500 text-center">
+            <Typography variant="b2" className="text-neutral-500 text-center">
               Semua progres sebelumnya akan hilang.
             </Typography>
           </DialogDescription>

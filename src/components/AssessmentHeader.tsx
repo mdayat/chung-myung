@@ -5,9 +5,10 @@ import {
   type PropsWithChildren,
   type SetStateAction,
 } from "react";
-import type { Question } from "@utils/assessmentTracker";
 
+import { Typography } from "./shadcn/Typography";
 import { TimerIcon } from "./icons/TimerIcon";
+import type { Question } from "@utils/assessmentTracker";
 
 interface AssessmentHeaderProps extends PropsWithChildren {
   subtestsLength: number;
@@ -23,11 +24,29 @@ function AssessmentHeader({
 }: AssessmentHeaderProps) {
   return (
     <>
-      <div className="flex justify-between items-center">
-        <h2>{currentSubtestName}</h2>
-        <div>
-          <span>{currentSubtestIndex}</span>/<span>{subtestsLength}</span>&nbsp;
-          <span>Subtes</span>
+      <div className="flex justify-between items-center mb-4">
+        <Typography as="h1" variant="h3" weight="bold">
+          {currentSubtestName}
+        </Typography>
+
+        <div className="border border-neutral-700 rounded-full flex justify-between items-center gap-x-2.5 py-2 px-4">
+          <p className="flex justify-between items-center">
+            <Typography
+              as="span"
+              variant="b3"
+              weight="bold"
+              className="text-neutral-700"
+            >
+              {currentSubtestIndex}
+            </Typography>
+            <Typography as="span" variant="b3" className="text-neutral-700">
+              /{subtestsLength}
+            </Typography>
+          </p>
+
+          <Typography variant="b3" weight="bold" className="text-neutral-700">
+            Subtes
+          </Typography>
         </div>
       </div>
 
@@ -48,7 +67,7 @@ const NavList = memo(function NavList({
   setCurrentQuestionIndex,
 }: NavListProps) {
   return (
-    <ul className="flex justify-start items-center gap-x-6">
+    <ul className="flex justify-between items-center gap-x-2">
       {currentSubtestQuestions.map((question, index) => {
         const isCurrentQuestion =
           currentSubtestQuestions[currentQuestionIndex].id === question.id;
@@ -56,11 +75,12 @@ const NavList = memo(function NavList({
 
         let navItemColor = "";
         if (isCurrentQuestion) {
-          navItemColor = "bg-secondary-600";
+          navItemColor = "bg-secondary-500 text-neutral-25";
         } else if (isAnswered) {
-          navItemColor = "bg-success-600";
+          navItemColor = "bg-secondary-200 text-neutral-700";
         } else {
-          navItemColor = "bg-neutral-300";
+          navItemColor =
+            "bg-neutral-0 text-neutral-700 border border-neutral-100";
         }
 
         function handleNavItemOnClick(event: MouseEvent<HTMLButtonElement>) {
@@ -73,9 +93,9 @@ const NavList = memo(function NavList({
         return (
           <li key={question.id}>
             <button
-              data-index={index}
-              className={`${navItemColor} w-6 h-6 rounded-full`}
               onClick={handleNavItemOnClick}
+              data-index={index}
+              className={`font-medium text-lg flex justify-center items-center w-10 h-10 rounded-full ${navItemColor}`}
               type="button"
             >
               {index + 1}
@@ -92,9 +112,33 @@ interface AssessmentTimerProps {
 }
 
 function AssessmentTimer({ currentSubtestTimer }: AssessmentTimerProps) {
+  const isUnderFiveMinutes = currentSubtestTimer < 300;
+  const hours = Math.floor(currentSubtestTimer / (60 * 60));
+  const minutes = Math.floor(currentSubtestTimer / 60);
+  const seconds = Math.floor(currentSubtestTimer % 60);
+
   return (
-    <div>
-      <TimerIcon className="w-6 gap-6" /> {currentSubtestTimer}
+    <div className="flex justify-between items-center gap-x-4">
+      <TimerIcon className="fill-neutral-900 w-6 h-6" />
+      <div className="flex justify-between items-center gap-x-2">
+        <span
+          className={`${isUnderFiveMinutes ? "bg-error-100" : "bg-secondary-200"} text-neutral-950 text-lg flex justify-center items-center w-10 h-10 rounded-xl`}
+        >
+          {String(hours).padStart(2, "0")}
+        </span>
+        :
+        <span
+          className={`${isUnderFiveMinutes ? "bg-error-100" : "bg-secondary-200"} text-neutral-950 text-lg flex justify-center items-center w-10 h-10 rounded-xl`}
+        >
+          {String(minutes).padStart(2, "0")}
+        </span>
+        :
+        <span
+          className={`${isUnderFiveMinutes ? "bg-error-100" : "bg-secondary-200"} text-neutral-950 text-lg flex justify-center items-center w-10 h-10 rounded-xl`}
+        >
+          {String(seconds).padStart(2, "0")}
+        </span>
+      </div>
     </div>
   );
 }

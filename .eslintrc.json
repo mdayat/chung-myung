@@ -11,6 +11,7 @@
     "ecmaVersion": "latest"
   },
   "globals": {
-    "NodeJS": true
+    "NodeJS": true,
+    "HTMLCollectionOf": true
   }
 }

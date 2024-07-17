@@ -18,7 +18,7 @@ type Variant =
   | "footer";
 type FontWeight = "bold" | "light" | "normal";
 type FontFamily = "nunito" | "karla";
-type AllowedElements = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
+type AllowedElements = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span";
 
 interface TypographyProps extends PropsWithChildren {
   variant: Variant;

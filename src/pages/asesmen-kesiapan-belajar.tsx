@@ -20,6 +20,7 @@ import {
   NavList,
 } from "@components/AssessmentHeader";
 import { AssessmentContent } from "@components/AssessmentContent";
+import { RestArea } from "@components/RestArea";
 import { LoaderSpinner } from "@components/icons/LoaderSpinner";
 import {
   putManyQuestion,
@@ -116,6 +117,11 @@ export default function AsesmenKesiapanBelajar() {
     setCurrentQuestionIndex(currentQuestionIndex - 1);
   }
 
+  function handleRestAreaOnClick() {
+    setIsSubtestFinished(false);
+    setTimer(5);
+  }
+
   const assessmentTimerHandler = useCallback(() => {
     if (isLastSubtest === false) {
       setIsAssessmentTimeout(false);
@@ -138,8 +144,7 @@ export default function AsesmenKesiapanBelajar() {
     if (isSubtestFinished) {
       timeout = setTimeout(() => {
         if (timer === 0) {
-          setIsSubtestFinished(false);
-          setTimer(5);
+          handleRestAreaOnClick();
         } else {
           setTimer(timer - 1);
         }
@@ -327,11 +332,16 @@ export default function AsesmenKesiapanBelajar() {
 
   if (isSubtestFinished) {
     return (
-      <div className="mt-20">
-        <p>timer: {timer}</p>
-        <h2>subtes selanjutnya: {subtests[currentSubtestIndex].name}</h2>
-        <h2>jumlah soal: {currentSubtestQuestions.length}</h2>
-      </div>
+      <>
+        <RestArea
+          handleRestAreaOnClick={handleRestAreaOnClick}
+          timer={timer}
+          subtestsLength={subtests.length}
+          completedSubtestIndex={currentSubtestIndex}
+          nextSubtest={subtests[currentSubtestIndex]}
+          nextSubtestQuestionsLength={currentSubtestQuestions.length}
+        />
+      </>
     );
   }
 

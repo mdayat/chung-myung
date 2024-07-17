@@ -1,160 +1,158 @@
-import { Typography } from "@components/shadcn/Typography";
-import { Progress } from "@components/shadcn/Progress";
 import Image from "next/image";
+import type { PropsWithChildren } from "react";
+
 import { Button } from "@components/shadcn/Button";
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import type { AKBSample } from "../data/AKBSample";
+import { Typography } from "@components/shadcn/Typography";
+import { Progress } from "./shadcn/Progress";
+import { BlurredCircle } from "./BlurredCircle";
 import { AssignmentIcon } from "./icons/AssignmentIcon";
 import { CalculateIcon } from "./icons/CalculateIcon";
-import { WatchLaterIcon } from "./icons/WatchLaterIcon";
+import { TimerIcon } from "./icons/TimerIcon";
+import MaskotHeadImages from "@public/maskot-head.png";
+import type { Subtest } from "@utils/assessmentTracker";
 
-export default function RestArea({
-  dataJson,
-  dataPage,
-  setDataPage,
-}: {
-  dataJson: AKBSample[];
-  dataPage: number;
-  setDataPage: Dispatch<SetStateAction<number>>;
-}) {
-  const [timer, setTimer] = useState<number | null>(null);
-  useEffect(() => {
-    setTimer(30);
-  }, []);
-  useEffect(() => {
-    if (timer === null) return;
-    if (timer === 0) {
-      console.log("Time's up");
-      if (dataPage === dataJson.length) return;
-      setTimer(null);
-      setDataPage((prev) => prev + 1);
-      return;
-    }
-    const interval = setInterval(() => {
-      console.log(timer);
-      setTimer((prev) => prev! - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timer, dataJson.length, dataPage, setDataPage]);
+interface RestAreaProps {
+  timer: number;
+  subtestsLength: number;
+  completedSubtestIndex: number;
+  nextSubtest: Subtest;
+  nextSubtestQuestionsLength: number;
+  handleRestAreaOnClick: () => void;
+}
+
+function RestArea({
+  timer,
+  subtestsLength,
+  completedSubtestIndex,
+  nextSubtest,
+  nextSubtestQuestionsLength,
+  handleRestAreaOnClick,
+}: RestAreaProps) {
   return (
-    <div className="flex flex-col gap-6 w-2/4 rounded-3xl border border-neutral-300 p-8">
-      {/* Info */}
-      <div className="flex flex-row items-center justify-center gap-6 bg-primary-400 px-6 py-2 rounded-2xl">
-        <span className="flex items-center justify-center bg-neutral-0 rounded-full w-12 h-12 ">
-          <Typography variant="h6" weight="bold" className="text-neutral-950">
-            {dataPage}/{dataJson.length}
+    <>
+      <BlurredCircle className="absolute bottom-[-42px] left-[-42px] w-[184px] h-[184px]" />
+      <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 border border-neutral-700 rounded-3xl w-full max-w-2xl p-8">
+        <div className="bg-primary-500 rounded-2xl flex justify-center items-center gap-x-6 py-2">
+          <Typography
+            as="span"
+            variant="h6"
+            weight="bold"
+            className="bg-neutral-0 text-neutral-950 rounded-full flex justify-center items-center w-12 h-12"
+          >
+            {completedSubtestIndex + 1}/{subtestsLength}
           </Typography>
-        </span>
-        <Typography variant="h6" weight="bold" className="text-neutral-0">
-          Subtes selesai dikerjakan
-        </Typography>
-      </div>
 
-      {/* Title */}
-      <div className="flex flex-col items-center justify-center text-center gap-4">
+          <Typography
+            as="p"
+            variant="h6"
+            weight="bold"
+            className="text-neutral-0"
+          >
+            Subtes selesai dikerjakan
+          </Typography>
+        </div>
+
         <Image
-          alt="Restarea Illustration"
-          src="/maskot-head.png"
-          width={138}
-          height={110}
+          src={MaskotHeadImages}
+          width={180}
+          height={180}
+          alt="Emteka Maskot (Head)"
+          className="object-cover object-center mx-auto"
         />
-        <Typography variant="h5" weight="bold" className="text-neutral-950">
+
+        <Typography
+          as="h1"
+          variant="h5"
+          weight="bold"
+          className="text-neutral-950 text-center mb-4"
+        >
           Saatnya Beristirahat!
         </Typography>
-        <Typography variant="b3" className="text-neutral-500">
-          Kamu telah bekerja keras! <br /> Mari luangkan waktu sejenak untuk
-          beristirahat agar pikiranmu lebih segar. ✨
-        </Typography>
-        <hr className="border border-neutral-300 w-full" />
-      </div>
 
-      {/* Timer */}
-      <div className="flex flex-col items-center justify-center gap-6 text-center">
-        <Typography variant="b3" weight="bold" className="text-neutral-950">
+        <Typography variant="b3" className="text-neutral-500 text-center">
+          Kamu telah bekerja keras!
+          <br /> Mari luangkan waktu sejenak untuk beristirahat agar pikiranmu
+          lebih segar.
+        </Typography>
+
+        <hr className="bg-neutral-300 w-full h-[1px] mt-4 mb-6" />
+
+        <Typography
+          variant="b3"
+          weight="bold"
+          className="text-neutral-500 text-center mb-6"
+        >
           Otomatis ke subtes selanjutnya dalam
         </Typography>
-        <div className="flex flex-col gap-4 w-full items-center justify-center">
-          {/* Counter */}
-          <span className="flex items-end gap-1">
-            <Typography variant="h3" weight="bold" className="text-[#090C18]">
-              {timer}
-            </Typography>
-            <Typography variant="b3" weight="bold" className="text-neutral-950">
-              detik
-            </Typography>
-          </span>
-          {/* Progress Bar */}
-          <Progress value={(timer! / 30) * 100} />
+
+        <div className="flex justify-center items-center gap-x-1 mb-4">
+          <Typography
+            as="span"
+            variant="h3"
+            weight="bold"
+            className="text-neutral-700"
+          >
+            {timer}
+          </Typography>
+
+          <Typography variant="b3" className="text-neutral-500">
+            detik
+          </Typography>
         </div>
+
+        <Progress value={timer} max={20} className="mb-6" />
+
+        <div className="flex justify-between items-center gap-x-6 mb-8">
+          <NextSubtestInfo title="Judul Subtes" description={nextSubtest.name}>
+            <AssignmentIcon />
+          </NextSubtestInfo>
+
+          <NextSubtestInfo
+            title="Jumlah Soal"
+            description={String(nextSubtestQuestionsLength)}
+          >
+            <CalculateIcon />
+          </NextSubtestInfo>
+
+          <NextSubtestInfo title="Waktu Pengerjaan" description="20 menit">
+            <TimerIcon />
+          </NextSubtestInfo>
+        </div>
+
+        <Button onClick={handleRestAreaOnClick} className="block mx-auto">
+          Lanjutkan Subtes Selanjutnya
+        </Button>
+      </div>
+    </>
+  );
+}
+
+interface NextSubtestInfoProps extends PropsWithChildren {
+  title: string;
+  description: string;
+}
+
+function NextSubtestInfo({
+  children,
+  title,
+  description,
+}: NextSubtestInfoProps) {
+  return (
+    <div className="flex justify-between items-center gap-x-2">
+      <div className="border border-secondary-400 rounded-full flex justify-center items-center w-10 h-10 [&_svg]:fill-secondary-400 [&_svg]:shrink-0 [&_svg]:w-5 [&_svg]:h-5">
+        {children}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col items-center gap-8">
-        <div className="flex flex-row gap-6">
-          <div className="flex flex-row gap-2">
-            <span className="flex items-center justify-center h-10 w-10 rounded-full border border-secondary-400">
-              <AssignmentIcon className="fill-secondary-400 w-5 h-5" />
-            </span>
-            <div className="flex flex-col">
-              <Typography
-                variant="b3"
-                weight="bold"
-                className="text-neutral-950"
-              >
-                Judul Subtes
-              </Typography>
-              <Typography variant="b4" className="text-neutral-500">
-                {dataJson[dataPage]?.name ?? "Fin"}
-              </Typography>
-            </div>
-          </div>
-
-          <div className="flex flex-row gap-2">
-            <span className="flex items-center justify-center h-10 w-10 rounded-full border border-secondary-400">
-              <CalculateIcon className="fill-secondary-400 w-5 h-5" />
-            </span>
-            <div className="flex flex-col">
-              <Typography
-                variant="b3"
-                weight="bold"
-                className="text-neutral-950"
-              >
-                Jumlah Soal
-              </Typography>
-              <Typography variant="b4" className="text-neutral-500">
-                {dataJson[dataPage]?.questions.length.toString() ?? "Fin"}
-              </Typography>
-            </div>
-          </div>
-
-          <div className="flex flex-row gap-2">
-            <span className="flex items-center justify-center h-10 w-10 rounded-full border border-secondary-400">
-              <WatchLaterIcon className="fill-secondary-400 w-5 h-5" />
-            </span>
-            <div className="flex flex-col">
-              <Typography
-                variant="b3"
-                weight="bold"
-                className="text-neutral-950"
-              >
-                Waktu Pengerjaan
-              </Typography>
-              <Typography variant="b4" className="text-neutral-500">
-                20 Menit
-              </Typography>
-            </div>
-          </div>
-        </div>
-        <Button
-          size="medium"
-          onClick={() => {
-            if (dataPage === dataJson.length) return;
-            setDataPage((prev) => prev + 1);
-          }}
-        >
-          Lanjutan Subtes Selanjutnya
-        </Button>
+      <div className="flex flex-col justify-between gap-y-0.5">
+        <Typography variant="b3" weight="bold" className="text-neutral-950">
+          {title}
+        </Typography>
+        <Typography variant="b4" className="text-neutral-500">
+          {description}
+        </Typography>
       </div>
     </div>
   );
 }
+
+export { RestArea };

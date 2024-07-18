@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import type { ReactElement, ReactNode } from "react";
 
-import { Navbar } from "@components/Navbar";
+import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
 import { karla, nunito } from "@utils/fonts";
 import "../styles/global.css";
 
@@ -21,7 +21,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     ((page: ReactElement) => {
       return (
         <>
-          <Navbar />
+          <Navbar>
+            <HelpMenu />
+            <ProfileMenu withIcon />
+          </Navbar>
+
           <main className={`${karla.variable} ${nunito.variable} font-karla`}>
             {page}
           </main>

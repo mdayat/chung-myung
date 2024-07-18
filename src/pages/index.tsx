@@ -8,19 +8,19 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@components/shadcn/Dialog";
-import { Typography } from "@components/shadcn/Typography";
 import { Button } from "@components/shadcn/Button";
+import { Typography } from "@components/shadcn/Typography";
 import { HomeHeroBanner } from "@components/HomeHeroBanner";
+import { AssessmentRulesPopup } from "@components/AssessmentRulesPopup";
 import { BlurredCircle } from "@components/BlurredCircle";
 import { ChevronRightIcon } from "@components/icons/ChevronRightIcon";
+import { EmojiFlagsIcon } from "@components/icons/EmojiFlagsIcon";
+import { SchoolIcon } from "@components/icons/SchoolIcon";
 import {
   openAssessmentTrackerDB,
   type AssessmentTrackerDBSchema,
 } from "@utils/assessmentTracker";
-import { EmojiFlagsIcon } from "@components/icons/EmojiFlagsIcon";
-import { SchoolIcon } from "@components/icons/SchoolIcon";
 import MaskotBodyImage from "@public/maskot-body.png";
-import { AssessmentRulesPopup } from "@components/AssessmentRulesPopup";
 
 const UnfinishedAssessmentCard = dynamic(() =>
   import("@components/UnfinishedAssessmentCard").then(

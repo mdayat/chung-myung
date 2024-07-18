@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import type { IDBPDatabase } from "idb";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
+import { type IDBPDatabase } from "idb";
 
 import {
   Dialog,
@@ -21,6 +21,7 @@ import {
 } from "@components/AssessmentHeader";
 import { AssessmentContent } from "@components/AssessmentContent";
 import { RestArea } from "@components/RestArea";
+import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
 import { LoaderSpinner } from "@components/icons/LoaderSpinner";
 import {
   putManyQuestion,
@@ -30,12 +31,14 @@ import {
   type Subtest,
   type Question,
 } from "@utils/assessmentTracker";
+import { karla, nunito } from "@utils/fonts";
 import MaskotHeadImages from "@public/maskot-head.png";
+import type { NextPageWithLayout } from "./_app";
 
 // dummy data
 import { questionsDummyData, subtestsDummyData } from "../data/akb";
 
-export default function AsesmenKesiapanBelajar() {
+const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const [timer, setTimer] = useState(0);
   const [indexedDB, setIndexedDB] =
     useState<IDBPDatabase<AssessmentTrackerDBSchema>>();
@@ -102,7 +105,7 @@ export default function AsesmenKesiapanBelajar() {
       setCurrentSubtestIndex(currentSubtestIndex + 1);
       setCurrentQuestionIndex(0);
       setIsSubtestFinished(true);
-      setTimer(4);
+      setTimer(20);
     } catch (error) {
       // Log the error properly
       console.log(error);
@@ -127,7 +130,7 @@ export default function AsesmenKesiapanBelajar() {
       setIsAssessmentTimeout(false);
       setCurrentSubtestIndex(currentSubtestIndex + 1);
       setIsSubtestFinished(true);
-      setTimer(4);
+      setTimer(20);
     } else {
       (async () => {
         console.log(await indexedDB!.getAll("subtest"));
@@ -135,6 +138,16 @@ export default function AsesmenKesiapanBelajar() {
       })();
     }
   }, [isLastSubtest, currentSubtestIndex, indexedDB]);
+
+  // Lock the page height to the screen when the user is at "RestArea"
+  useEffect(() => {
+    const mainEl = document.getElementsByTagName("main")[0] as HTMLElement;
+    if (isSubtestFinished) {
+      mainEl.classList.add("relative", "h-screen", "overflow-hidden");
+    } else {
+      mainEl.classList.remove("relative", "h-screen", "overflow-hidden");
+    }
+  }, [isSubtestFinished]);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -333,6 +346,10 @@ export default function AsesmenKesiapanBelajar() {
   if (isSubtestFinished) {
     return (
       <>
+        <Navbar bgColor="bg-transparent">
+          <ProfileMenu />
+        </Navbar>
+
         <RestArea
           handleRestAreaOnClick={handleRestAreaOnClick}
           timer={timer}
@@ -346,122 +363,129 @@ export default function AsesmenKesiapanBelajar() {
   }
 
   return (
-    <div className="w-full max-w-[calc(1366px-160px)] mx-auto mt-[calc(64px+32px)]">
-      <AssessmentHeader
-        subtestsLength={subtests.length}
-        currentSubtestIndex={currentSubtestIndex + 1}
-        currentSubtestName={subtests[currentSubtestIndex].name}
-      >
-        <div className="bg-secondary-50 flex justify-between items-center py-2 px-3 rounded-lg mb-6">
-          <NavList
-            currentQuestionIndex={currentQuestionIndex}
-            currentSubtestQuestions={currentSubtestQuestions}
-            setCurrentQuestionIndex={setCurrentQuestionIndex}
-          />
-          <AssessmentTimer
-            currentSubtestTimer={isAssessmentTimeout ? 0 : timer}
-          />
-        </div>
-      </AssessmentHeader>
+    <>
+      <Navbar bgColor="bg-transparent">
+        <HelpMenu withText />
+        <ProfileMenu />
+      </Navbar>
 
-      <AssessmentContent
-        indexedDB={indexedDB!}
-        currentQuestion={currentSubtestQuestions[currentQuestionIndex]}
-        currentSubtestQuestions={currentSubtestQuestions}
-        setCurrentSubtestQuestions={setCurrentSubtestQuestions}
-      />
-
-      <div className="flex justify-end items-center gap-x-8">
-        <Button
-          onClick={handlePrevQuestionOnClick}
-          disabled={currentQuestionIndex === 0}
-          variant="secondary"
-          className="block text-center w-[164px]"
+      <div className="w-full max-w-[calc(1366px-160px)] mx-auto mt-[calc(64px+32px)]">
+        <AssessmentHeader
+          subtestsLength={subtests.length}
+          currentSubtestIndex={currentSubtestIndex + 1}
+          currentSubtestName={subtests[currentSubtestIndex].name}
         >
-          Kembali
-        </Button>
+          <div className="bg-secondary-50 flex justify-between items-center py-2 px-3 rounded-lg mb-6">
+            <NavList
+              currentQuestionIndex={currentQuestionIndex}
+              currentSubtestQuestions={currentSubtestQuestions}
+              setCurrentQuestionIndex={setCurrentQuestionIndex}
+            />
+            <AssessmentTimer
+              currentSubtestTimer={isAssessmentTimeout ? 0 : timer}
+            />
+          </div>
+        </AssessmentHeader>
 
-        <Dialog>
-          {isLastQuestion ? (
-            <DialogTrigger asChild>
+        <AssessmentContent
+          indexedDB={indexedDB!}
+          currentQuestion={currentSubtestQuestions[currentQuestionIndex]}
+          currentSubtestQuestions={currentSubtestQuestions}
+          setCurrentSubtestQuestions={setCurrentSubtestQuestions}
+        />
+
+        <div className="flex justify-end items-center gap-x-8">
+          <Button
+            onClick={handlePrevQuestionOnClick}
+            disabled={currentQuestionIndex === 0}
+            variant="secondary"
+            className="block text-center w-[164px]"
+          >
+            Kembali
+          </Button>
+
+          <Dialog>
+            {isLastQuestion ? (
+              <DialogTrigger asChild>
+                <Button
+                  disabled={
+                    isAllQuestionAnswered(currentSubtestQuestions) === false
+                  }
+                  className="block text-center w-[164px]"
+                >
+                  Serahkan
+                </Button>
+              </DialogTrigger>
+            ) : (
               <Button
-                disabled={
-                  isAllQuestionAnswered(currentSubtestQuestions) === false
-                }
+                onClick={handleNextQuestionOnClick}
                 className="block text-center w-[164px]"
               >
-                Serahkan
+                Selanjutnya
               </Button>
-            </DialogTrigger>
-          ) : (
-            <Button
-              onClick={handleNextQuestionOnClick}
-              className="block text-center w-[164px]"
-            >
-              Selanjutnya
-            </Button>
-          )}
+            )}
 
-          {/* The popup will displayed when the user submit the subtest */}
-          <DialogContent className="w-full max-w-md">
-            <Image
-              src={MaskotHeadImages}
-              width={180}
-              height={180}
-              alt="Emteka Maskot (Head)"
-              className="object-cover object-center mx-auto"
-            />
+            {/* The popup will displayed when the user submit the subtest */}
+            <DialogContent className="w-full max-w-md">
+              <Image
+                src={MaskotHeadImages}
+                width={180}
+                height={180}
+                alt="Emteka Maskot (Head)"
+                className="object-cover object-center mx-auto"
+              />
 
-            <DialogDescription asChild>
-              <Typography
-                as="h3"
-                variant="h5"
-                weight="bold"
-                className="text-neutral-700 text-center mb-6"
-              >
-                Apakah sudah yakin ingin menyerahkan jawabanmu?
-              </Typography>
-            </DialogDescription>
-
-            <DialogFooter className="flex justify-between items-center gap-x-4">
-              <DialogClose asChild>
-                <Button
-                  variant="secondary"
-                  className="block text-center w-full"
+              <DialogDescription asChild>
+                <Typography
+                  as="h3"
+                  variant="h5"
+                  weight="bold"
+                  className="text-neutral-700 text-center mb-6"
                 >
-                  Batal
-                </Button>
-              </DialogClose>
+                  Apakah sudah yakin ingin menyerahkan jawabanmu?
+                </Typography>
+              </DialogDescription>
 
-              <DialogClose asChild>
-                <Button
-                  onClick={
-                    isLastSubtest
-                      ? handleAssessmentOnSubmit
-                      : handleSubtestOnSubmit
-                  }
-                  variant="primary"
-                  className="block text-center w-full"
-                >
-                  Ya
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter className="flex justify-between items-center gap-x-4">
+                <DialogClose asChild>
+                  <Button
+                    variant="secondary"
+                    className="block text-center w-full"
+                  >
+                    Batal
+                  </Button>
+                </DialogClose>
 
-        <Dialog
-          open={isAssessmentTimeout}
-          onOpenChange={assessmentTimerHandler}
-        >
-          <DialogContent>
-            <TimeIsUpPopup timer={timer} isLastSubtest={isLastSubtest} />
-          </DialogContent>
-        </Dialog>
+                <DialogClose asChild>
+                  <Button
+                    onClick={
+                      isLastSubtest
+                        ? handleAssessmentOnSubmit
+                        : handleSubtestOnSubmit
+                    }
+                    variant="primary"
+                    className="block text-center w-full"
+                  >
+                    Ya
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog
+            open={isAssessmentTimeout}
+            onOpenChange={assessmentTimerHandler}
+          >
+            <DialogContent>
+              <TimeIsUpPopup timer={timer} isLastSubtest={isLastSubtest} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 function isAllQuestionAnswered(questions: Question[]): boolean {
   for (let i = 0; i < questions.length; i++) {
@@ -525,6 +549,16 @@ function TimeIsUpPopup({ timer, isLastSubtest }: TimeIsUpPopupProps) {
     </>
   );
 }
+
+AsesmenKesiapanBelajar.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <main className={`${karla.variable} ${nunito.variable} font-karla`}>
+      {page}
+    </main>
+  );
+};
+
+export default AsesmenKesiapanBelajar;
 
 // jika "timer" pada asesmen merupakan atribut pada subtes, misalnya "duration",
 // maka perlu atribut lain untuk menyimpan nilai "countdown"

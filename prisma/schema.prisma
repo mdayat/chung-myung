@@ -13,16 +13,136 @@ enum school_major {
   ipa
 }
 
+enum assessment_type {
+  asesmen_kesiapan_belajar
+  asesmen_akhir
+}
+
+enum learning_material_type {
+  prerequisite
+  sub_material
+}
+
+enum domain_tag {
+  bil
+  alj
+  geo
+  pgk
+  adp
+  kal
+}
+
 model user {
   id         String        @id @default(uuid()) @db.Uuid
   name       String        @db.VarChar(256)
   email      String        @unique @db.VarChar(256)
   major      school_major?
   avatar_url String        @db.VarChar(256)
+
+  assessment_results assessment_result[]
+}
+
+model domain {
+  id   String     @id @default(uuid()) @db.Uuid
+  name String     @db.VarChar(256)
+  tag  domain_tag
+
+  materials domain_material[]
+}
+
+model domain_material {
+  domain          domain   @relation(fields: [domain_id], references: [id])
+  domain_id       String   @db.Uuid
+  material        material @relation(fields: [material_id], references: [id])
+  material_id     String   @db.Uuid
+  material_number Int      @db.SmallInt
+
+  @@id([domain_id, material_id])
+  @@unique([domain_id, material_number])
 }
 
 model material {
   id          String @id @default(uuid()) @db.Uuid
   name        String @db.VarChar(256)
   description String @db.Text
+
+  domains            domain_material[]
+  learning_materials material_learning_material[]
+  assessment_results assessment_result[]
+}
+
+model material_learning_material {
+  learning_material    learning_material @relation(fields: [learning_material_id], references: [id])
+  learning_material_id String            @db.Uuid
+  material             material          @relation(fields: [material_id], references: [id])
+  material_id          String            @db.Uuid
+  sequence_number      Int               @db.SmallInt
+
+  @@id([material_id, learning_material_id])
+  @@unique([material_id, sequence_number])
+}
+
+model learning_material {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  name                String                 @db.VarChar(256)
+  description         String                 @db.Text
+  type                learning_material_type
+  learning_module_url String                 @db.VarChar(256)
+
+  materials material_learning_material[]
+  questions learning_material_question[]
+}
+
+model learning_material_question {
+  learning_material    learning_material @relation(fields: [learning_material_id], references: [id])
+  learning_material_id String            @db.Uuid
+  question             question          @relation(fields: [question_id], references: [id])
+  question_id          String            @db.Uuid
+
+  @@id([learning_material_id, question_id])
+}
+
+model question {
+  id             String @id @default(uuid()) @db.Uuid
+  content        String @db.Text
+  explanation    String @db.Text
+  taxonomy_bloom String @db.Char(2)
+
+  learning_materials   learning_material_question[]
+  multiple_choice      multiple_choice[]
+  assessment_responses assessment_response[]
+}
+
+model multiple_choice {
+  id                String   @id @default(uuid()) @db.Uuid
+  content           String   @db.Text
+  is_correct_answer Boolean  @db.Boolean
+  question          question @relation(fields: [question_id], references: [id])
+  question_id       String   @db.Uuid
+
+  assessment_responses assessment_response[]
+}
+
+model assessment_response {
+  assessment_result    assessment_result @relation(fields: [assessment_result_id], references: [id])
+  assessment_result_id String            @db.Uuid
+  question             question          @relation(fields: [question_id], references: [id])
+  question_id          String            @db.Uuid
+  multiple_choice      multiple_choice   @relation(fields: [multiple_choice_id], references: [id])
+  multiple_choice_id   String            @db.Uuid
+  is_correct           Boolean           @db.Boolean
+
+  @@id([assessment_result_id, question_id, multiple_choice_id])
+}
+
+model assessment_result {
+  id          String          @id @default(uuid()) @db.Uuid
+  user        user            @relation(fields: [user_id], references: [id])
+  user_id     String          @db.Uuid
+  material    material        @relation(fields: [material_id], references: [id])
+  material_id String          @db.Uuid
+  type        assessment_type
+  created_at  DateTime        @default(now())
+
+  assessment_responses assessment_response[]
 }

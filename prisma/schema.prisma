@@ -51,9 +51,9 @@ model domain {
 }
 
 model domain_material {
-  domain          domain   @relation(fields: [domain_id], references: [id])
+  domain          domain   @relation(fields: [domain_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   domain_id       String   @db.Uuid
-  material        material @relation(fields: [material_id], references: [id])
+  material        material @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   material_id     String   @db.Uuid
   material_number Int      @db.SmallInt
 
@@ -72,10 +72,10 @@ model material {
 }
 
 model material_learning_material {
-  learning_material    learning_material @relation(fields: [learning_material_id], references: [id])
-  learning_material_id String            @db.Uuid
-  material             material          @relation(fields: [material_id], references: [id])
+  material             material          @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   material_id          String            @db.Uuid
+  learning_material    learning_material @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  learning_material_id String            @db.Uuid
   sequence_number      Int               @db.SmallInt
 
   @@id([material_id, learning_material_id])
@@ -94,9 +94,9 @@ model learning_material {
 }
 
 model learning_material_question {
-  learning_material    learning_material @relation(fields: [learning_material_id], references: [id])
+  learning_material    learning_material @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   learning_material_id String            @db.Uuid
-  question             question          @relation(fields: [question_id], references: [id])
+  question             question          @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   question_id          String            @db.Uuid
 
   @@id([learning_material_id, question_id])
@@ -117,18 +117,18 @@ model multiple_choice {
   id                String   @id @default(uuid()) @db.Uuid
   content           String   @db.Text
   is_correct_answer Boolean  @db.Boolean
-  question          question @relation(fields: [question_id], references: [id])
+  question          question @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   question_id       String   @db.Uuid
 
   assessment_responses assessment_response[]
 }
 
 model assessment_response {
-  assessment_result    assessment_result @relation(fields: [assessment_result_id], references: [id])
+  assessment_result    assessment_result @relation(fields: [assessment_result_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   assessment_result_id String            @db.Uuid
-  question             question          @relation(fields: [question_id], references: [id])
+  question             question          @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
   question_id          String            @db.Uuid
-  multiple_choice      multiple_choice   @relation(fields: [multiple_choice_id], references: [id])
+  multiple_choice      multiple_choice   @relation(fields: [multiple_choice_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
   multiple_choice_id   String            @db.Uuid
   is_correct           Boolean           @db.Boolean
 
@@ -137,9 +137,9 @@ model assessment_response {
 
 model assessment_result {
   id          String          @id @default(uuid()) @db.Uuid
-  user        user            @relation(fields: [user_id], references: [id])
+  user        user            @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   user_id     String          @db.Uuid
-  material    material        @relation(fields: [material_id], references: [id])
+  material    material        @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
   material_id String          @db.Uuid
   type        assessment_type
   created_at  DateTime        @default(now())

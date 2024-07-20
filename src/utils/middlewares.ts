@@ -7,14 +7,13 @@ function handleInvalidMethod(
   res: NextApiResponse,
   allowedMethods: HTTPMethod[]
 ): void {
-  const bodyPayload: FailedResponse = {
+  const payload: FailedResponse = {
     status: "failed",
-    error: { statusCode: 405, message: "Invalid HTTP method" },
+    message: "Invalid HTTP Method",
   };
 
   res.setHeader("Allow", allowedMethods.join(", "));
-  res.setHeader("Content-Type", "application/json");
-  res.status(bodyPayload.error.statusCode).json(bodyPayload);
+  res.status(405).json(payload);
 }
 
 export { handleInvalidMethod };

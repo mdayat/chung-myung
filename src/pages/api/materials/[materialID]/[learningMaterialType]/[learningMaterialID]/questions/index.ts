@@ -211,7 +211,7 @@ function busboyErrorHandler(res: NextApiResponse, fn: () => void): void {
     if (error instanceof BusboyError) {
       const bodyPayload: FailedResponse = {
         status: "failed",
-        error: { statusCode: error.statusCode, message: error.message },
+        message: error.message,
       };
 
       res.setHeader("Content-Type", "application/json");

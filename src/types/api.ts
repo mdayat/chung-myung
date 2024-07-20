@@ -1,14 +1,11 @@
-interface SuccessResponse<T> {
+interface SuccessResponse<T = null> {
   status: "success";
-  data: T | null;
+  data: T;
 }
 
 interface FailedResponse {
   status: "failed";
-  error: {
-    statusCode: number;
-    message: string;
-  };
+  message: string;
 }
 
 export type { SuccessResponse, FailedResponse };

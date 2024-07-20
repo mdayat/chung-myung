@@ -21,7 +21,7 @@ export function middleware(req: NextRequest) {
 
     const bodyPayload: FailedResponse = {
       status: "failed",
-      error: { statusCode: 404, message: "Invalid resource URL" },
+      message: "Invalid Resource URL",
     };
 
     const res = NextResponse.json(bodyPayload, { status: 404 });

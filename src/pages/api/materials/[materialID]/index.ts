@@ -23,11 +23,17 @@ export default async function handler(
     const result = uuidSchema.safeParse(materialID);
 
     if (result.success === false) {
-      res.status(200).json({ status: "success", data: null });
+      res.status(404).json({ status: "failed", message: "Material Not Found" });
     } else {
       try {
         const material = await getMaterial(materialID);
-        res.status(200).json({ status: "success", data: material });
+        if (material === null) {
+          res
+            .status(404)
+            .json({ status: "failed", message: "Material Not Found" });
+        } else {
+          res.status(200).json({ status: "success", data: material });
+        }
       } catch (error) {
         // Log the error properly
         console.error(error);
@@ -53,6 +59,6 @@ async function getMaterial(materialID: string): Promise<Material | null> {
       .throwOnError();
     return data;
   } catch (error) {
-    throw new Error("Error when get a materials: ", { cause: error });
+    throw new Error("Error when get a material: ", { cause: error });
   }
 }

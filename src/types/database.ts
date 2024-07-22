@@ -149,21 +149,18 @@ export type Database = {
           id: string;
           learning_module_url: string;
           name: string;
-          type: Database["public"]["Enums"]["learning_material_type"];
         };
         Insert: {
           description: string;
           id: string;
           learning_module_url: string;
           name: string;
-          type: Database["public"]["Enums"]["learning_material_type"];
         };
         Update: {
           description?: string;
           id?: string;
           learning_module_url?: string;
           name?: string;
-          type?: Database["public"]["Enums"]["learning_material_type"];
         };
         Relationships: [];
       };
@@ -220,16 +217,19 @@ export type Database = {
           learning_material_id: string;
           material_id: string;
           sequence_number: number;
+          type: Database["public"]["Enums"]["learning_material_type"];
         };
         Insert: {
           learning_material_id: string;
           material_id: string;
           sequence_number: number;
+          type: Database["public"]["Enums"]["learning_material_type"];
         };
         Update: {
           learning_material_id?: string;
           material_id?: string;
           sequence_number?: number;
+          type?: Database["public"]["Enums"]["learning_material_type"];
         };
         Relationships: [
           {
@@ -300,25 +300,34 @@ export type Database = {
       };
       user: {
         Row: {
+          access_token: string | null;
           avatar_url: string;
+          created_at: string;
           email: string;
           id: string;
           major: Database["public"]["Enums"]["school_major"] | null;
           name: string;
+          role: Database["public"]["Enums"]["user_role"];
         };
         Insert: {
+          access_token?: string | null;
           avatar_url: string;
+          created_at?: string;
           email: string;
           id: string;
           major?: Database["public"]["Enums"]["school_major"] | null;
           name: string;
+          role: Database["public"]["Enums"]["user_role"];
         };
         Update: {
+          access_token?: string | null;
           avatar_url?: string;
+          created_at?: string;
           email?: string;
           id?: string;
           major?: Database["public"]["Enums"]["school_major"] | null;
           name?: string;
+          role?: Database["public"]["Enums"]["user_role"];
         };
         Relationships: [];
       };
@@ -334,6 +343,7 @@ export type Database = {
       domain_tag: "bil" | "alj" | "geo" | "pgk" | "adp" | "kal";
       learning_material_type: "prerequisite" | "sub_material";
       school_major: "ips" | "ipa";
+      user_role: "admin" | "siswa";
     };
     CompositeTypes: {
       [_ in never]: never;

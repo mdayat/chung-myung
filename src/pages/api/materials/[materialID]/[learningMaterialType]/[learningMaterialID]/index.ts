@@ -37,17 +37,27 @@ export default async function handler(
         .status(404)
         .json({ status: "failed", message: "Learning Material Not Found" });
     } else {
-      const learningMaterial = await getLearningMaterial(
-        materialID,
-        learningMaterialID
-      );
+      try {
+        const learningMaterial = await getLearningMaterial(
+          materialID,
+          learningMaterialID
+        );
 
-      if (learningMaterial === null) {
-        res
-          .status(404)
-          .json({ status: "failed", message: "Learning Material Not Found" });
-      } else {
-        res.status(200).json({ status: "success", data: learningMaterial });
+        if (learningMaterial === null) {
+          res
+            .status(404)
+            .json({ status: "failed", message: "Learning Material Not Found" });
+        } else {
+          res.status(200).json({ status: "success", data: learningMaterial });
+        }
+      } catch (error) {
+        // Log the error properly
+        console.error(error);
+
+        res.status(500).json({
+          status: "failed",
+          message: "Server Error",
+        });
       }
     }
   } else {

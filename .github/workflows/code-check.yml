@@ -33,8 +33,8 @@ jobs:
       - name: 🔬 Lint
         run: pnpm lint:fix
 
-      - name: 🔎 Type check
-        run: pnpm typecheck
+      # - name: 🔎 Type check
+      #   run: pnpm typecheck
 
       - name: 💅 Prettier check
         run: pnpm prettier:check

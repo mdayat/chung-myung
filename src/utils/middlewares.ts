@@ -1,11 +1,11 @@
-import type { NextApiResponse } from "next";
 import type { FailedResponse } from "@customTypes/api";
+import type { NextApiResponse } from "next";
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 function handleInvalidMethod(
   res: NextApiResponse,
-  allowedMethods: HTTPMethod[]
+  allowedMethods: HTTPMethod[],
 ): void {
   const payload: FailedResponse = {
     status: "failed",

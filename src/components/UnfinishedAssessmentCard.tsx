@@ -1,24 +1,24 @@
+import { WarningIcon } from "@components/icons/WarningIcon";
+import { Button } from "@components/shadcn/Button";
+import { Typography } from "@components/shadcn/Typography";
+import MaskotHeadImages from "@public/maskot-head.png";
+import type { AssessmentTrackerDBSchema } from "@utils/assessmentTracker";
+import type { IDBPDatabase } from "idb";
 import Image from "next/image";
 import Link from "next/link";
 import type { Dispatch, SetStateAction } from "react";
-import type { IDBPDatabase } from "idb";
 
+import { BlurredCircle } from "./BlurredCircle";
 import {
   Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogDescription,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "./shadcn/Dialog";
-import { Button } from "@components/shadcn/Button";
-import { Typography } from "@components/shadcn/Typography";
-import { BlurredCircle } from "./BlurredCircle";
-import { WarningIcon } from "@components/icons/WarningIcon";
-import MaskotHeadImages from "@public/maskot-head.png";
-import type { AssessmentTrackerDBSchema } from "@utils/assessmentTracker";
 
 interface UnfinishedAssessmentCardProps {
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
@@ -44,40 +44,40 @@ export function UnfinishedAssessmentCard({
 
   return (
     <Dialog>
-      <div className="relative z-0 overflow-hidden bg-neutral-25 shadow-[0_4px_16px_0_rgba(0,0,0,0.15)] rounded-3xl flex justify-between items-center py-4 px-6 mt-8">
+      <div className='relative z-0 mt-8 flex items-center justify-between overflow-hidden rounded-3xl bg-neutral-25 px-6 py-4 shadow-[0_4px_16px_0_rgba(0,0,0,0.15)]'>
         <BlurredCircle
-          colorType="red"
-          className="absolute top-1/2 -translate-y-1/2 -left-9 -z-10 w-28 h-28"
+          colorType='red'
+          className='absolute -left-9 top-1/2 -z-10 h-28 w-28 -translate-y-1/2'
         />
 
-        <div className="flex justify-between items-center gap-x-10">
-          <WarningIcon className="fill-error-600 w-8 h-8" />
+        <div className='flex items-center justify-between gap-x-10'>
+          <WarningIcon className='h-8 w-8 fill-error-600' />
 
-          <div className="max-w-[626px]">
+          <div className='max-w-[626px]'>
             <Typography
-              as="h3"
-              variant="h5"
-              weight="bold"
-              className="text-[#590009] mb-1"
+              as='h3'
+              variant='h5'
+              weight='bold'
+              className='mb-1 text-[#590009]'
             >
               Asesmen Kesiapan Belajar Kamu Belum Terselesaikan!
             </Typography>
 
-            <Typography variant="b3" className="text-neutral-500">
+            <Typography variant='b3' className='text-neutral-500'>
               Ingin melanjutkan atau mengulang asesmen?
             </Typography>
           </div>
         </div>
 
-        <div className="flex justify-between items-center gap-x-4">
+        <div className='flex items-center justify-between gap-x-4'>
           <DialogTrigger asChild>
-            <Button variant="secondary" size="small" className="shrink-0">
+            <Button variant='secondary' size='small' className='shrink-0'>
               Mulai Ulang Asesmen
             </Button>
           </DialogTrigger>
 
-          <Button size="small" className="shrink-0" asChild>
-            <Link href="/asesmen-kesiapan-belajar">Lanjutkan Asesmen</Link>
+          <Button size='small' className='shrink-0' asChild>
+            <Link href='/asesmen-kesiapan-belajar'>Lanjutkan Asesmen</Link>
           </Button>
         </div>
       </div>
@@ -87,33 +87,33 @@ export function UnfinishedAssessmentCard({
           src={MaskotHeadImages}
           width={180}
           height={180}
-          alt="Emteka Maskot (Head)"
-          className="object-cover object-center mx-auto"
+          alt='Emteka Maskot (Head)'
+          className='mx-auto object-cover object-center'
         />
 
-        <DialogHeader className="w-full max-w-96 mx-auto mb-8">
+        <DialogHeader className='mx-auto mb-8 w-full max-w-96'>
           <DialogTitle asChild>
             <Typography
-              as="h3"
-              variant="h5"
-              weight="bold"
-              className="text-neutral-700 text-center mb-2"
+              as='h3'
+              variant='h5'
+              weight='bold'
+              className='mb-2 text-center text-neutral-700'
             >
               Apakah Kamu yakin ingin&nbsp;
-              <span className="text-error-600">memulai ulang</span> asesmen?
+              <span className='text-error-600'>memulai ulang</span> asesmen?
             </Typography>
           </DialogTitle>
 
           <DialogDescription asChild>
-            <Typography variant="b2" className="text-neutral-500 text-center">
+            <Typography variant='b2' className='text-center text-neutral-500'>
               Semua progres sebelumnya akan hilang.
             </Typography>
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="flex justify-between items-center gap-x-4">
+        <DialogFooter className='flex items-center justify-between gap-x-4'>
           <DialogClose asChild>
-            <Button variant="secondary" className="block text-center w-full">
+            <Button variant='secondary' className='block w-full text-center'>
               Batal
             </Button>
           </DialogClose>
@@ -121,8 +121,8 @@ export function UnfinishedAssessmentCard({
           <DialogClose asChild>
             <Button
               onClick={retakeAssessment}
-              variant="primary"
-              className="block text-center w-full"
+              variant='primary'
+              className='block w-full text-center'
             >
               Ya
             </Button>

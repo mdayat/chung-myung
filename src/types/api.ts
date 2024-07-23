@@ -8,4 +8,4 @@ interface FailedResponse {
   message: string;
 }
 
-export type { SuccessResponse, FailedResponse };
+export type { FailedResponse, SuccessResponse };

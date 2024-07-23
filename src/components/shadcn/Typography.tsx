@@ -41,7 +41,7 @@ const Typography = forwardRef<
       children,
       variant,
     },
-    ref
+    ref,
   ) => {
     const variantStyles = generateStyles(variant);
     const fontWeight = determineFontWeight(weight);
@@ -56,7 +56,7 @@ const Typography = forwardRef<
         {children}
       </Component>
     );
-  }
+  },
 );
 
 Typography.displayName = "Typography";

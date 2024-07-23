@@ -1,7 +1,13 @@
-import Image from "next/image";
-import { type ReactElement, useCallback, useEffect, useState } from "react";
-import { type IDBPDatabase } from "idb";
-
+import { AssessmentContent } from "@components/AssessmentContent";
+import {
+  AssessmentHeader,
+  AssessmentTimer,
+  NavList,
+} from "@components/AssessmentHeader";
+import { LoaderSpinner } from "@components/icons/LoaderSpinner";
+import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
+import { RestArea } from "@components/RestArea";
+import { Button } from "@components/shadcn/Button";
 import {
   Dialog,
   DialogClose,
@@ -12,29 +18,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@components/shadcn/Dialog";
-import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
+import MaskotHeadImages from "@public/maskot-head.png";
 import {
-  AssessmentHeader,
-  AssessmentTimer,
-  NavList,
-} from "@components/AssessmentHeader";
-import { AssessmentContent } from "@components/AssessmentContent";
-import { RestArea } from "@components/RestArea";
-import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
-import { LoaderSpinner } from "@components/icons/LoaderSpinner";
-import {
+  type AssessmentTrackerDBSchema,
+  openAssessmentTrackerDB,
   putManyQuestion,
   putManySubtest,
-  openAssessmentTrackerDB,
-  type AssessmentTrackerDBSchema,
-  type Subtest,
   type Question,
+  type Subtest,
 } from "@utils/assessmentTracker";
 import { karla, nunito } from "@utils/fonts";
-import MaskotHeadImages from "@public/maskot-head.png";
-import type { NextPageWithLayout } from "./_app";
+import { type IDBPDatabase } from "idb";
+import Image from "next/image";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
 
+import type { NextPageWithLayout } from "./_app";
 // dummy data
 import { questionsDummyData, subtestsDummyData } from "../data/akb";
 
@@ -72,20 +71,20 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
         putManyQuestion(
           questionsDummyData.slice(2, questionsDummyData.length),
           subtests[currentSubtestIndex + 1].id,
-          indexedDB!
+          indexedDB!,
         ),
       ]);
 
       const storedQuestions = await indexedDB!.getAllFromIndex(
         "question",
         "subtestID",
-        subtests[currentSubtestIndex + 1].id
+        subtests[currentSubtestIndex + 1].id,
       );
       return storedQuestions;
     } catch (error) {
       throw new Error(
         "Failed when update submitted subtest and get the next subtest questions: ",
-        { cause: error }
+        { cause: error },
       );
     }
   }, [currentSubtestIndex, indexedDB, subtests]);
@@ -249,7 +248,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             await putManySubtest(subtestsDummyData, db);
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
-              "sequenceNumber"
+              "sequenceNumber",
             );
             setSubtests(sortedSubtests);
 
@@ -258,13 +257,13 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             await putManyQuestion(
               questionsDummyData.slice(0, 2),
               sortedSubtests[0].id,
-              db
+              db,
             );
 
             const storedQuestions = await db.getAllFromIndex(
               "question",
               "subtestID",
-              sortedSubtests[0].id
+              sortedSubtests[0].id,
             );
 
             // the "storedQuestions" must be sorted first
@@ -273,7 +272,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           } else {
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
-              "sequenceNumber"
+              "sequenceNumber",
             );
             setSubtests(sortedSubtests);
 
@@ -293,7 +292,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               const storedQuestions = await db.getAllFromIndex(
                 "question",
                 "subtestID",
-                currentSubtest.id
+                currentSubtest.id,
               );
 
               setCurrentSubtestQuestions(storedQuestions);
@@ -306,13 +305,13 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               await putManyQuestion(
                 questionsDummyData.slice(2, questionsDummyData.length),
                 currentSubtest.id,
-                db
+                db,
               );
 
               const storedQuestions = await db.getAllFromIndex(
                 "question",
                 "subtestID",
-                currentSubtest.id
+                currentSubtest.id,
               );
 
               // the "storedQuestions" must be sorted first
@@ -331,12 +330,12 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
   if (isLoading) {
     return (
-      <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex flex-col justify-center items-center">
-        <LoaderSpinner className="w-12 h-12 mb-16" />
-        <Typography as="h1" variant="h5" weight="bold" className="mb-2">
+      <div className='absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center'>
+        <LoaderSpinner className='mb-16 h-12 w-12' />
+        <Typography as='h1' variant='h5' weight='bold' className='mb-2'>
           Tunggu sebentar ya!
         </Typography>
-        <Typography variant="b3">
+        <Typography variant='b3'>
           Kami sedang mempersiapkan soal-soal untuk asesmenmu.
         </Typography>
       </div>
@@ -346,7 +345,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   if (isSubtestFinished) {
     return (
       <>
-        <Navbar bgColor="bg-transparent">
+        <Navbar bgColor='bg-transparent'>
           <ProfileMenu />
         </Navbar>
 
@@ -364,18 +363,18 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
   return (
     <>
-      <Navbar bgColor="bg-transparent">
+      <Navbar bgColor='bg-transparent'>
         <HelpMenu withText />
         <ProfileMenu />
       </Navbar>
 
-      <div className="w-full max-w-[calc(1366px-160px)] mx-auto mt-[calc(64px+32px)]">
+      <div className='mx-auto mt-[calc(64px+32px)] w-full max-w-[calc(1366px-160px)]'>
         <AssessmentHeader
           subtestsLength={subtests.length}
           currentSubtestIndex={currentSubtestIndex + 1}
           currentSubtestName={subtests[currentSubtestIndex].name}
         >
-          <div className="bg-secondary-50 flex justify-between items-center py-2 px-3 rounded-lg mb-6">
+          <div className='mb-6 flex items-center justify-between rounded-lg bg-secondary-50 px-3 py-2'>
             <NavList
               currentQuestionIndex={currentQuestionIndex}
               currentSubtestQuestions={currentSubtestQuestions}
@@ -394,12 +393,12 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           setCurrentSubtestQuestions={setCurrentSubtestQuestions}
         />
 
-        <div className="flex justify-end items-center gap-x-8">
+        <div className='flex items-center justify-end gap-x-8'>
           <Button
             onClick={handlePrevQuestionOnClick}
             disabled={currentQuestionIndex === 0}
-            variant="secondary"
-            className="block text-center w-[164px]"
+            variant='secondary'
+            className='block w-[164px] text-center'
           >
             Kembali
           </Button>
@@ -411,7 +410,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
                   disabled={
                     isAllQuestionAnswered(currentSubtestQuestions) === false
                   }
-                  className="block text-center w-[164px]"
+                  className='block w-[164px] text-center'
                 >
                   Serahkan
                 </Button>
@@ -419,38 +418,38 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             ) : (
               <Button
                 onClick={handleNextQuestionOnClick}
-                className="block text-center w-[164px]"
+                className='block w-[164px] text-center'
               >
                 Selanjutnya
               </Button>
             )}
 
             {/* The popup will displayed when the user submit the subtest */}
-            <DialogContent className="w-full max-w-md">
+            <DialogContent className='w-full max-w-md'>
               <Image
                 src={MaskotHeadImages}
                 width={180}
                 height={180}
-                alt="Emteka Maskot (Head)"
-                className="object-cover object-center mx-auto"
+                alt='Emteka Maskot (Head)'
+                className='mx-auto object-cover object-center'
               />
 
               <DialogDescription asChild>
                 <Typography
-                  as="h3"
-                  variant="h5"
-                  weight="bold"
-                  className="text-neutral-700 text-center mb-6"
+                  as='h3'
+                  variant='h5'
+                  weight='bold'
+                  className='mb-6 text-center text-neutral-700'
                 >
                   Apakah sudah yakin ingin menyerahkan jawabanmu?
                 </Typography>
               </DialogDescription>
 
-              <DialogFooter className="flex justify-between items-center gap-x-4">
+              <DialogFooter className='flex items-center justify-between gap-x-4'>
                 <DialogClose asChild>
                   <Button
-                    variant="secondary"
-                    className="block text-center w-full"
+                    variant='secondary'
+                    className='block w-full text-center'
                   >
                     Batal
                   </Button>
@@ -463,8 +462,8 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
                         ? handleAssessmentOnSubmit
                         : handleSubtestOnSubmit
                     }
-                    variant="primary"
-                    className="block text-center w-full"
+                    variant='primary'
+                    className='block w-full text-center'
                   >
                     Ya
                   </Button>
@@ -508,17 +507,17 @@ function TimeIsUpPopup({ timer, isLastSubtest }: TimeIsUpPopupProps) {
         src={MaskotHeadImages}
         width={180}
         height={180}
-        alt="Emteka Maskot (Head)"
-        className="object-cover object-center mx-auto"
+        alt='Emteka Maskot (Head)'
+        className='mx-auto object-cover object-center'
       />
 
-      <DialogHeader className="w-full max-w-96 mx-auto mb-8">
+      <DialogHeader className='mx-auto mb-8 w-full max-w-96'>
         <DialogTitle asChild>
           <Typography
-            as="h3"
-            variant="h5"
-            weight="bold"
-            className="text-neutral-700 text-center mb-2"
+            as='h3'
+            variant='h5'
+            weight='bold'
+            className='mb-2 text-center text-neutral-700'
           >
             Waktu Habis!
           </Typography>
@@ -527,21 +526,21 @@ function TimeIsUpPopup({ timer, isLastSubtest }: TimeIsUpPopupProps) {
         <DialogDescription asChild>
           <>
             <Typography
-              variant="b2"
-              className="text-neutral-500 text-center mb-2"
+              variant='b2'
+              className='mb-2 text-center text-neutral-500'
             >
               Waktu pengerjaan subtes ini telah habis.
             </Typography>
 
             <Typography
-              variant="b2"
-              weight="bold"
-              className="text-neutral-500 text-center"
+              variant='b2'
+              weight='bold'
+              className='text-center text-neutral-500'
             >
               Kamu akan diarahkan ke&nbsp;
               {isLastSubtest ? "halaman hasil asesmen" : "subtes selanjutnya"}
               &nbsp; dalam&nbsp;
-              <span className="text-secondary-500">{timer} detik</span>.
+              <span className='text-secondary-500'>{timer} detik</span>.
             </Typography>
           </>
         </DialogDescription>

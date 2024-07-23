@@ -1,11 +1,11 @@
+import AvatarImage from "@public/avatar.png";
 import Image from "next/image";
 import type { PropsWithChildren } from "react";
 
-import { Typography } from "./shadcn/Typography";
-import { EmtekaLogo } from "./icons/EmtekaLogo";
 import { ArrowDropDownIcon } from "./icons/ArrowDropDownIcon";
+import { EmtekaLogo } from "./icons/EmtekaLogo";
 import { HelpOutlineIcon } from "./icons/HelpOutlineIcon";
-import AvatarImage from "@public/avatar.png";
+import { Typography } from "./shadcn/Typography";
 
 interface NavbarProps extends PropsWithChildren {
   bgColor?: string;
@@ -14,11 +14,11 @@ interface NavbarProps extends PropsWithChildren {
 function Navbar({ bgColor = "bg-neutral-25", children }: NavbarProps) {
   return (
     <div
-      className={`${bgColor} fixed top-0 z-50 w-screen h-full max-h-16 flex justify-center items-center`}
+      className={`${bgColor} fixed top-0 z-50 flex h-full max-h-16 w-screen items-center justify-center`}
     >
-      <div className="flex justify-between items-center w-full max-w-screen-desktop mx-auto px-6 desktop:px-0">
-        <EmtekaLogo className="w-28" />
-        <div className="flex justify-between items-center gap-x-4">
+      <div className='mx-auto flex w-full max-w-screen-desktop items-center justify-between px-6 desktop:px-0'>
+        <EmtekaLogo className='w-28' />
+        <div className='flex items-center justify-between gap-x-4'>
           {children}
         </div>
       </div>
@@ -29,12 +29,12 @@ function Navbar({ bgColor = "bg-neutral-25", children }: NavbarProps) {
 function HelpMenu({ withText = false }: { withText?: boolean }) {
   return (
     <button
-      type="button"
-      className="flex justify-between items-center gap-x-1.5"
+      type='button'
+      className='flex items-center justify-between gap-x-1.5'
     >
-      <HelpOutlineIcon className="fill-neutral-600 w-6 h-6" />
+      <HelpOutlineIcon className='h-6 w-6 fill-neutral-600' />
       {withText ? (
-        <Typography variant="b4" weight="bold" className="text-neutral-600">
+        <Typography variant='b4' weight='bold' className='text-neutral-600'>
           Pusat bantuan
         </Typography>
       ) : (
@@ -54,15 +54,15 @@ function ProfileMenu({
   withIcon = false,
 }: ProfileMenuProps) {
   return (
-    <button type="button" className="flex items-center gap-x-2">
+    <button type='button' className='flex items-center gap-x-2'>
       <Image
         src={AvatarImage}
-        alt=""
-        className="object-cover object-center w-8 h-8"
+        alt=''
+        className='h-8 w-8 object-cover object-center'
       />
 
       {withUsername ? (
-        <Typography variant="b3" weight="bold" className="text-neutral-700">
+        <Typography variant='b3' weight='bold' className='text-neutral-700'>
           Username
         </Typography>
       ) : (
@@ -70,7 +70,7 @@ function ProfileMenu({
       )}
 
       {withIcon ? (
-        <ArrowDropDownIcon className="fill-neutral-600 w-5 h-5" />
+        <ArrowDropDownIcon className='h-5 w-5 fill-neutral-600' />
       ) : (
         <></>
       )}
@@ -78,4 +78,4 @@ function ProfileMenu({
   );
 }
 
-export { Navbar, HelpMenu, ProfileMenu };
+export { HelpMenu, Navbar, ProfileMenu };

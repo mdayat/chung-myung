@@ -1,0 +1,40 @@
+name: Code Check
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.job }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Code Quality Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🤌 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 📥 Download deps
+        run: pnpm install --no-frozen-lockfile
+
+      - name: 🔬 Lint
+        run: pnpm lint:strict
+
+      - name: 🔎 Type check
+        run: pnpm typecheck
+
+      - name: 💅 Prettier check
+        run: pnpm prettier:check

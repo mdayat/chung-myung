@@ -119,9 +119,9 @@ const assessmentResultContentData = [
 
 export default function HasilAsesmen() {
   return (
-    <main className="w-full min-h-screen">
-      <div className="pt-[88px] px-6 gap-6 bg-secondary-100">
-        <div className="fixed">
+    <main className='min-h-screen w-full'>
+      <div className='gap-6 bg-secondary-100 px-6 pt-[88px]'>
+        <div className='fixed'>
           <AssessmentResultProfileCard
             createdAt={assessmentResultProfileData.createdAt}
             materialName={assessmentResultProfileData.materialName}
@@ -130,7 +130,7 @@ export default function HasilAsesmen() {
             attempt={assessmentResultProfileData.attempt}
           />
         </div>
-        <div className="ml-[448px] max-w-[1366px]">
+        <div className='ml-[448px] max-w-[1366px]'>
           <AssessmentResultContent data={assessmentResultContentData} />
         </div>
       </div>

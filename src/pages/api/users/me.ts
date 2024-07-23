@@ -1,9 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | FailedResponse>
+  res: NextApiResponse<SuccessResponse | FailedResponse>,
 ) {
   try {
     console.log(req);

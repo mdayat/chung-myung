@@ -1,7 +1,8 @@
-import { NextPageWithLayout } from "./_app";
-import { ReactElement } from "react";
-import { karla, nunito } from "@utils/fonts";
 import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
+import { karla, nunito } from "@utils/fonts";
+import { ReactElement } from "react";
+
+import { NextPageWithLayout } from "./_app";
 
 const Test: NextPageWithLayout = () => {
   return (

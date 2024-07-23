@@ -1,10 +1,5 @@
-import { forwardRef } from "react";
-import type {
-  ComponentPropsWithoutRef,
-  ElementRef,
-  HTMLAttributes,
-} from "react";
-
+import { CloseIcon } from "@components/icons/CloseIcon";
+import { cn } from "@lib/shadcn";
 import {
   Close,
   Content,
@@ -15,9 +10,12 @@ import {
   Title,
   Trigger,
 } from "@radix-ui/react-dialog";
-
-import { cn } from "@lib/shadcn";
-import { CloseIcon } from "@components/icons/CloseIcon";
+import type {
+  ComponentPropsWithoutRef,
+  ElementRef,
+  HTMLAttributes,
+} from "react";
+import { forwardRef } from "react";
 
 const Dialog = Root;
 const DialogTrigger = Trigger;
@@ -32,7 +30,7 @@ const DialogOverlay = forwardRef<
     ref={ref}
     className={cn(
       "fixed inset-0 z-50 bg-neutral-900/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
+      className,
     )}
     {...props}
   />
@@ -58,24 +56,24 @@ const DialogContent = forwardRef<
       <Content
         ref={ref}
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 p-8 rounded-3xl shadow-[0_9px_18px_0_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-75 data-[state=open]:zoom-in-75 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+          "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-3xl p-8 shadow-[0_9px_18px_0_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-75 data-[state=open]:zoom-in-75 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
           dialogContentWidth,
           dialogContentBg,
-          className
+          className,
         )}
         {...props}
       >
         {children}
 
         {type === "information" ? (
-          <Close className="absolute right-4 top-4 rounded-full disabled:pointer-events-none">
-            <CloseIcon className="fill-neutral-800 w-6 h-6" />
-            <span className="sr-only">Close</span>
+          <Close className='absolute right-4 top-4 rounded-full disabled:pointer-events-none'>
+            <CloseIcon className='h-6 w-6 fill-neutral-800' />
+            <span className='sr-only'>Close</span>
           </Close>
         ) : (
-          <Close className="absolute -top-16 left-1/2 -translate-x-1/2 border border-neutral-0 p-2 rounded-full disabled:pointer-events-none">
-            <CloseIcon className="fill-neutral-0 w-6 h-6" />
-            <span className="sr-only">Close</span>
+          <Close className='absolute -top-16 left-1/2 -translate-x-1/2 rounded-full border border-neutral-0 p-2 disabled:pointer-events-none'>
+            <CloseIcon className='h-6 w-6 fill-neutral-0' />
+            <span className='sr-only'>Close</span>
           </Close>
         )}
       </Content>
@@ -114,13 +112,13 @@ DialogDescription.displayName = Description.displayName;
 
 export {
   Dialog,
-  DialogPortal,
-  DialogOverlay,
   DialogClose,
-  DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
 };

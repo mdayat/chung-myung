@@ -1,7 +1,7 @@
-import type { ReactElement } from "react";
-
 import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
 import { karla, nunito } from "@utils/fonts";
+import type { ReactElement } from "react";
+
 import type { NextPageWithLayout } from "./_app";
 
 const BelajarMateri: NextPageWithLayout = () => {
@@ -11,7 +11,7 @@ const BelajarMateri: NextPageWithLayout = () => {
 BelajarMateri.getLayout = function getLayout(page: ReactElement) {
   return (
     <>
-      <Navbar bgColor="bg-neutral-100">
+      <Navbar bgColor='bg-neutral-100'>
         <HelpMenu />
         <ProfileMenu withIcon withUsername />
       </Navbar>

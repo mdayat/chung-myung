@@ -1,10 +1,9 @@
-import { z as zod } from "zod";
-import type { NextApiRequest, NextApiResponse } from "next";
-
-import { supabase } from "@lib/supabase";
-import { handleInvalidMethod } from "@utils/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
 import type { Enums as DBEnums } from "@customTypes/database";
+import { supabase } from "@lib/supabase";
+import { handleInvalidMethod } from "@utils/middlewares";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { z as zod } from "zod";
 
 interface LearningMaterial {
   id: string;
@@ -17,7 +16,7 @@ interface LearningMaterial {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<LearningMaterial[]> | FailedResponse>
+  res: NextApiResponse<SuccessResponse<LearningMaterial[]> | FailedResponse>,
 ) {
   res.setHeader("Content-Type", "application/json");
   const materialID = (req.query.materialID ?? "") as string;
@@ -33,7 +32,7 @@ export default async function handler(
       try {
         const learningMaterials = await getLearningMaterials(
           materialID,
-          learningMaterialType
+          learningMaterialType,
         );
         res.status(200).json({ status: "success", data: learningMaterials });
       } catch (error) {
@@ -53,7 +52,7 @@ export default async function handler(
 
 async function getLearningMaterials(
   materialID: string,
-  learningMaterialType: string
+  learningMaterialType: string,
 ): Promise<LearningMaterial[]> {
   try {
     const { data } = await supabase
@@ -65,7 +64,7 @@ async function getLearningMaterials(
         learningMaterialType
           .substring(0, learningMaterialType.length - 1)
           .split("-")
-          .join("_")
+          .join("_"),
       )
       .throwOnError();
 
@@ -88,7 +87,7 @@ async function getLearningMaterials(
   } catch (error) {
     throw new Error(
       "Error when get all learning material based on its type and material id: ",
-      { cause: error }
+      { cause: error },
     );
   }
 }

@@ -73,7 +73,7 @@ export default function AKB() {
   //   return () => clearInterval(interval);
   // }, [timer]);
   return (
-    <div className="w-[1366px] mx-auto">
+    <div className='mx-auto w-[1366px]'>
       {/* <div className="p-4 flex flex-row items-center justify-between">
         <Image src={EmtekaLogo} alt="" className="h-8 max-w-fit" />
         <div className="w-8 h-8 bg-neutral-500 rounded-full"></div>

@@ -1,21 +1,20 @@
-import { Blob } from "node:buffer";
-import busboy from "busboy";
-import { z as zod } from "zod";
-import type { NextApiRequest, NextApiResponse } from "next";
-
+import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import {
+  type DeltaOps,
+  type Editor,
+  editorSchema,
+  type ExplanationEditor,
+  type MultipleChoiceEditor,
+  type QuestionEditor,
+  type TaggedBlob,
+  type TaggedDelta,
+} from "@customTypes/question";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
-import {
-  editorSchema,
-  type Editor,
-  type MultipleChoiceEditor,
-  type ExplanationEditor,
-  type QuestionEditor,
-  type TaggedDelta,
-  type TaggedBlob,
-  type DeltaOps,
-} from "@customTypes/question";
-import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import busboy from "busboy";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { Blob } from "node:buffer";
+import { z as zod } from "zod";
 
 export const config = {
   api: {
@@ -27,7 +26,7 @@ interface GETData {}
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<GETData | null> | FailedResponse>
+  res: NextApiResponse<SuccessResponse<GETData | null> | FailedResponse>,
 ) {
   const promise = new Promise(() => {
     if (req.method === "GET") {
@@ -104,7 +103,7 @@ export default function handler(
           }
 
           Promise.all(
-            uploadFilePromises.map((uploadFilePromise) => uploadFilePromise())
+            uploadFilePromises.map((uploadFilePromise) => uploadFilePromise()),
           )
             .then((uploadedFiles) => {
               // Replace an image tag in a delta with its corresponding file url based on its tag
@@ -114,43 +113,43 @@ export default function handler(
 
                 if (imageTag.includes("question")) {
                   const { deltaOps } = nonFileValue.editors.find(
-                    (editor) => editor.type === "question"
+                    (editor) => editor.type === "question",
                   ) as QuestionEditor;
 
                   replaceImageTagWithFileURL(
                     imageTag,
                     uploadedFile.url,
-                    deltaOps
+                    deltaOps,
                   );
                   continue;
                 }
 
                 if (imageTag.includes("explanation")) {
                   const { deltaOps } = nonFileValue.editors.find(
-                    (editor) => editor.type === "explanation"
+                    (editor) => editor.type === "explanation",
                   ) as ExplanationEditor;
 
                   replaceImageTagWithFileURL(
                     imageTag,
                     uploadedFile.url,
-                    deltaOps
+                    deltaOps,
                   );
                   continue;
                 }
 
                 if (imageTag.includes("multipleChoice")) {
                   const { taggedDeltaOps } = nonFileValue.editors.find(
-                    (editor) => editor.type === "multipleChoice"
+                    (editor) => editor.type === "multipleChoice",
                   ) as MultipleChoiceEditor;
 
                   const { deltaOps } = taggedDeltaOps.find((taggedOps) =>
-                    taggedOps.tag.includes(imageTag.split("-")[0])
+                    taggedOps.tag.includes(imageTag.split("-")[0]),
                   ) as TaggedDelta;
 
                   replaceImageTagWithFileURL(
                     imageTag,
                     uploadedFile.url,
-                    deltaOps
+                    deltaOps,
                   );
                   continue;
                 }
@@ -234,6 +233,7 @@ function uploadFile(name: string, blob: Blob): () => Promise<UploadedFile> {
       const storageBucket = "soal";
       supabase.storage
         .from(storageBucket)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .upload(name, blob as any, { upsert: true })
         .then(({ data, error }) => {
           if (error !== null) {
@@ -252,7 +252,7 @@ function uploadFile(name: string, blob: Blob): () => Promise<UploadedFile> {
 function replaceImageTagWithFileURL(
   imageTag: string,
   fileURL: string,
-  deltaOps: DeltaOps
+  deltaOps: DeltaOps,
 ): void {
   for (let i = 0; i < deltaOps.length; i++) {
     const insert = deltaOps[i].insert;

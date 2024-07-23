@@ -1,4 +1,4 @@
-import { openDB, type DBSchema, type IDBPDatabase } from "idb";
+import { type DBSchema, type IDBPDatabase, openDB } from "idb";
 
 interface Subtest {
   id: string;
@@ -63,7 +63,7 @@ async function openAssessmentTrackerDB(): Promise<
 
 async function putManySubtest(
   subtests: Omit<Subtest, "timer" | "isSubmitted">[],
-  db: IDBPDatabase<AssessmentTrackerDBSchema>
+  db: IDBPDatabase<AssessmentTrackerDBSchema>,
 ) {
   const tx = db.transaction("subtest", "readwrite");
   try {
@@ -76,7 +76,7 @@ async function putManySubtest(
           timer: null,
           isSubmitted: false,
         });
-      })
+      }),
     );
   } catch (error) {
     throw new Error("Failed when put many subtest to object store: ", {
@@ -88,7 +88,7 @@ async function putManySubtest(
 async function putManyQuestion(
   questions: Omit<Question, "subtestID" | "answeredAnswerChoiceID">[],
   subtestID: string,
-  db: IDBPDatabase<AssessmentTrackerDBSchema>
+  db: IDBPDatabase<AssessmentTrackerDBSchema>,
 ) {
   const tx = db.transaction("question", "readwrite");
   try {
@@ -101,7 +101,7 @@ async function putManyQuestion(
           answeredAnswerChoiceID: "",
           multipleChoice: question.multipleChoice,
         });
-      })
+      }),
     );
   } catch (error) {
     throw new Error("Failed when put many question to object store: ", {
@@ -110,5 +110,5 @@ async function putManyQuestion(
   }
 }
 
-export { openAssessmentTrackerDB, putManySubtest, putManyQuestion };
+export { openAssessmentTrackerDB, putManyQuestion, putManySubtest };
 export type { AssessmentTrackerDBSchema, Question, Subtest };

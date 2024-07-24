@@ -1,13 +1,13 @@
 import { Blob } from "node:buffer";
 import busboy from "busboy";
 import { z as zod } from "zod";
+import { v4 as uuidv4 } from "uuid";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
 import {
   editorSchema,
-  type Editor,
   type MultipleChoiceEditor,
   type ExplanationEditor,
   type QuestionEditor,
@@ -23,235 +23,249 @@ export const config = {
   },
 };
 
-interface GETData {}
-
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<GETData | null> | FailedResponse>
+  res: NextApiResponse<SuccessResponse | FailedResponse>
 ) {
-  const promise = new Promise(() => {
-    if (req.method === "GET") {
-      res.status(200).json({ status: "success", data: "questions" });
-    } else if (req.method === "POST") {
-      const bb = busboy({ headers: req.headers });
-      const taggedBlobs: TaggedBlob[] = [];
+  res.setHeader("Content-Type", "application/json");
+  const materialID = (req.query.materialID ?? "") as string;
+  const learningMaterialID = (req.query.learningMaterialID ?? "") as string;
 
-      let nonFileValue: {
-        questionID: string;
-        correctAnswerTag: string;
-        editors: Editor[];
-      };
+  if (req.method === "GET") {
+    res.status(200).json({ status: "success", data: null });
+  } else if (req.method === "POST") {
+    const uuidSchema = zod.object({
+      materialID: zod.string().uuid(),
+      learningMaterialID: zod.string().uuid(),
+    });
 
-      // Parse buffer streams and create a blob from it and throw an error if it fails
-      bb.on("file", (name, file) => {
-        busboyErrorHandler(res, () => {
-          const buffers: Buffer[] = [];
-          file
-            .on("data", (data: Buffer) => {
-              buffers.push(data);
-            })
-            .on("close", () => {
-              const combinedBuffer = Buffer.concat(buffers);
-              const blob = new Blob([combinedBuffer], { type: "image/png" });
-              taggedBlobs.push({ imageTag: name, blob });
-            })
-            .on("error", (error) => {
-              req.unpipe(bb);
-              throw new BusboyError("File parsing failed", {
-                statusCode: 400,
-                cause: error,
-              });
-            });
-        });
-      });
-
-      // Parse and verify the incoming JSON data and throw an error if it fails
-      bb.on("field", (_, value) => {
-        busboyErrorHandler(res, () => {
-          const nonFileValueSchema = zod.object({
-            questionID: zod.string(),
-            correctAnswerTag: zod.string(),
-            editors: zod.array(editorSchema),
-          });
-
-          const result = nonFileValueSchema.safeParse(JSON.parse(value));
-          if (result.success) {
-            nonFileValue = result.data;
-          } else {
-            req.unpipe(bb);
-            throw new BusboyError("Invalid JSON schema", {
-              statusCode: 400,
-              cause: result.error,
-            });
-          }
-        });
-      });
-
-      // Create a new record in a database and upload its files if it's needed
-      bb.on("close", () => {
-        if (taggedBlobs.length === 0) {
-          // Insert to database
-        } else {
-          const uploadFilePromises: Array<() => Promise<UploadedFile>> =
-            new Array(taggedBlobs.length);
-
-          // Create a list of function that return a promise
-          // This promise is a promise to upload a file
-          for (let i = 0; i < taggedBlobs.length; i++) {
-            const taggedBlob = taggedBlobs[i];
-            const fileName = `${nonFileValue.questionID}-${taggedBlob.imageTag}.png`;
-            uploadFilePromises[i] = uploadFile(fileName, taggedBlob.blob);
-          }
-
-          Promise.all(
-            uploadFilePromises.map((uploadFilePromise) => uploadFilePromise())
-          )
-            .then((uploadedFiles) => {
-              // Replace an image tag in a delta with its corresponding file url based on its tag
-              for (let i = 0; i < uploadedFiles.length; i++) {
-                const uploadedFile = uploadedFiles[i];
-                const imageTag = getImageTagFromFilePath(uploadedFile.path);
-
-                if (imageTag.includes("question")) {
-                  const { deltaOps } = nonFileValue.editors.find(
-                    (editor) => editor.type === "question"
-                  ) as QuestionEditor;
-
-                  replaceImageTagWithFileURL(
-                    imageTag,
-                    uploadedFile.url,
-                    deltaOps
-                  );
-                  continue;
-                }
-
-                if (imageTag.includes("explanation")) {
-                  const { deltaOps } = nonFileValue.editors.find(
-                    (editor) => editor.type === "explanation"
-                  ) as ExplanationEditor;
-
-                  replaceImageTagWithFileURL(
-                    imageTag,
-                    uploadedFile.url,
-                    deltaOps
-                  );
-                  continue;
-                }
-
-                if (imageTag.includes("multipleChoice")) {
-                  const { taggedDeltaOps } = nonFileValue.editors.find(
-                    (editor) => editor.type === "multipleChoice"
-                  ) as MultipleChoiceEditor;
-
-                  const { deltaOps } = taggedDeltaOps.find((taggedOps) =>
-                    taggedOps.tag.includes(imageTag.split("-")[0])
-                  ) as TaggedDelta;
-
-                  replaceImageTagWithFileURL(
-                    imageTag,
-                    uploadedFile.url,
-                    deltaOps
-                  );
-                  continue;
-                }
-              }
-
-              // Insert to database
-              res.status(201).json({ status: "success", data: null });
-            })
-            .catch((error) => {
-              busboyErrorHandler(res, () => {
-                req.unpipe(bb);
-                throw new BusboyError("Upload files failed", {
-                  statusCode: 500,
-                  cause: error,
-                });
-              });
-            });
-        }
-      });
-
-      bb.on("error", (error) => {
-        busboyErrorHandler(res, () => {
-          req.unpipe(bb);
-          throw new BusboyError("Malformed multipart/form-data request", {
-            statusCode: 400,
-            cause: error,
-          });
-        });
-      });
-
-      req.pipe(bb);
-    } else {
-      handleInvalidMethod(res, ["GET", "POST"]);
-    }
-  });
-
-  return promise;
-}
-
-interface BusboyErrorOptions extends ErrorOptions {
-  statusCode: number;
-}
-
-class BusboyError extends Error {
-  readonly statusCode: number;
-
-  constructor(message: string, options: BusboyErrorOptions) {
-    super(message, { cause: options.cause });
-    this.statusCode = options.statusCode;
-    this.name = "BusboyError";
-  }
-}
-
-function busboyErrorHandler(res: NextApiResponse, fn: () => void): void {
-  try {
-    fn();
-  } catch (error) {
-    if (error instanceof BusboyError) {
-      const bodyPayload: FailedResponse = {
+    // Check if "materialID" and "learningMaterialID" is not a uuid
+    const result = uuidSchema.safeParse({ materialID, learningMaterialID });
+    if (result.success === false) {
+      res.status(404).json({
         status: "failed",
-        message: error.message,
-      };
-
-      res.setHeader("Content-Type", "application/json");
-      res.status(error.statusCode).json(bodyPayload);
-    } else {
-      // Log the error
-      console.error(error);
+        message: "Material or Learning Material Not Found",
+      });
+      return;
     }
-  }
-}
 
-interface UploadedFile {
-  path: string;
-  url: string;
-}
+    const bb = busboy({ headers: req.headers });
+    const taggedBlobs: TaggedBlob[] = [];
 
-function uploadFile(name: string, blob: Blob): () => Promise<UploadedFile> {
-  return () =>
-    new Promise((resolve, reject) => {
-      const storageBucket = "soal";
-      supabase.storage
-        .from(storageBucket)
-        .upload(name, blob as any, { upsert: true })
-        .then(({ data, error }) => {
-          if (error !== null) {
-            reject(error);
-          } else {
-            const { publicUrl } = supabase.storage
-              .from("soal")
-              .getPublicUrl(data.path).data;
+    const nonFileValueSchema = zod.object({
+      taxonomyBloom: zod.string(),
+      correctAnswerTag: zod.string(),
+      editors: zod.array(editorSchema),
+    });
+    let nonFileValue: zod.infer<typeof nonFileValueSchema>;
 
-            resolve({ path: name, url: publicUrl });
-          }
+    // Parse buffer streams and create a blob from it
+    bb.on("file", (name, file) => {
+      const buffers: Buffer[] = [];
+      file
+        .on("data", (data: Buffer) => {
+          buffers.push(data);
+        })
+        .on("close", () => {
+          const combinedBuffer = Buffer.concat(buffers);
+          const blob = new Blob([combinedBuffer], { type: "image/png" });
+          taggedBlobs.push({ imageTag: name, blob });
+        })
+        .on("error", (error) => {
+          req.unpipe(bb);
+          res.status(500).json({ status: "failed", message: "Server Error" });
+          console.log(
+            new Error("Failed when parse images: ", { cause: error })
+          );
         });
     });
+
+    // Parse and verify the incoming JSON data
+    bb.on("field", (_, value) => {
+      const result = nonFileValueSchema.safeParse(JSON.parse(value));
+      if (result.success) {
+        nonFileValue = result.data;
+      } else {
+        req.unpipe(bb);
+        res
+          .status(400)
+          .json({ status: "failed", message: "Invalid JSON Schema" });
+      }
+    });
+
+    // Create a new record in a database and upload its images if it's needed
+    bb.on("close", async () => {
+      try {
+        // Check if the current request has images to be uploaded or not
+        if (taggedBlobs.length !== 0) {
+          // Upload images to storage and return its path
+          const uploadImageResults = await Promise.all(
+            taggedBlobs.map(async (taggedBlob) => {
+              const storageBucket = "soal";
+              return supabase.storage
+                .from(storageBucket)
+                .upload(taggedBlob.imageTag, taggedBlob.blob as any, {
+                  upsert: true,
+                });
+            })
+          );
+
+          // Get image public URL along with its tag
+          const uploadedImages = uploadImageResults.map(({ data, error }) => {
+            if (error !== null) {
+              throw error;
+            }
+
+            return {
+              tag: data.path,
+              URL: supabase.storage.from("soal").getPublicUrl(data.path).data
+                .publicUrl,
+            };
+          });
+
+          // Replace image tag in delta ops with image url
+          for (let i = 0; i < uploadedImages.length; i++) {
+            const uploadedImage = uploadedImages[i];
+
+            if (uploadedImage.tag.includes("question")) {
+              const { deltaOps } = nonFileValue.editors.find(
+                (editor) => editor.type === "question"
+              ) as QuestionEditor;
+
+              replaceImageTagWithURL(
+                uploadedImage.tag,
+                uploadedImage.URL,
+                deltaOps
+              );
+              continue;
+            }
+
+            if (uploadedImage.tag.includes("explanation")) {
+              const { deltaOps } = nonFileValue.editors.find(
+                (editor) => editor.type === "explanation"
+              ) as ExplanationEditor;
+
+              replaceImageTagWithURL(
+                uploadedImage.tag,
+                uploadedImage.URL,
+                deltaOps
+              );
+              continue;
+            }
+
+            if (uploadedImage.tag.includes("answer-choice")) {
+              const { taggedDeltas } = nonFileValue.editors.find(
+                (editor) => editor.type === "multipleChoice"
+              ) as MultipleChoiceEditor;
+
+              const { deltaOps } = taggedDeltas.find(
+                (delta) => delta.tag === uploadedImage.tag.split("_")[1]
+              ) as TaggedDelta;
+
+              replaceImageTagWithURL(
+                uploadedImage.tag,
+                uploadedImage.URL,
+                deltaOps
+              );
+              continue;
+            }
+          }
+        }
+
+        // Insert question and its multiple choice to db
+        const questionID = await createQuestion(
+          nonFileValue.taxonomyBloom,
+          JSON.stringify(
+            nonFileValue.editors.find((editor) => editor.type === "question")!
+              .deltaOps
+          ),
+          JSON.stringify(
+            nonFileValue.editors.find(
+              (editor) => editor.type === "explanation"
+            )!.deltaOps
+          )
+        );
+
+        await Promise.all([
+          supabase
+            .from("learning_material_question")
+            .insert({
+              learning_material_id: learningMaterialID,
+              question_id: questionID,
+            })
+            .throwOnError(),
+          supabase
+            .from("multiple_choice")
+            .insert(
+              nonFileValue.editors
+                .find((editor) => editor.type === "multipleChoice")!
+                .taggedDeltas.map(({ tag, deltaOps }) => {
+                  let isCorrectAnswer = false;
+                  if (tag === nonFileValue.correctAnswerTag) {
+                    isCorrectAnswer = true;
+                  }
+
+                  return {
+                    id: uuidv4(),
+                    question_id: questionID,
+                    content: JSON.stringify(deltaOps),
+                    is_correct_answer: isCorrectAnswer,
+                  };
+                })
+            )
+            .throwOnError(),
+        ]);
+
+        res.status(201).json({ status: "success", data: null });
+      } catch (error) {
+        res.status(500).json({ status: "failed", message: "Server Error" });
+        console.log(error);
+      }
+    });
+
+    bb.on("error", (error) => {
+      res.status(400).json({
+        status: "failed",
+        message: "Malformed Request",
+      });
+
+      console.log(
+        new Error("Malformed multipart/form-data request: ", { cause: error })
+      );
+    });
+
+    req.pipe(bb);
+  } else {
+    handleInvalidMethod(res, ["GET", "POST"]);
+  }
 }
 
-function replaceImageTagWithFileURL(
+async function createQuestion(
+  taxonomyBloom: string,
+  contentDeltaOps: string,
+  explanationDeltaOps: string
+) {
+  try {
+    const { data } = await supabase
+      .from("question")
+      .insert({
+        id: uuidv4(),
+        content: contentDeltaOps,
+        explanation: explanationDeltaOps,
+        taxonomy_bloom: taxonomyBloom,
+      })
+      .select("id")
+      .single()
+      .throwOnError();
+    return data!.id;
+  } catch (error) {
+    throw new Error("Error when creating a soal: ", { cause: error });
+  }
+}
+
+function replaceImageTagWithURL(
   imageTag: string,
-  fileURL: string,
+  imageURL: string,
   deltaOps: DeltaOps
 ): void {
   for (let i = 0; i < deltaOps.length; i++) {
@@ -259,13 +273,7 @@ function replaceImageTagWithFileURL(
     const hasImageKey = typeof insert === "object" && "image" in insert;
 
     if (hasImageKey && imageTag === insert.image) {
-      insert.image = fileURL;
+      insert.image = imageURL;
     }
   }
-}
-
-function getImageTagFromFilePath(path: string): string {
-  const withoutSlash = path.split("/");
-  const withoutFileExt = withoutSlash[withoutSlash.length - 1].split(".")[0];
-  return withoutFileExt.split("-").slice(1).join("-");
 }

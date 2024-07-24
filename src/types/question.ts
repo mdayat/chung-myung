@@ -41,18 +41,17 @@ const taggedDeltaSchema = zod.object({
 });
 type TaggedDelta = zod.infer<typeof taggedDeltaSchema>;
 
-const multipleChoiceSchema = zod.object({
+const multipleChoiceEditorSchema = zod.object({
   type: zod.literal("multipleChoice"),
-  taggedDeltaOps: zod.array(taggedDeltaSchema),
+  taggedDeltas: zod.array(taggedDeltaSchema),
 });
-type MultipleChoiceEditor = zod.infer<typeof multipleChoiceSchema>;
+type MultipleChoiceEditor = zod.infer<typeof multipleChoiceEditorSchema>;
 
 const editorSchema = zod.discriminatedUnion("type", [
   questionEditorSchema,
   explanationEditorSchema,
-  multipleChoiceSchema,
+  multipleChoiceEditorSchema,
 ]);
-type Editor = zod.infer<typeof editorSchema>;
 
 export { editorSchema };
 export type {
@@ -60,7 +59,6 @@ export type {
   QuestionEditor,
   ExplanationEditor,
   MultipleChoiceEditor,
-  Editor,
   TaggedDelta,
   LearningMaterialType,
   TaggedBlob,

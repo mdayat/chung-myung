@@ -16,6 +16,14 @@ import { Blob } from "node:buffer";
 import { v4 as uuidv4 } from "uuid";
 import { z as zod } from "zod";
 
+interface Question {
+  id: string;
+  content: string;
+  explanation: string;
+  taxonomyBloom: string;
+  multipleChoice: { id: string; content: string; isCorrectAnswer: boolean }[];
+}
+
 export const config = {
   api: {
     bodyParser: false,
@@ -24,30 +32,67 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | FailedResponse>,
+  res: NextApiResponse<SuccessResponse<Question[] | null> | FailedResponse>,
 ) {
   res.setHeader("Content-Type", "application/json");
   const materialID = (req.query.materialID ?? "") as string;
   const learningMaterialID = (req.query.learningMaterialID ?? "") as string;
 
-  if (req.method === "GET") {
-    res.status(200).json({ status: "success", data: null });
-  } else if (req.method === "POST") {
-    const uuidSchema = zod.object({
-      materialID: zod.string().uuid(),
-      learningMaterialID: zod.string().uuid(),
-    });
+  const uuidSchema = zod.object({
+    materialID: zod.string().uuid(),
+    learningMaterialID: zod.string().uuid(),
+  });
 
-    // Check if "materialID" and "learningMaterialID" is not a uuid
-    const result = uuidSchema.safeParse({ materialID, learningMaterialID });
-    if (result.success === false) {
-      res.status(404).json({
-        status: "failed",
-        message: "Material or Learning Material Not Found",
-      });
-      return;
+  // Check if "materialID" and "learningMaterialID" is not a uuid
+  const result = uuidSchema.safeParse({ materialID, learningMaterialID });
+  if (result.success === false) {
+    res.status(404).json({
+      status: "failed",
+      message: "Material or Learning Material Not Found",
+    });
+    return;
+  }
+
+  if (req.method === "GET") {
+    try {
+      const { data } = await supabase
+        .from("learning_material_question")
+        .select(
+          "question(*, multiple_choice!multiple_choice_question_id_fkey(id, content, is_correct_answer))",
+        )
+        .eq("learning_material_id", learningMaterialID)
+        .throwOnError();
+
+      const questions: Question[] = new Array(data!.length);
+      if (questions.length !== 0) {
+        for (let i = 0; i < questions.length; i++) {
+          questions[i] = {
+            id: data![i].question!.id,
+            content: data![i].question!.content,
+            explanation: data![i].question!.explanation,
+            taxonomyBloom: data![i].question!.taxonomy_bloom,
+            multipleChoice: data![i].question!.multiple_choice.map(
+              ({ id, content, is_correct_answer }) => ({
+                id,
+                content,
+                isCorrectAnswer: is_correct_answer,
+              }),
+            ),
+          };
+        }
+      }
+
+      res.status(200).json({ status: "success", data: questions });
+    } catch (error) {
+      res.status(500).json({ status: "failed", message: "Server Error" });
+      console.log(
+        "Error when get all question based on a learning material ID: ",
+        error,
+      );
     }
 
+    res.status(200).json({ status: "success", data: null });
+  } else if (req.method === "POST") {
     const bb = busboy({ headers: req.headers });
     const taggedBlobs: TaggedBlob[] = [];
 

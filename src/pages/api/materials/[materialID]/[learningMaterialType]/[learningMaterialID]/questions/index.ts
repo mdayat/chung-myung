@@ -1,21 +1,20 @@
-import { Blob } from "node:buffer";
-import busboy from "busboy";
-import { z as zod } from "zod";
-import { v4 as uuidv4 } from "uuid";
-import type { NextApiRequest, NextApiResponse } from "next";
-
+import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import {
+  type DeltaOps,
+  editorSchema,
+  type ExplanationEditor,
+  type MultipleChoiceEditor,
+  type QuestionEditor,
+  type TaggedBlob,
+  type TaggedDelta,
+} from "@customTypes/question";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
-import {
-  editorSchema,
-  type MultipleChoiceEditor,
-  type ExplanationEditor,
-  type QuestionEditor,
-  type TaggedDelta,
-  type TaggedBlob,
-  type DeltaOps,
-} from "@customTypes/question";
-import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import busboy from "busboy";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { Blob } from "node:buffer";
+import { v4 as uuidv4 } from "uuid";
+import { z as zod } from "zod";
 
 export const config = {
   api: {
@@ -25,7 +24,7 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | FailedResponse>
+  res: NextApiResponse<SuccessResponse | FailedResponse>,
 ) {
   res.setHeader("Content-Type", "application/json");
   const materialID = (req.query.materialID ?? "") as string;
@@ -75,7 +74,7 @@ export default async function handler(
           req.unpipe(bb);
           res.status(500).json({ status: "failed", message: "Server Error" });
           console.log(
-            new Error("Failed when parse images: ", { cause: error })
+            new Error("Failed when parse images: ", { cause: error }),
           );
         });
     });
@@ -104,10 +103,10 @@ export default async function handler(
               const storageBucket = "soal";
               return supabase.storage
                 .from(storageBucket)
-                .upload(taggedBlob.imageTag, taggedBlob.blob as any, {
+                .upload(taggedBlob.imageTag, taggedBlob.blob as never, {
                   upsert: true,
                 });
-            })
+            }),
           );
 
           // Get image public URL along with its tag
@@ -129,43 +128,43 @@ export default async function handler(
 
             if (uploadedImage.tag.includes("question")) {
               const { deltaOps } = nonFileValue.editors.find(
-                (editor) => editor.type === "question"
+                (editor) => editor.type === "question",
               ) as QuestionEditor;
 
               replaceImageTagWithURL(
                 uploadedImage.tag,
                 uploadedImage.URL,
-                deltaOps
+                deltaOps,
               );
               continue;
             }
 
             if (uploadedImage.tag.includes("explanation")) {
               const { deltaOps } = nonFileValue.editors.find(
-                (editor) => editor.type === "explanation"
+                (editor) => editor.type === "explanation",
               ) as ExplanationEditor;
 
               replaceImageTagWithURL(
                 uploadedImage.tag,
                 uploadedImage.URL,
-                deltaOps
+                deltaOps,
               );
               continue;
             }
 
             if (uploadedImage.tag.includes("answer-choice")) {
               const { taggedDeltas } = nonFileValue.editors.find(
-                (editor) => editor.type === "multipleChoice"
+                (editor) => editor.type === "multipleChoice",
               ) as MultipleChoiceEditor;
 
               const { deltaOps } = taggedDeltas.find(
-                (delta) => delta.tag === uploadedImage.tag.split("_")[1]
+                (delta) => delta.tag === uploadedImage.tag.split("_")[1],
               ) as TaggedDelta;
 
               replaceImageTagWithURL(
                 uploadedImage.tag,
                 uploadedImage.URL,
-                deltaOps
+                deltaOps,
               );
               continue;
             }
@@ -177,13 +176,13 @@ export default async function handler(
           nonFileValue.taxonomyBloom,
           JSON.stringify(
             nonFileValue.editors.find((editor) => editor.type === "question")!
-              .deltaOps
+              .deltaOps,
           ),
           JSON.stringify(
             nonFileValue.editors.find(
-              (editor) => editor.type === "explanation"
-            )!.deltaOps
-          )
+              (editor) => editor.type === "explanation",
+            )!.deltaOps,
+          ),
         );
 
         await Promise.all([
@@ -211,7 +210,7 @@ export default async function handler(
                     content: JSON.stringify(deltaOps),
                     is_correct_answer: isCorrectAnswer,
                   };
-                })
+                }),
             )
             .throwOnError(),
         ]);
@@ -230,7 +229,7 @@ export default async function handler(
       });
 
       console.log(
-        new Error("Malformed multipart/form-data request: ", { cause: error })
+        new Error("Malformed multipart/form-data request: ", { cause: error }),
       );
     });
 
@@ -243,7 +242,7 @@ export default async function handler(
 async function createQuestion(
   taxonomyBloom: string,
   contentDeltaOps: string,
-  explanationDeltaOps: string
+  explanationDeltaOps: string,
 ) {
   try {
     const { data } = await supabase
@@ -266,7 +265,7 @@ async function createQuestion(
 function replaceImageTagWithURL(
   imageTag: string,
   imageURL: string,
-  deltaOps: DeltaOps
+  deltaOps: DeltaOps,
 ): void {
   for (let i = 0; i < deltaOps.length; i++) {
     const insert = deltaOps[i].insert;

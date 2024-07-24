@@ -1,8 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-
+import type { FailedResponse, SuccessResponse } from "@customTypes/api";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
-import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 interface Material {
   id: string;
@@ -12,7 +11,7 @@ interface Material {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<Material[]> | FailedResponse>
+  res: NextApiResponse<SuccessResponse<Material[]> | FailedResponse>,
 ) {
   res.setHeader("Content-Type", "application/json");
   if (req.method === "GET") {

@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "check-lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "fix-lint": "eslint --fix \"src/**/*.{ts,tsx}\"",
-    "check-format": "prettier \"src/**/*.{ts,tsx}\" --check",
-    "fix-format": "prettier \"src/**/*.{ts,tsx}\" --write",
+    "lint:fix": "eslint src --fix && pnpm prettier:format",
+    "lint:strict": "eslint --max-warnings=0",
+    "prettier:format": "prettier --write \"**/*.{ts,tsx,js,md,mdx,css,yaml}\"",
+    "prettier:check": "prettier --check \"**/*.{ts,tsx,js,md,mdx,css,yaml}\"",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "postinstall": "prisma generate"
   },
@@ -36,6 +37,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/js": "^9.7.0",
     "@testing-library/react": "^14.2.1",
     "@types/busboy": "^1.5.4",
     "@types/katex": "^0.16.7",
@@ -43,18 +45,38 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@typescript-eslint/parser": "^7.17.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
+    "eslint": "^9.7.0",
     "eslint-config-next": "14.1.3",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-unused-imports": "^4.0.1",
+    "globals": "^15.8.0",
     "husky": "^9.0.11",
     "jsdom": "^24.0.0",
+    "lint-staged": "^15.2.7",
     "postcss": "^8",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.5",
     "prisma": "^5.14.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5",
+    "typescript-eslint": "^7.17.0",
     "vitest": "^1.3.1"
+  },
+  "lint-staged": {
+    "*/**/*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix",
+      "eslint"
+    ],
+    "*/**/*.{json,css,md}": [
+      "prettier --write"
+    ]
   }
 }

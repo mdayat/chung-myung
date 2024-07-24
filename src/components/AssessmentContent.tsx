@@ -1,25 +1,25 @@
-import Head from "next/head";
-import Image from "next/image";
-import {
-  memo,
-  useEffect,
-  useState,
-  type MouseEvent,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
-import katex from "katex";
-import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
-import type { IDBPDatabase } from "idb";
-
-import { Dialog, DialogContent } from "./shadcn/Dialog";
-import { RadioButtonCheckedIcon } from "./icons/RadioButtonCheckedIcon";
-import { RadioButtonUncheckedIcon } from "./icons/RadioButtonUncheckedIcon";
+import type { DeltaOps } from "@customTypes/question";
 import type {
   AssessmentTrackerDBSchema,
   Question,
 } from "@utils/assessmentTracker";
-import type { DeltaOps } from "@customTypes/question";
+import type { IDBPDatabase } from "idb";
+import katex from "katex";
+import Head from "next/head";
+import Image from "next/image";
+import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
+import {
+  type Dispatch,
+  memo,
+  type MouseEvent,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
+
+import { RadioButtonCheckedIcon } from "./icons/RadioButtonCheckedIcon";
+import { RadioButtonUncheckedIcon } from "./icons/RadioButtonUncheckedIcon";
+import { Dialog, DialogContent } from "./shadcn/Dialog";
 
 interface AssessmentContentProps {
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
@@ -50,7 +50,7 @@ export const AssessmentContent = memo(function AssessmentContent({
         }
 
         return question;
-      })
+      }),
     );
 
     (async () => {
@@ -73,7 +73,7 @@ export const AssessmentContent = memo(function AssessmentContent({
             }
 
             return question;
-          })
+          }),
         );
       }
     })();
@@ -82,14 +82,13 @@ export const AssessmentContent = memo(function AssessmentContent({
   // Attach event handler on click to show image preview
   useEffect(() => {
     const questionContainer = document.getElementById(
-      "question-container"
+      "question-container",
     ) as HTMLDivElement;
 
     const imgEls = questionContainer.getElementsByClassName(
-      "ql-image"
+      "ql-image",
     ) as HTMLCollectionOf<HTMLImageElement>;
 
-    // eslint-disable-next-line no-unused-vars
     const onClickHandlers: Array<(event: globalThis.MouseEvent) => void> =
       new Array(imgEls.length);
 
@@ -119,58 +118,58 @@ export const AssessmentContent = memo(function AssessmentContent({
     <>
       <Head>
         <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-          integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
-          crossOrigin="anonymous"
+          rel='stylesheet'
+          href='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css'
+          integrity='sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+'
+          crossOrigin='anonymous'
         />
       </Head>
 
-      <div className="flex justify-between gap-x-6">
+      <div className='flex justify-between gap-x-6'>
         <div
           dangerouslySetInnerHTML={{
             __html: deltaToHTMLString(JSON.parse(currentQuestion.content)),
           }}
-          id="question-container"
-          className="text-neutral-700 text-xl w-full [&_img]:w-[280px] [&_img]:h-[280px] [&_img]:object-cover [&_img]:object-center [&_img]:my-6"
+          id='question-container'
+          className='w-full text-xl text-neutral-700 [&_img]:my-6 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:object-cover [&_img]:object-center'
         ></div>
 
         <Dialog open={isImgPreviewOpened} onOpenChange={setIsImgPreviewOpened}>
           <DialogContent
-            type="lightbox"
-            className="flex justify-center items-center"
+            type='lightbox'
+            className='flex items-center justify-center'
           >
-            <div className="relative w-[538px] h-[538px]">
+            <div className='relative h-[538px] w-[538px]'>
               <Image
                 src={imgURL}
-                alt=""
-                className="object-cover object-center"
+                alt=''
+                className='object-cover object-center'
                 fill
               />
             </div>
           </DialogContent>
         </Dialog>
 
-        <ul className="flex flex-col gap-y-4 w-full max-w-96">
+        <ul className='flex w-full max-w-96 flex-col gap-y-4'>
           {currentQuestion.multipleChoice.map((answerChoice) => {
             return (
               <li
                 key={answerChoice.id}
                 onClick={handleAnswerChoiceOnClick}
                 id={answerChoice.id}
-                className="bg-neutral-50 border border-neutral-100 rounded-lg cursor-pointer flex items-center gap-x-4 py-3.5 px-4"
+                className='flex cursor-pointer items-center gap-x-4 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3.5'
               >
                 {answerChoice.id === currentQuestion.answeredAnswerChoiceID ? (
-                  <RadioButtonCheckedIcon className="shrink-0 fill-secondary-600 w-6 h-6" />
+                  <RadioButtonCheckedIcon className='h-6 w-6 shrink-0 fill-secondary-600' />
                 ) : (
-                  <RadioButtonUncheckedIcon className="shrink-0 fill-neutral-400 w-6 h-6" />
+                  <RadioButtonUncheckedIcon className='h-6 w-6 shrink-0 fill-neutral-400' />
                 )}
 
                 <div
                   dangerouslySetInnerHTML={{
                     __html: deltaToHTMLString(JSON.parse(answerChoice.content)),
                   }}
-                  className="text-neutral-700 [&_img]:w-[200px] [&_img]:h-[200px] [&_img]:object-cover [&_img]:object-center"
+                  className='text-neutral-700 [&_img]:h-[200px] [&_img]:w-[200px] [&_img]:object-cover [&_img]:object-center'
                 ></div>
               </li>
             );
@@ -192,7 +191,7 @@ function deltaToHTMLString(deltaOps: DeltaOps): string {
       const latex = latexContainers[i].innerHTML;
       latexContainers[i].insertAdjacentHTML(
         "beforebegin",
-        katex.renderToString(latex)
+        katex.renderToString(latex),
       );
       latexContainers[i].remove();
     }

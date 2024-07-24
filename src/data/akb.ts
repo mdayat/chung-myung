@@ -277,4 +277,4 @@ const questionsDummyData = [
   },
 ];
 
-export { subtestsDummyData, questionsDummyData };
+export { questionsDummyData, subtestsDummyData };

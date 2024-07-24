@@ -1,10 +1,9 @@
-import { z as zod } from "zod";
-import type { NextApiRequest, NextApiResponse } from "next";
-
-import { supabase } from "@lib/supabase";
-import { handleInvalidMethod } from "@utils/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
 import type { Enums as DBEnums } from "@customTypes/database";
+import { supabase } from "@lib/supabase";
+import { handleInvalidMethod } from "@utils/middlewares";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { z as zod } from "zod";
 
 interface LearningMaterial {
   id: string;
@@ -19,7 +18,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
     SuccessResponse<LearningMaterial | null> | FailedResponse
-  >
+  >,
 ) {
   res.setHeader("Content-Type", "application/json");
   const materialID = (req.query.materialID ?? "") as string;
@@ -40,7 +39,7 @@ export default async function handler(
       try {
         const learningMaterial = await getLearningMaterial(
           materialID,
-          learningMaterialID
+          learningMaterialID,
         );
 
         if (learningMaterial === null) {
@@ -67,7 +66,7 @@ export default async function handler(
 
 async function getLearningMaterial(
   materialID: string,
-  learningMaterialID: string
+  learningMaterialID: string,
 ): Promise<LearningMaterial | null> {
   try {
     const { data } = await supabase
@@ -94,7 +93,7 @@ async function getLearningMaterial(
   } catch (error) {
     throw new Error(
       "Error when get a learning material based on its id and material id: ",
-      { cause: error }
+      { cause: error },
     );
   }
 }

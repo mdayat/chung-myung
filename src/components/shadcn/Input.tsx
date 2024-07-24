@@ -32,14 +32,14 @@ function Input({
       </label>
 
       <div
-        className={`${inputBorder} w-full flex items-center gap-x-2 border-2 py-2 px-4 rounded-[8px]`}
+        className={`${inputBorder} flex w-full items-center gap-x-2 rounded-[8px] border-2 px-4 py-2`}
       >
         {leftIcon && leftIcon}
         <input
           id={formattedLabelName}
           type={type}
           required={required}
-          className="w-full bg-transparent text-base focus:outline-none"
+          className='w-full bg-transparent text-base focus:outline-none'
         />
       </div>
 

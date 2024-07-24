@@ -1,13 +1,12 @@
+import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
+import { karla, nunito } from "@utils/fonts";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import type { ReactElement, ReactNode } from "react";
 
-import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
-import { karla, nunito } from "@utils/fonts";
 import "../styles/global.css";
 
-export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  // eslint-disable-next-line no-unused-vars
+export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
 

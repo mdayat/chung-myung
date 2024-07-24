@@ -1,11 +1,10 @@
-import {
-  forwardRef,
-  type ElementRef,
-  type ComponentPropsWithoutRef,
-} from "react";
-import { Root, Indicator } from "@radix-ui/react-progress";
-
 import { cn } from "@lib/shadcn";
+import { Indicator, Root } from "@radix-ui/react-progress";
+import {
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+  forwardRef,
+} from "react";
 
 interface ProgressProps extends ComponentPropsWithoutRef<typeof Root> {
   bgColor?: string;
@@ -22,25 +21,25 @@ const Progress = forwardRef<ElementRef<typeof Root>, ProgressProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => (
     <Root
       ref={ref}
       className={cn(
-        "relative overflow-hidden rounded-full w-full h-2",
+        "relative h-2 w-full overflow-hidden rounded-full",
         bgColor,
-        className
+        className,
       )}
       {...props}
     >
       <Indicator
-        className={`${indicatorColor} transition-all duration-300 w-full h-full`}
+        className={`${indicatorColor} h-full w-full transition-all duration-300`}
         style={{
           transform: `translateX(-${100 - (value! / max) * 100}%)`,
         }}
       />
     </Root>
-  )
+  ),
 );
 Progress.displayName = Root.displayName;
 

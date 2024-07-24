@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import type { FailedResponse } from "@customTypes/api";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith("/api/materials")) {

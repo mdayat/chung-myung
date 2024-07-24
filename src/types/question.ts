@@ -1,5 +1,5 @@
-import { z as zod } from "zod";
 import type { Blob } from "node:buffer";
+import { z as zod } from "zod";
 
 type LearningMaterialType = "prerequisites" | "sub-materials";
 interface TaggedBlob {
@@ -19,7 +19,7 @@ const deltaOpsSchema = zod.array(
       .union([zod.number(), zod.record(zod.string(), zod.unknown())])
       .optional(),
     attributes: zod.map(zod.string(), zod.unknown()).optional(),
-  })
+  }),
 );
 type DeltaOps = zod.infer<typeof deltaOpsSchema>;
 
@@ -56,10 +56,10 @@ const editorSchema = zod.discriminatedUnion("type", [
 export { editorSchema };
 export type {
   DeltaOps,
-  QuestionEditor,
   ExplanationEditor,
-  MultipleChoiceEditor,
-  TaggedDelta,
   LearningMaterialType,
+  MultipleChoiceEditor,
+  QuestionEditor,
   TaggedBlob,
+  TaggedDelta,
 };

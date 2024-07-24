@@ -1,11 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-
-import { handleInvalidMethod } from "@utils/middlewares";
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import { handleInvalidMethod } from "@utils/middlewares";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<unknown> | FailedResponse>
+  res: NextApiResponse<SuccessResponse<unknown> | FailedResponse>,
 ) {
   if (req.method === "GET") {
     const questionID = req.query.questionID;

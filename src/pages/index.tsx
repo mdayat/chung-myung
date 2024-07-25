@@ -16,7 +16,7 @@ import {
   type AssessmentTrackerDBSchema,
   openAssessmentTrackerDB,
 } from "@utils/assessmentTracker";
-import type { IDBPDatabase } from "idb";
+import { deleteDB, type IDBPDatabase } from "idb";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -58,6 +58,14 @@ function Home() {
   return (
     <div className='mt-16'>
       <HomeHeroBanner />
+
+      <button
+        onClick={() => {
+          deleteDB("assessment-tracker");
+        }}
+      >
+        DROP DB
+      </button>
 
       <div className='mx-auto w-full max-w-[calc(1366px-160px)]'>
         <Dialog>

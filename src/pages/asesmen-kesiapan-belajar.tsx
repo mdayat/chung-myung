@@ -38,7 +38,7 @@ import type { NextPageWithLayout } from "./_app";
 import { questionsDummyData, subtestsDummyData } from "../data/akb";
 
 const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState<number | null>(null);
   const [indexedDB, setIndexedDB] =
     useState<IDBPDatabase<AssessmentTrackerDBSchema>>();
 
@@ -58,37 +58,6 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const isLastQuestion =
     currentQuestionIndex === currentSubtestQuestions.length - 1;
 
-  const submitSubtest = useCallback(async (): Promise<Question[]> => {
-    try {
-      // get questions from the server to replace "questionsDummyData",
-      // based on the "currentSubtestIndex + 1"
-      const currentSubtest = subtests[currentSubtestIndex];
-      await Promise.all([
-        indexedDB!.put("subtest", {
-          ...currentSubtest,
-          isSubmitted: true,
-        }),
-        putManyQuestion(
-          questionsDummyData.slice(2, questionsDummyData.length),
-          subtests[currentSubtestIndex + 1].id,
-          indexedDB!,
-        ),
-      ]);
-
-      const storedQuestions = await indexedDB!.getAllFromIndex(
-        "question",
-        "subtestID",
-        subtests[currentSubtestIndex + 1].id,
-      );
-      return storedQuestions;
-    } catch (error) {
-      throw new Error(
-        "Failed when update submitted subtest and get the next subtest questions: ",
-        { cause: error },
-      );
-    }
-  }, [currentSubtestIndex, indexedDB, subtests]);
-
   const handleAssessmentOnSubmit = useCallback(async () => {
     console.log(await indexedDB!.getAll("subtest"));
     console.log(await indexedDB!.getAll("question"));
@@ -98,18 +67,35 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   // Prepare the questions for the next subtest.
   const handleSubtestOnSubmit = useCallback(async () => {
     try {
-      const storedQuestions = await submitSubtest();
-      // the "storedQuestions" must be sorted first
+      const currentSubtest = subtests[currentSubtestIndex];
+      await Promise.all([
+        indexedDB!.put("subtest", {
+          ...currentSubtest,
+          isSubmitted: true,
+        }),
+        // Get all question
+        putManyQuestion(
+          questionsDummyData.slice(2, questionsDummyData.length),
+          currentSubtest.id,
+          indexedDB!,
+        ),
+      ]);
+
+      const storedQuestions = await indexedDB!.getAllFromIndex(
+        "question",
+        "subtestID",
+        subtests[currentSubtestIndex + 1].id,
+      );
+
       setCurrentSubtestQuestions(storedQuestions);
       setCurrentSubtestIndex(currentSubtestIndex + 1);
       setCurrentQuestionIndex(0);
       setIsSubtestFinished(true);
       setTimer(20);
     } catch (error) {
-      // Log the error properly
       console.log(error);
     }
-  }, [currentSubtestIndex, submitSubtest]);
+  }, [indexedDB, subtests, currentSubtestIndex]);
 
   function handleNextQuestionOnClick() {
     setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -119,24 +105,14 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     setCurrentQuestionIndex(currentQuestionIndex - 1);
   }
 
-  function handleRestAreaOnClick() {
+  async function handleRestAreaOnClick() {
     setIsSubtestFinished(false);
-    setTimer(5);
-  }
-
-  const assessmentTimerHandler = useCallback(() => {
-    if (isLastSubtest === false) {
-      setIsAssessmentTimeout(false);
-      setCurrentSubtestIndex(currentSubtestIndex + 1);
-      setIsSubtestFinished(true);
-      setTimer(20);
-    } else {
-      (async () => {
-        console.log(await indexedDB!.getAll("subtest"));
-        console.log(await indexedDB!.getAll("question"));
-      })();
+    try {
+      setTimer((await indexedDB!.get("assessmentTimer", "timer")) ?? 0);
+    } catch (error) {
+      console.log(error);
     }
-  }, [isLastSubtest, currentSubtestIndex, indexedDB]);
+  }
 
   // Lock the page height to the screen when the user is at "RestArea"
   useEffect(() => {
@@ -154,85 +130,62 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     // Decrease the timer for "RestArea", and
     // get out from "RestArea" when the timer is up and start the next subtest.
     if (isSubtestFinished) {
-      timeout = setTimeout(() => {
-        if (timer === 0) {
-          handleRestAreaOnClick();
-        } else {
-          setTimer(timer - 1);
-        }
-      }, 1000);
+      if (timer === 0) {
+        handleRestAreaOnClick();
+      } else {
+        timeout = setTimeout(() => {
+          setTimer(timer! - 1);
+        }, 1000);
+      }
     }
 
     // Decrease the timer for popup (the popup is displayed when the subtest time is up), and
     // show "RestArea" when the timer is up.
     if (isAssessmentTimeout) {
-      timeout = setTimeout(() => {
-        if (timer === 0) {
-          assessmentTimerHandler();
-        } else {
-          setTimer(timer - 1);
-        }
-      }, 1000);
+      if (timer === 0) {
+        // Redirect to home page
+        console.log("Redirect to home page");
+      } else {
+        timeout = setTimeout(() => {
+          setTimer(timer! - 1);
+        }, 1000);
+      }
     }
 
     // Decrease the timer for subtest with optimistic update and update it on indexedDB.
-    // Show a popup when the timer is up and prepare the question for the next subtest.
+    // Show a popup when the timer is up and save it to supabase.
     if (isSubtestFinished === false && isAssessmentTimeout === false) {
-      timeout = setTimeout(() => {
-        if (timer === 0) {
-          setIsAssessmentTimeout(true);
-          setTimer(3);
-
-          if (isLastSubtest === false) {
-            (async () => {
-              try {
-                const storedQuestions = await submitSubtest();
-                // the "storedQuestions" must be sorted first
-                setCurrentSubtestQuestions(storedQuestions);
-                setCurrentQuestionIndex(0);
-              } catch (error) {
-                // Log the error properly
-                console.log(error);
-              }
-            })();
-          }
-        } else {
-          setTimer(timer - 1);
+      if (timer === 0) {
+        setIsAssessmentTimeout(true);
+        setTimer(5);
+        handleAssessmentOnSubmit();
+      } else {
+        timeout = setTimeout(() => {
+          setTimer(timer! - 1);
           (async () => {
             try {
-              const currentSubtest = subtests[currentSubtestIndex];
-              await indexedDB!.put("subtest", {
-                ...currentSubtest,
-                timer: timer - 1,
-              });
+              await indexedDB!.put("assessmentTimer", timer! - 1, "timer");
             } catch (error) {
-              // Log the error properly
               console.log(error);
-              setTimer(timer + 1);
+              setTimer(timer! + 1);
             }
           })();
-        }
-      }, 1000);
+        }, 1000);
+      }
     }
 
     return () => {
       clearTimeout(timeout);
     };
   }, [
-    currentSubtestIndex,
     indexedDB,
     isAssessmentTimeout,
-    isLastSubtest,
     isSubtestFinished,
-    submitSubtest,
-    subtests,
     timer,
-    assessmentTimerHandler,
+    handleAssessmentOnSubmit,
   ]);
 
   useEffect(() => {
-    // Check if indexedDB is supported or not.
-    // Check whether the user resume their assessment or not.
     if ("indexedDB" in window === false) {
       alert("your browser doesn't support indexedDB");
     } else {
@@ -241,10 +194,10 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           const db = await openAssessmentTrackerDB();
           setIndexedDB(db);
 
+          // Check if user has unfinished assessment or not
           const subtests = await db.getAll("subtest");
           if (subtests.length === 0) {
-            // get subtests from the server to replace "subtestsDummyData", and
-            // for timer information
+            // get learning materials
             await putManySubtest(subtestsDummyData, db);
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
@@ -252,8 +205,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             );
             setSubtests(sortedSubtests);
 
-            // get questions from the server to replace "questionsDummyData",
-            // based on the first "sortedSubtestsID"
+            // get all questions
             await putManyQuestion(
               questionsDummyData.slice(0, 2),
               sortedSubtests[0].id,
@@ -266,9 +218,9 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               sortedSubtests[0].id,
             );
 
-            // the "storedQuestions" must be sorted first
             setCurrentSubtestQuestions(storedQuestions);
-            setTimer(5);
+            await db.put("assessmentTimer", 10, "timer");
+            setTimer(10);
           } else {
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
@@ -276,32 +228,27 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             );
             setSubtests(sortedSubtests);
 
-            let indexOfFirstUnsubmittedSubtest = 0;
+            let unsubmittedSubtestIndex = 0;
             for (let i = 0; i < sortedSubtests.length; i++) {
               if (sortedSubtests[i].isSubmitted === false) {
-                indexOfFirstUnsubmittedSubtest = i;
+                unsubmittedSubtestIndex = i;
                 break;
               }
             }
+            setCurrentSubtestIndex(unsubmittedSubtestIndex);
+            const currentSubtest = sortedSubtests[unsubmittedSubtestIndex];
 
-            const currentSubtest =
-              sortedSubtests[indexOfFirstUnsubmittedSubtest];
-            setCurrentSubtestIndex(indexOfFirstUnsubmittedSubtest);
-
-            if (currentSubtest.timer !== null) {
-              const storedQuestions = await db.getAllFromIndex(
-                "question",
-                "subtestID",
-                currentSubtest.id,
-              );
-
+            const storedQuestions = await db.getAllFromIndex(
+              "question",
+              "subtestID",
+              currentSubtest.id,
+            );
+            if (storedQuestions.length !== 0) {
+              console.log("lanjut");
               setCurrentSubtestQuestions(storedQuestions);
-              setTimer(currentSubtest.timer!);
-            }
-
-            if (currentSubtest.timer === null) {
-              // get questions from server to replace "questionsDummyData",
-              // based on the current subtest (first subtest with null timer)
+            } else {
+              console.log("start next");
+              // get all questions
               await putManyQuestion(
                 questionsDummyData.slice(2, questionsDummyData.length),
                 currentSubtest.id,
@@ -313,11 +260,9 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
                 "subtestID",
                 currentSubtest.id,
               );
-
-              // the "storedQuestions" must be sorted first
               setCurrentSubtestQuestions(storedQuestions);
-              setTimer(5);
             }
+            setTimer((await db.get("assessmentTimer", "timer")) ?? 0);
           }
           setIsLoading(false);
         } catch (error) {
@@ -351,7 +296,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
         <RestArea
           handleRestAreaOnClick={handleRestAreaOnClick}
-          timer={timer}
+          timer={timer!}
           subtestsLength={subtests.length}
           completedSubtestIndex={currentSubtestIndex}
           nextSubtest={subtests[currentSubtestIndex]}
@@ -381,7 +326,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               setCurrentQuestionIndex={setCurrentQuestionIndex}
             />
             <AssessmentTimer
-              currentSubtestTimer={isAssessmentTimeout ? 0 : timer}
+              currentSubtestTimer={isAssessmentTimeout ? 0 : timer!}
             />
           </div>
         </AssessmentHeader>
@@ -474,10 +419,13 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
           <Dialog
             open={isAssessmentTimeout}
-            onOpenChange={assessmentTimerHandler}
+            onOpenChange={() => {
+              // Redirect to home page
+              console.log("Redirect to home page");
+            }}
           >
             <DialogContent>
-              <TimeIsUpPopup timer={timer} isLastSubtest={isLastSubtest} />
+              <TimeIsUpPopup timer={timer!} />
             </DialogContent>
           </Dialog>
         </div>
@@ -497,10 +445,9 @@ function isAllQuestionAnswered(questions: Question[]): boolean {
 
 interface TimeIsUpPopupProps {
   timer: number;
-  isLastSubtest: boolean;
 }
 
-function TimeIsUpPopup({ timer, isLastSubtest }: TimeIsUpPopupProps) {
+function TimeIsUpPopup({ timer }: TimeIsUpPopupProps) {
   return (
     <>
       <Image
@@ -537,9 +484,7 @@ function TimeIsUpPopup({ timer, isLastSubtest }: TimeIsUpPopupProps) {
               weight='bold'
               className='text-center text-neutral-500'
             >
-              Kamu akan diarahkan ke&nbsp;
-              {isLastSubtest ? "halaman hasil asesmen" : "subtes selanjutnya"}
-              &nbsp; dalam&nbsp;
+              Kamu akan diarahkan ke halaman hasil asesmen&nbsp;
               <span className='text-secondary-500'>{timer} detik</span>.
             </Typography>
           </>
@@ -558,6 +503,3 @@ AsesmenKesiapanBelajar.getLayout = function getLayout(page: ReactElement) {
 };
 
 export default AsesmenKesiapanBelajar;
-
-// jika "timer" pada asesmen merupakan atribut pada subtes, misalnya "duration",
-// maka perlu atribut lain untuk menyimpan nilai "countdown"

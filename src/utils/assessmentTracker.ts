@@ -4,14 +4,13 @@ interface Subtest {
   id: string;
   name: string;
   sequenceNumber: number;
-  timer: number | null;
   isSubmitted: boolean;
 }
 
 interface AnswerChoice {
   id: string;
-  isCorrectAnswer: boolean;
   content: string;
+  isCorrectAnswer: boolean;
 }
 
 interface Question {
@@ -23,6 +22,10 @@ interface Question {
 }
 
 interface AssessmentTrackerDBSchema extends DBSchema {
+  assessmentTimer: {
+    key: "timer";
+    value: number;
+  };
   subtest: {
     value: Subtest;
     key: string;
@@ -44,6 +47,8 @@ async function openAssessmentTrackerDB(): Promise<
   try {
     const db = await openDB<AssessmentTrackerDBSchema>(DB_NAME, DB_VERSION, {
       upgrade: (db) => {
+        db.createObjectStore("assessmentTimer");
+
         const subtestObjectStore = db.createObjectStore("subtest", {
           keyPath: "id",
         });
@@ -62,7 +67,7 @@ async function openAssessmentTrackerDB(): Promise<
 }
 
 async function putManySubtest(
-  subtests: Omit<Subtest, "timer" | "isSubmitted">[],
+  subtests: Omit<Subtest, "isSubmitted">[],
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
 ) {
   const tx = db.transaction("subtest", "readwrite");
@@ -73,7 +78,6 @@ async function putManySubtest(
           id: subtest.id,
           name: subtest.name,
           sequenceNumber: subtest.sequenceNumber,
-          timer: null,
           isSubmitted: false,
         });
       }),

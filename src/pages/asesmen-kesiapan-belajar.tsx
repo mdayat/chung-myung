@@ -22,6 +22,8 @@ import { Typography } from "@components/shadcn/Typography";
 import MaskotHeadImages from "@public/maskot-head.png";
 import {
   type AssessmentTrackerDBSchema,
+  getSubtestQuestions,
+  getSubtests,
   openAssessmentTrackerDB,
   putManyQuestion,
   putManySubtest,
@@ -34,8 +36,6 @@ import Image from "next/image";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
 import type { NextPageWithLayout } from "./_app";
-// dummy data
-import { questionsDummyData, subtestsDummyData } from "../data/akb";
 
 const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const [timer, setTimer] = useState<number | null>(null);
@@ -68,17 +68,21 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const handleSubtestOnSubmit = useCallback(async () => {
     try {
       const currentSubtest = subtests[currentSubtestIndex];
+      const nextSubtestQuestions = await getSubtestQuestions(
+        subtests[currentSubtestIndex + 1].id,
+        "prerequisite",
+      );
+
       await Promise.all([
+        putManyQuestion(
+          nextSubtestQuestions,
+          subtests[currentSubtestIndex + 1].id,
+          indexedDB!,
+        ),
         indexedDB!.put("subtest", {
           ...currentSubtest,
           isSubmitted: true,
         }),
-        // Get all question
-        putManyQuestion(
-          questionsDummyData.slice(2, questionsDummyData.length),
-          currentSubtest.id,
-          indexedDB!,
-        ),
       ]);
 
       const storedQuestions = await indexedDB!.getAllFromIndex(
@@ -86,14 +90,14 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
         "subtestID",
         subtests[currentSubtestIndex + 1].id,
       );
-
       setCurrentSubtestQuestions(storedQuestions);
+
       setCurrentSubtestIndex(currentSubtestIndex + 1);
       setCurrentQuestionIndex(0);
       setIsSubtestFinished(true);
       setTimer(20);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }, [indexedDB, subtests, currentSubtestIndex]);
 
@@ -110,7 +114,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     try {
       setTimer((await indexedDB!.get("assessmentTimer", "timer")) ?? 0);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -144,7 +148,6 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     if (isAssessmentTimeout) {
       if (timer === 0) {
         // Redirect to home page
-        console.log("Redirect to home page");
       } else {
         timeout = setTimeout(() => {
           setTimer(timer! - 1);
@@ -166,8 +169,8 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             try {
               await indexedDB!.put("assessmentTimer", timer! - 1, "timer");
             } catch (error) {
-              console.log(error);
               setTimer(timer! + 1);
+              console.error(error);
             }
           })();
         }, 1000);
@@ -197,28 +200,28 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           // Check if user has unfinished assessment or not
           const subtests = await db.getAll("subtest");
           if (subtests.length === 0) {
-            // get learning materials
-            await putManySubtest(subtestsDummyData, db);
+            const prerequisites = await getSubtests("prerequisite");
+            await putManySubtest(prerequisites, db);
+
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
               "sequenceNumber",
             );
             setSubtests(sortedSubtests);
 
-            // get all questions
-            await putManyQuestion(
-              questionsDummyData.slice(0, 2),
+            const subtestQuestions = await getSubtestQuestions(
               sortedSubtests[0].id,
-              db,
+              "prerequisite",
             );
+            await putManyQuestion(subtestQuestions, sortedSubtests[0].id, db);
 
             const storedQuestions = await db.getAllFromIndex(
               "question",
               "subtestID",
               sortedSubtests[0].id,
             );
-
             setCurrentSubtestQuestions(storedQuestions);
+
             await db.put("assessmentTimer", 10, "timer");
             setTimer(10);
           } else {
@@ -244,16 +247,13 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               currentSubtest.id,
             );
             if (storedQuestions.length !== 0) {
-              console.log("lanjut");
               setCurrentSubtestQuestions(storedQuestions);
             } else {
-              console.log("start next");
-              // get all questions
-              await putManyQuestion(
-                questionsDummyData.slice(2, questionsDummyData.length),
+              const subtestQuestions = await getSubtestQuestions(
                 currentSubtest.id,
-                db,
+                "prerequisite",
               );
+              await putManyQuestion(subtestQuestions, currentSubtest.id, db);
 
               const storedQuestions = await db.getAllFromIndex(
                 "question",
@@ -267,7 +267,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           setIsLoading(false);
         } catch (error) {
           // Log the error properly
-          console.log(error);
+          console.error(error);
         }
       })();
     }
@@ -338,7 +338,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           setCurrentSubtestQuestions={setCurrentSubtestQuestions}
         />
 
-        <div className='flex items-center justify-end gap-x-8'>
+        <div className='mt-8 flex items-center justify-end gap-x-8'>
           <Button
             onClick={handlePrevQuestionOnClick}
             disabled={currentQuestionIndex === 0}
@@ -421,7 +421,6 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             open={isAssessmentTimeout}
             onOpenChange={() => {
               // Redirect to home page
-              console.log("Redirect to home page");
             }}
           >
             <DialogContent>

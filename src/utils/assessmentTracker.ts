@@ -114,5 +114,67 @@ async function putManyQuestion(
   }
 }
 
-export { openAssessmentTrackerDB, putManyQuestion, putManySubtest };
+const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
+
+async function getSubtestQuestions(
+  subtestID: string,
+  subtestType: "prerequisite" | "sub_material",
+): Promise<Question[]> {
+  try {
+    const res = await fetch(
+      `/api/materials/${MATERIAL_ID}/${subtestType.split("_").join("-") + "s"}/${subtestID}/questions`,
+    );
+    const { data } = await res.json();
+    const questions: Question[] = new Array(data.length);
+    if (questions.length !== 0) {
+      for (let i = 0; i < questions.length; i++) {
+        questions[i] = {
+          id: data[i].id,
+          content: data[i].content,
+          multipleChoice: data[i].multipleChoice,
+          answeredAnswerChoiceID: "",
+          subtestID,
+        };
+      }
+    }
+
+    return questions;
+  } catch (error) {
+    throw new Error("Error when get all subtest questions: ", { cause: error });
+  }
+}
+
+async function getSubtests(
+  subtestType: "prerequisite" | "sub_material",
+): Promise<Subtest[]> {
+  try {
+    const res = await fetch(
+      `/api/materials/${MATERIAL_ID}/${subtestType.split("_").join("-") + "s"}`,
+    );
+    const { data } = await res.json();
+    const subtests: Subtest[] = new Array(data.length);
+    if (subtests.length !== 0) {
+      for (let i = 0; i < subtests.length; i++) {
+        subtests[i] = {
+          id: data[i].id,
+          name: data[i].name,
+          sequenceNumber: data[i].sequenceNumber,
+          isSubmitted: false,
+        };
+      }
+    }
+
+    return subtests;
+  } catch (error) {
+    throw new Error("Error when get subtests: ", { cause: error });
+  }
+}
+
+export {
+  getSubtestQuestions,
+  getSubtests,
+  openAssessmentTrackerDB,
+  putManyQuestion,
+  putManySubtest,
+};
 export type { AssessmentTrackerDBSchema, Question, Subtest };

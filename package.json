@@ -8,7 +8,7 @@
     "start": "next start",
     "test": "vitest run",
     "lint:fix": "eslint src --fix && pnpm prettier:format",
-    "lint:strict": "eslint --max-warnings=0",
+    "lint:strict": "eslint src --max-warnings=0",
     "prettier:format": "prettier --write \"**/*.{ts,tsx,js,md,mdx,css,yaml}\"",
     "prettier:check": "prettier --check \"**/*.{ts,tsx,js,md,mdx,css,yaml}\"",
     "typecheck": "tsc --noEmit",
@@ -37,6 +37,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.1.1",
     "@eslint/js": "^9.7.0",
     "@testing-library/react": "^14.2.1",
     "@types/busboy": "^1.5.4",
@@ -54,6 +55,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unused-imports": "^4.0.1",
     "globals": "^15.8.0",

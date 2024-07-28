@@ -1,4 +1,6 @@
+import { fixupPluginRules } from "@eslint/compat";
 import reactPlugin from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
@@ -12,6 +14,7 @@ export default [
       "typescript-eslint": tseslint,
       "unused-imports": unusedImports,
       react: reactPlugin,
+      "react-hooks": fixupPluginRules(reactHooks),
     },
     rules: {
       "no-unused-vars": "off",
@@ -61,6 +64,7 @@ export default [
           ],
         },
       ],
+      ...reactHooks.configs.recommended.rules,
     },
   },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },

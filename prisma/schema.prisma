@@ -28,6 +28,11 @@ enum learning_material_type {
   sub_material
 }
 
+enum studied_learning_material_status {
+  finished
+  unfinished
+}
+
 enum domain_tag {
   bil
   alj
@@ -47,7 +52,30 @@ model user {
   access_token String?       @db.VarChar(2048)
   created_at   DateTime      @default(now())
 
-  assessment_results assessment_result[]
+  learning_journeys learning_journey[]
+}
+
+model learning_journey {
+  id          String   @id @default(uuid()) @db.Uuid
+  user        user     @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id     String   @db.Uuid
+  material    material @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  material_id String   @db.Uuid
+
+  assessment_results         assessment_result[]
+  studied_learning_materials studied_learning_material[]
+
+  @@unique([user_id, material_id])
+}
+
+model studied_learning_material {
+  learning_journey     learning_journey                 @relation(fields: [learning_journey_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  learning_journey_id  String                           @db.Uuid
+  learning_material    learning_material                @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  learning_material_id String                           @db.Uuid
+  status               studied_learning_material_status
+
+  @@id([learning_journey_id, learning_material_id])
 }
 
 model domain {
@@ -76,7 +104,7 @@ model material {
 
   domains            domain_material[]
   learning_materials material_learning_material[]
-  assessment_results assessment_result[]
+  learning_journeys  learning_journey[]
 }
 
 model material_learning_material {
@@ -97,8 +125,10 @@ model learning_material {
   description         String @db.Text
   learning_module_url String @db.VarChar(256)
 
-  materials material_learning_material[]
-  questions learning_material_question[]
+  materials                   material_learning_material[]
+  questions                   learning_material_question[]
+  studied_learning_materials  studied_learning_material[]
+  assessed_learning_materials assessed_learning_material[]
 }
 
 model learning_material_question {
@@ -127,30 +157,38 @@ model multiple_choice {
   is_correct_answer Boolean  @db.Boolean
   question          question @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   question_id       String   @db.Uuid
-
-  assessment_responses assessment_response[]
-}
-
-model assessment_response {
-  assessment_result    assessment_result @relation(fields: [assessment_result_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  assessment_result_id String            @db.Uuid
-  question             question          @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  question_id          String            @db.Uuid
-  multiple_choice      multiple_choice   @relation(fields: [multiple_choice_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  multiple_choice_id   String            @db.Uuid
-  is_correct           Boolean           @db.Boolean
-
-  @@id([assessment_result_id, question_id, multiple_choice_id])
 }
 
 model assessment_result {
-  id          String          @id @default(uuid()) @db.Uuid
-  user        user            @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  user_id     String          @db.Uuid
-  material    material        @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  material_id String          @db.Uuid
-  type        assessment_type
-  created_at  DateTime        @default(now())
+  id                  String           @id @default(uuid()) @db.Uuid
+  learning_journey    learning_journey @relation(fields: [learning_journey_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  learning_journey_id String           @db.Uuid
+  type                assessment_type
+  attempt             Int              @db.SmallInt
+  created_at          DateTime         @default(now())
+
+  assessed_learning_materials assessed_learning_material[]
+}
+
+model assessed_learning_material {
+  id                   String            @id @default(uuid()) @db.Uuid
+  assessment_result    assessment_result @relation(fields: [assessment_result_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  assessment_result_id String            @db.Uuid
+  learning_material    learning_material @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  learning_material_id String            @db.Uuid
 
   assessment_responses assessment_response[]
+
+  @@unique([assessment_result_id, learning_material_id])
+}
+
+model assessment_response {
+  id                            String                     @id @default(uuid()) @db.Uuid
+  assessed_learning_material    assessed_learning_material @relation(fields: [assessed_learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  assessed_learning_material_id String                     @db.Uuid
+  question                      question                   @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  question_id                   String                     @db.Uuid
+  is_correct                    Boolean                    @db.Boolean
+
+  @@unique([assessed_learning_material_id, question_id])
 }

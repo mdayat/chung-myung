@@ -9,38 +9,64 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      assessment_response: {
+      assessed_learning_material: {
         Row: {
           assessment_result_id: string;
-          is_correct: boolean;
-          multiple_choice_id: string;
-          question_id: string;
+          id: string;
+          learning_material_id: string;
         };
         Insert: {
           assessment_result_id: string;
-          is_correct: boolean;
-          multiple_choice_id: string;
-          question_id: string;
+          id: string;
+          learning_material_id: string;
         };
         Update: {
           assessment_result_id?: string;
-          is_correct?: boolean;
-          multiple_choice_id?: string;
-          question_id?: string;
+          id?: string;
+          learning_material_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "assessment_response_assessment_result_id_fkey";
+            foreignKeyName: "assessed_learning_material_assessment_result_id_fkey";
             columns: ["assessment_result_id"];
             isOneToOne: false;
             referencedRelation: "assessment_result";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "assessment_response_multiple_choice_id_fkey";
-            columns: ["multiple_choice_id"];
+            foreignKeyName: "assessed_learning_material_learning_material_id_fkey";
+            columns: ["learning_material_id"];
             isOneToOne: false;
-            referencedRelation: "multiple_choice";
+            referencedRelation: "learning_material";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assessment_response: {
+        Row: {
+          assessed_learning_material_id: string;
+          id: string;
+          is_correct: boolean;
+          question_id: string;
+        };
+        Insert: {
+          assessed_learning_material_id: string;
+          id: string;
+          is_correct: boolean;
+          question_id: string;
+        };
+        Update: {
+          assessed_learning_material_id?: string;
+          id?: string;
+          is_correct?: boolean;
+          question_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assessment_response_assessed_learning_material_id_fkey";
+            columns: ["assessed_learning_material_id"];
+            isOneToOne: false;
+            referencedRelation: "assessed_learning_material";
             referencedColumns: ["id"];
           },
           {
@@ -54,39 +80,32 @@ export type Database = {
       };
       assessment_result: {
         Row: {
+          attempt: number;
           created_at: string;
           id: string;
-          material_id: string;
+          learning_journey_id: string;
           type: Database["public"]["Enums"]["assessment_type"];
-          user_id: string;
         };
         Insert: {
+          attempt: number;
           created_at?: string;
           id: string;
-          material_id: string;
+          learning_journey_id: string;
           type: Database["public"]["Enums"]["assessment_type"];
-          user_id: string;
         };
         Update: {
+          attempt?: number;
           created_at?: string;
           id?: string;
-          material_id?: string;
+          learning_journey_id?: string;
           type?: Database["public"]["Enums"]["assessment_type"];
-          user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "assessment_result_material_id_fkey";
-            columns: ["material_id"];
+            foreignKeyName: "assessment_result_learning_journey_id_fkey";
+            columns: ["learning_journey_id"];
             isOneToOne: false;
-            referencedRelation: "material";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "assessment_result_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "user";
+            referencedRelation: "learning_journey";
             referencedColumns: ["id"];
           },
         ];
@@ -138,6 +157,39 @@ export type Database = {
             columns: ["material_id"];
             isOneToOne: false;
             referencedRelation: "material";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      learning_journey: {
+        Row: {
+          id: string;
+          material_id: string;
+          user_id: string;
+        };
+        Insert: {
+          id: string;
+          material_id: string;
+          user_id: string;
+        };
+        Update: {
+          id?: string;
+          material_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "learning_journey_material_id_fkey";
+            columns: ["material_id"];
+            isOneToOne: false;
+            referencedRelation: "material";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "learning_journey_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "user";
             referencedColumns: ["id"];
           },
         ];
@@ -297,6 +349,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      studied_learning_material: {
+        Row: {
+          learning_journey_id: string;
+          learning_material_id: string;
+          status: Database["public"]["Enums"]["studied_learning_material_status"];
+        };
+        Insert: {
+          learning_journey_id: string;
+          learning_material_id: string;
+          status: Database["public"]["Enums"]["studied_learning_material_status"];
+        };
+        Update: {
+          learning_journey_id?: string;
+          learning_material_id?: string;
+          status?: Database["public"]["Enums"]["studied_learning_material_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "studied_learning_material_learning_journey_id_fkey";
+            columns: ["learning_journey_id"];
+            isOneToOne: false;
+            referencedRelation: "learning_journey";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "studied_learning_material_learning_material_id_fkey";
+            columns: ["learning_material_id"];
+            isOneToOne: false;
+            referencedRelation: "learning_material";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       user: {
         Row: {
           access_token: string | null;
@@ -342,6 +427,7 @@ export type Database = {
       domain_tag: "bil" | "alj" | "geo" | "pgk" | "adp" | "kal";
       learning_material_type: "prerequisite" | "sub_material";
       school_major: "ips" | "ipa";
+      studied_learning_material_status: "finished" | "unfinished";
       user_role: "admin" | "siswa";
     };
     CompositeTypes: {

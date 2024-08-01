@@ -16,14 +16,19 @@ export default async function handler(
   res.setHeader("Content-Type", "application/json");
   if (req.method === "GET") {
     try {
-      const materials = await getMaterials();
+      const { data } = await supabase
+        .from("material")
+        .select("*")
+        .throwOnError();
+
       res.status(200).json({
         status: "success",
-        data: materials,
+        data: data!,
       });
     } catch (error) {
-      // Log the error properly
-      console.error(error);
+      console.error(
+        new Error("Error when get all materials: ", { cause: error }),
+      );
 
       res.status(500).json({
         status: "failed",
@@ -32,14 +37,5 @@ export default async function handler(
     }
   } else {
     handleInvalidMethod(res, ["GET"]);
-  }
-}
-
-async function getMaterials(): Promise<Material[]> {
-  try {
-    const { data } = await supabase.from("material").select("*").throwOnError();
-    return data!;
-  } catch (error) {
-    throw new Error("Error when get all materials: ", { cause: error });
   }
 }

@@ -18,12 +18,15 @@ export default async function handler(
 ) {
   res.setHeader("Content-Type", "application/json");
   const questionID = (req.query.questionID ?? "") as string;
+
   const uuidSchema = zod.string().uuid();
   const result = uuidSchema.safeParse(questionID);
   if (result.success === false) {
-    res.status(404).json({
+    console.error(new Error("Invalid Question ID: ", { cause: result.error }));
+
+    res.status(400).json({
       status: "failed",
-      message: "Question Not Found",
+      message: "Invalid Question ID",
     });
     return;
   }
@@ -33,33 +36,28 @@ export default async function handler(
       const { data } = await supabase
         .from("question")
         .select(
-          "*, multiple_choice!multiple_choice_question_id_fkey(id, content, is_correct_answer)",
+          "id, content, explanation, taxonomyBloom:taxonomy_bloom, multipleChoice:multiple_choice(id, content, isCorrectAnswer:is_correct_answer)",
         )
         .eq("id", questionID)
         .maybeSingle()
         .throwOnError();
 
-      let question: Question | null = null;
-      if (data !== null) {
-        question = {
-          id: data.id,
-          content: data.content,
-          explanation: data.explanation,
-          taxonomyBloom: data.taxonomy_bloom,
-          multipleChoice: data.multiple_choice.map(
-            ({ id, content, is_correct_answer }) => ({
-              id,
-              content,
-              isCorrectAnswer: is_correct_answer,
-            }),
-          ),
-        };
+      if (data === null) {
+        res
+          .status(404)
+          .json({ status: "failed", message: "Question Not Found" });
+        return;
       }
 
-      res.status(200).json({ status: "success", data: question });
+      res.status(200).json({ status: "success", data });
     } catch (error) {
+      console.error(
+        new Error("Error when get a question based on its ID: ", {
+          cause: error,
+        }),
+      );
+
       res.status(500).json({ status: "failed", message: "Server Error" });
-      console.log("Error when get a question: ", error);
     }
   } else {
     handleInvalidMethod(res, ["GET"]);

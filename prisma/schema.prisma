@@ -28,11 +28,6 @@ enum learning_material_type {
   sub_material
 }
 
-enum studied_learning_material_status {
-  finished
-  unfinished
-}
-
 enum domain_tag {
   bil
   alj
@@ -43,20 +38,20 @@ enum domain_tag {
 }
 
 model user {
-  id           String        @id @default(uuid()) @db.Uuid
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String        @db.VarChar(256)
   email        String        @unique @db.VarChar(256)
   major        school_major?
   avatar_url   String        @db.VarChar(256)
-  role         user_role
   access_token String?       @db.VarChar(2048)
-  created_at   DateTime      @default(now())
+  role         user_role
+  created_at   DateTime      @default(now()) @db.Timestamptz()
 
   learning_journeys learning_journey[]
 }
 
 model learning_journey {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user        user     @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   user_id     String   @db.Uuid
   material    material @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
@@ -69,17 +64,17 @@ model learning_journey {
 }
 
 model studied_learning_material {
-  learning_journey     learning_journey                 @relation(fields: [learning_journey_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  learning_journey_id  String                           @db.Uuid
-  learning_material    learning_material                @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  learning_material_id String                           @db.Uuid
-  status               studied_learning_material_status
+  learning_journey     learning_journey  @relation(fields: [learning_journey_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  learning_journey_id  String            @db.Uuid
+  learning_material    learning_material @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  learning_material_id String            @db.Uuid
+  is_studied           Boolean           @db.Boolean
 
   @@id([learning_journey_id, learning_material_id])
 }
 
 model domain {
-  id   String     @id @default(uuid()) @db.Uuid
+  id   String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name String     @db.VarChar(256)
   tag  domain_tag
 
@@ -98,61 +93,65 @@ model domain_material {
 }
 
 model material {
-  id          String @id @default(uuid()) @db.Uuid
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String @db.VarChar(256)
   description String @db.Text
 
   domains            domain_material[]
   learning_materials material_learning_material[]
   learning_journeys  learning_journey[]
+  question           material_question[]
 }
 
 model material_learning_material {
-  material             material               @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  material_id          String                 @db.Uuid
-  learning_material    learning_material      @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  learning_material_id String                 @db.Uuid
-  type                 learning_material_type
-  sequence_number      Int                    @db.SmallInt
+  material                 material               @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  material_id              String                 @db.Uuid
+  learning_material        learning_material      @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  learning_material_id     String                 @db.Uuid
+  learning_material_type   learning_material_type
+  learning_material_number Int                    @db.SmallInt
 
   @@id([material_id, learning_material_id])
-  @@unique([material_id, type, sequence_number])
+  @@unique([material_id, learning_material_type, learning_material_number])
 }
 
 model learning_material {
-  id                  String @id @default(uuid()) @db.Uuid
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                String @db.VarChar(256)
   description         String @db.Text
   learning_module_url String @db.VarChar(256)
 
   materials                   material_learning_material[]
-  questions                   learning_material_question[]
+  questions                   material_question[]
   studied_learning_materials  studied_learning_material[]
   assessed_learning_materials assessed_learning_material[]
 }
 
-model learning_material_question {
+model material_question {
+  material             material          @relation(fields: [material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  material_id          String            @db.Uuid
   learning_material    learning_material @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   learning_material_id String            @db.Uuid
   question             question          @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   question_id          String            @db.Uuid
 
-  @@id([learning_material_id, question_id])
+  @@id([material_id, question_id])
+  @@unique([learning_material_id, question_id])
 }
 
 model question {
-  id             String @id @default(uuid()) @db.Uuid
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content        String @db.Text
   explanation    String @db.Text
   taxonomy_bloom String @db.Char(2)
 
-  learning_materials   learning_material_question[]
+  learning_materials   material_question[]
   multiple_choice      multiple_choice[]
   assessment_responses assessment_response[]
 }
 
 model multiple_choice {
-  id                String   @id @default(uuid()) @db.Uuid
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content           String   @db.Text
   is_correct_answer Boolean  @db.Boolean
   question          question @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -160,18 +159,18 @@ model multiple_choice {
 }
 
 model assessment_result {
-  id                  String           @id @default(uuid()) @db.Uuid
+  id                  String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   learning_journey    learning_journey @relation(fields: [learning_journey_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   learning_journey_id String           @db.Uuid
   type                assessment_type
   attempt             Int              @db.SmallInt
-  created_at          DateTime         @default(now())
+  created_at          DateTime         @default(now()) @db.Timestamptz()
 
   assessed_learning_materials assessed_learning_material[]
 }
 
 model assessed_learning_material {
-  id                   String            @id @default(uuid()) @db.Uuid
+  id                   String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   assessment_result    assessment_result @relation(fields: [assessment_result_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   assessment_result_id String            @db.Uuid
   learning_material    learning_material @relation(fields: [learning_material_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
@@ -183,12 +182,11 @@ model assessed_learning_material {
 }
 
 model assessment_response {
-  id                            String                     @id @default(uuid()) @db.Uuid
   assessed_learning_material    assessed_learning_material @relation(fields: [assessed_learning_material_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   assessed_learning_material_id String                     @db.Uuid
   question                      question                   @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
   question_id                   String                     @db.Uuid
   is_correct                    Boolean                    @db.Boolean
 
-  @@unique([assessed_learning_material_id, question_id])
+  @@id([assessed_learning_material_id, question_id])
 }

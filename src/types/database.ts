@@ -310,19 +310,19 @@ export type Database = {
         Row: {
           content: string;
           id: string;
-          is_correct_answer: boolean;
+          is_correct: boolean;
           question_id: string;
         };
         Insert: {
           content: string;
           id?: string;
-          is_correct_answer: boolean;
+          is_correct: boolean;
           question_id: string;
         };
         Update: {
           content?: string;
           id?: string;
-          is_correct_answer?: boolean;
+          is_correct?: boolean;
           question_id?: string;
         };
         Relationships: [
@@ -340,19 +340,19 @@ export type Database = {
           content: string;
           explanation: string;
           id: string;
-          taxonomy_bloom: string;
+          taxonomy_bloom: Database["public"]["Enums"]["taxonomy_bloom"];
         };
         Insert: {
           content: string;
           explanation: string;
           id?: string;
-          taxonomy_bloom: string;
+          taxonomy_bloom: Database["public"]["Enums"]["taxonomy_bloom"];
         };
         Update: {
           content?: string;
           explanation?: string;
           id?: string;
-          taxonomy_bloom?: string;
+          taxonomy_bloom?: Database["public"]["Enums"]["taxonomy_bloom"];
         };
         Relationships: [];
       };
@@ -434,6 +434,7 @@ export type Database = {
       domain_tag: "bil" | "alj" | "geo" | "pgk" | "adp" | "kal";
       learning_material_type: "prerequisite" | "sub_material";
       school_major: "ips" | "ipa";
+      taxonomy_bloom: "c1" | "c2" | "c3" | "c4" | "c5" | "c6";
       user_role: "admin" | "siswa";
     };
     CompositeTypes: {

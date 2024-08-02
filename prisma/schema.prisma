@@ -37,6 +37,15 @@ enum domain_tag {
   kal
 }
 
+enum taxonomy_bloom {
+  c1
+  c2
+  c3
+  c4
+  c5
+  c6
+}
+
 model user {
   id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String        @db.VarChar(256)
@@ -140,10 +149,10 @@ model material_question {
 }
 
 model question {
-  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content        String @db.Text
-  explanation    String @db.Text
-  taxonomy_bloom String @db.Char(2)
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content        String         @db.Text
+  explanation    String         @db.Text
+  taxonomy_bloom taxonomy_bloom
 
   learning_materials   material_question[]
   multiple_choice      multiple_choice[]
@@ -151,11 +160,11 @@ model question {
 }
 
 model multiple_choice {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content           String   @db.Text
-  is_correct_answer Boolean  @db.Boolean
-  question          question @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  question_id       String   @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content     String   @db.Text
+  is_correct  Boolean  @db.Boolean
+  question    question @relation(fields: [question_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  question_id String   @db.Uuid
 }
 
 model assessment_result {

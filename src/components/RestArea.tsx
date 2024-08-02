@@ -17,7 +17,7 @@ interface RestAreaProps {
   completedSubtestIndex: number;
   nextSubtest: Subtest;
   nextSubtestQuestionsLength: number;
-  handleRestAreaOnClick: () => void;
+  handleClickNextSubtest: () => void;
 }
 
 function RestArea({
@@ -26,7 +26,7 @@ function RestArea({
   completedSubtestIndex,
   nextSubtest,
   nextSubtestQuestionsLength,
-  handleRestAreaOnClick,
+  handleClickNextSubtest,
 }: RestAreaProps) {
   return (
     <>
@@ -119,7 +119,7 @@ function RestArea({
           </NextSubtestInfo>
         </div>
 
-        <Button onClick={handleRestAreaOnClick} className='mx-auto block'>
+        <Button onClick={handleClickNextSubtest} className='mx-auto block'>
           Lanjutkan Subtes Selanjutnya
         </Button>
       </div>

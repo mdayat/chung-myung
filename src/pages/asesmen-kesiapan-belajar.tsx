@@ -22,6 +22,7 @@ import { Typography } from "@components/shadcn/Typography";
 import MaskotHeadImages from "@public/maskot-head.png";
 import {
   type AssessmentTrackerDBSchema,
+  createAssessmentResult,
   getSubtestQuestions,
   getSubtests,
   openAssessmentTrackerDB,
@@ -36,6 +37,10 @@ import Image from "next/image";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
 import type { NextPageWithLayout } from "./_app";
+
+const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
+const LEARNING_JOURNEY_ID = "94c33b3b-f38a-4906-a000-a85ca4f26539";
+const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
 
 const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const [timer, setTimer] = useState<number | null>(null);
@@ -54,69 +59,80 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   >([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const isLastSubtest = currentSubtestIndex === subtests.length - 1;
   const isLastQuestion =
     currentQuestionIndex === currentSubtestQuestions.length - 1;
 
-  const handleAssessmentOnSubmit = useCallback(async () => {
-    console.log(await indexedDB!.getAll("subtest"));
-    console.log(await indexedDB!.getAll("question"));
-  }, [indexedDB]);
-
-  // Submit the current subtest and show "RestArea".
-  // Prepare the questions for the next subtest.
-  const handleSubtestOnSubmit = useCallback(async () => {
+  const handleSubmitSubtest = useCallback(async () => {
     try {
-      const currentSubtest = subtests[currentSubtestIndex];
-      const nextSubtestQuestions = await getSubtestQuestions(
-        subtests[currentSubtestIndex + 1].id,
-        "prerequisite",
-      );
-
-      await Promise.all([
-        putManyQuestion(
-          nextSubtestQuestions,
-          subtests[currentSubtestIndex + 1].id,
+      const isLastSubtest = subtests.length - 1 === currentSubtestIndex;
+      if (isLastSubtest) {
+        await createAssessmentResult(
           indexedDB!,
-        ),
-        indexedDB!.put("subtest", {
-          ...currentSubtest,
-          isSubmitted: true,
-        }),
-      ]);
+          USER_ID,
+          LEARNING_JOURNEY_ID,
+          "asesmen_kesiapan_belajar",
+        );
 
-      const storedQuestions = await indexedDB!.getAllFromIndex(
-        "question",
-        "subtestID",
-        subtests[currentSubtestIndex + 1].id,
-      );
-      setCurrentSubtestQuestions(storedQuestions);
+        Promise.all([
+          await indexedDB!.clear("subtest"),
+          await indexedDB!.clear("question"),
+          await indexedDB!.clear("assessmentTimer"),
+        ]);
 
-      setCurrentSubtestIndex(currentSubtestIndex + 1);
-      setCurrentQuestionIndex(0);
-      setIsSubtestFinished(true);
-      setTimer(20);
+        window.location.replace(window.location.origin);
+      } else {
+        const currentSubtest = subtests[currentSubtestIndex];
+        const nextSubtestQuestions = await getSubtestQuestions(
+          MATERIAL_ID,
+          subtests[currentSubtestIndex + 1].id,
+        );
+
+        await Promise.all([
+          putManyQuestion(
+            nextSubtestQuestions,
+            subtests[currentSubtestIndex + 1].id,
+            indexedDB!,
+          ),
+          indexedDB!.put("subtest", {
+            ...currentSubtest,
+            isSubmitted: true,
+          }),
+        ]);
+
+        const storedQuestions = await indexedDB!.getAllFromIndex(
+          "question",
+          "subtestID",
+          subtests[currentSubtestIndex + 1].id,
+        );
+        setCurrentSubtestQuestions(storedQuestions);
+
+        setCurrentSubtestIndex(currentSubtestIndex + 1);
+        setCurrentQuestionIndex(0);
+        setIsSubtestFinished(true);
+        setTimer(20);
+      }
     } catch (error) {
       console.error(error);
     }
   }, [indexedDB, subtests, currentSubtestIndex]);
 
-  function handleNextQuestionOnClick() {
+  function handleClickNextQuestion() {
     setCurrentQuestionIndex(currentQuestionIndex + 1);
   }
 
-  function handlePrevQuestionOnClick() {
+  function handleClickPrevQuestion() {
     setCurrentQuestionIndex(currentQuestionIndex - 1);
   }
 
-  async function handleRestAreaOnClick() {
+  const handleClickNextSubtest = useCallback(async () => {
     setIsSubtestFinished(false);
     try {
       setTimer((await indexedDB!.get("assessmentTimer", "timer")) ?? 0);
     } catch (error) {
       console.error(error);
+      setIsSubtestFinished(true);
     }
-  }
+  }, [indexedDB]);
 
   // Lock the page height to the screen when the user is at "RestArea"
   useEffect(() => {
@@ -135,7 +151,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     // get out from "RestArea" when the timer is up and start the next subtest.
     if (isSubtestFinished) {
       if (timer === 0) {
-        handleRestAreaOnClick();
+        handleClickNextSubtest();
       } else {
         timeout = setTimeout(() => {
           setTimer(timer! - 1);
@@ -147,7 +163,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     // show "RestArea" when the timer is up.
     if (isAssessmentTimeout) {
       if (timer === 0) {
-        // Redirect to home page
+        window.location.replace(window.location.origin);
       } else {
         timeout = setTimeout(() => {
           setTimer(timer! - 1);
@@ -161,7 +177,25 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
       if (timer === 0) {
         setIsAssessmentTimeout(true);
         setTimer(5);
-        handleAssessmentOnSubmit();
+
+        (async () => {
+          try {
+            await createAssessmentResult(
+              indexedDB!,
+              USER_ID,
+              LEARNING_JOURNEY_ID,
+              "asesmen_kesiapan_belajar",
+            );
+
+            Promise.all([
+              await indexedDB!.clear("subtest"),
+              await indexedDB!.clear("question"),
+              await indexedDB!.clear("assessmentTimer"),
+            ]);
+          } catch (error) {
+            console.error(error);
+          }
+        })();
       } else {
         timeout = setTimeout(() => {
           setTimer(timer! - 1);
@@ -185,7 +219,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     isAssessmentTimeout,
     isSubtestFinished,
     timer,
-    handleAssessmentOnSubmit,
+    handleClickNextSubtest,
   ]);
 
   useEffect(() => {
@@ -200,7 +234,10 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           // Check if user has unfinished assessment or not
           const subtests = await db.getAll("subtest");
           if (subtests.length === 0) {
-            const prerequisites = await getSubtests("prerequisite");
+            const prerequisites = await getSubtests(
+              MATERIAL_ID,
+              "prerequisite",
+            );
             await putManySubtest(prerequisites, db);
 
             const sortedSubtests = await db.getAllFromIndex(
@@ -210,8 +247,8 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             setSubtests(sortedSubtests);
 
             const subtestQuestions = await getSubtestQuestions(
+              MATERIAL_ID,
               sortedSubtests[0].id,
-              "prerequisite",
             );
             await putManyQuestion(subtestQuestions, sortedSubtests[0].id, db);
 
@@ -223,7 +260,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             setCurrentSubtestQuestions(storedQuestions);
 
             await db.put("assessmentTimer", 10, "timer");
-            setTimer(10);
+            setTimer(1000);
           } else {
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
@@ -250,8 +287,8 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               setCurrentSubtestQuestions(storedQuestions);
             } else {
               const subtestQuestions = await getSubtestQuestions(
+                MATERIAL_ID,
                 currentSubtest.id,
-                "prerequisite",
               );
               await putManyQuestion(subtestQuestions, currentSubtest.id, db);
 
@@ -295,7 +332,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
         </Navbar>
 
         <RestArea
-          handleRestAreaOnClick={handleRestAreaOnClick}
+          handleClickNextSubtest={handleClickNextSubtest}
           timer={timer!}
           subtestsLength={subtests.length}
           completedSubtestIndex={currentSubtestIndex}
@@ -340,7 +377,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
         <div className='mt-8 flex items-center justify-end gap-x-8'>
           <Button
-            onClick={handlePrevQuestionOnClick}
+            onClick={handleClickPrevQuestion}
             disabled={currentQuestionIndex === 0}
             variant='secondary'
             className='block w-[164px] text-center'
@@ -362,7 +399,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               </DialogTrigger>
             ) : (
               <Button
-                onClick={handleNextQuestionOnClick}
+                onClick={handleClickNextQuestion}
                 className='block w-[164px] text-center'
               >
                 Selanjutnya
@@ -402,11 +439,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
                 <DialogClose asChild>
                   <Button
-                    onClick={
-                      isLastSubtest
-                        ? handleAssessmentOnSubmit
-                        : handleSubtestOnSubmit
-                    }
+                    onClick={handleSubmitSubtest}
                     variant='primary'
                     className='block w-full text-center'
                   >
@@ -419,9 +452,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
           <Dialog
             open={isAssessmentTimeout}
-            onOpenChange={() => {
-              // Redirect to home page
-            }}
+            onOpenChange={() => window.location.replace(window.location.origin)}
           >
             <DialogContent>
               <TimeIsUpPopup timer={timer!} />

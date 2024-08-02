@@ -1,4 +1,9 @@
+import type { SuccessResponse } from "@customTypes/api";
+import type { Enums as DBEnums } from "@customTypes/database";
 import { type DBSchema, type IDBPDatabase, openDB } from "idb";
+import { v4 as uuidv4 } from "uuid";
+
+import type { AssessmentResult } from "../pages/api/users/[userID]/learning-journeys/[learningJourneyID]/assessment-results";
 
 interface Subtest {
   id: string;
@@ -114,20 +119,68 @@ async function putManyQuestion(
   }
 }
 
-const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
+interface LearningMaterial {
+  id: string;
+  name: string;
+  description: string;
+  learningModuleURL: string;
+  type: DBEnums<"learning_material_type">;
+  sequenceNumber: number;
+}
+
+async function getSubtests(
+  materialID: string,
+  subtestType: "prerequisite" | "sub_material",
+): Promise<Subtest[]> {
+  try {
+    const res = await fetch(`/api/materials/${materialID}/learning-materials`);
+    const { data } = (await res.json()) as SuccessResponse<LearningMaterial[]>;
+
+    const subtests: Subtest[] = new Array(data.length);
+    if (data.length !== 0) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].type !== subtestType) {
+          continue;
+        }
+
+        subtests[i] = {
+          id: data[i].id,
+          name: data[i].name,
+          sequenceNumber: data[i].sequenceNumber,
+          isSubmitted: false,
+        };
+      }
+    }
+
+    return subtests;
+  } catch (error) {
+    throw new Error("Error when get subtests: ", { cause: error });
+  }
+}
+
+interface QuestionAPIResponse {
+  id: string;
+  content: string;
+  explanation: string;
+  taxonomyBloom: string;
+  multipleChoice: { id: string; content: string; isCorrectAnswer: boolean }[];
+}
 
 async function getSubtestQuestions(
+  materialID: string,
   subtestID: string,
-  subtestType: "prerequisite" | "sub_material",
 ): Promise<Question[]> {
   try {
     const res = await fetch(
-      `/api/materials/${MATERIAL_ID}/${subtestType.split("_").join("-") + "s"}/${subtestID}/questions`,
+      `/api/materials/${materialID}/learning-materials/${subtestID}/questions`,
     );
-    const { data } = await res.json();
+    const { data } = (await res.json()) as SuccessResponse<
+      QuestionAPIResponse[]
+    >;
+
     const questions: Question[] = new Array(data.length);
-    if (questions.length !== 0) {
-      for (let i = 0; i < questions.length; i++) {
+    if (data.length !== 0) {
+      for (let i = 0; i < data.length; i++) {
         questions[i] = {
           id: data[i].id,
           content: data[i].content,
@@ -144,33 +197,104 @@ async function getSubtestQuestions(
   }
 }
 
-async function getSubtests(
-  subtestType: "prerequisite" | "sub_material",
-): Promise<Subtest[]> {
+async function createAssessmentResult(
+  db: IDBPDatabase<AssessmentTrackerDBSchema>,
+  userID: string,
+  learningJourneyID: string,
+  assessmentType: "asesmen_kesiapan_belajar" | "asesmen_akhir",
+) {
   try {
-    const res = await fetch(
-      `/api/materials/${MATERIAL_ID}/${subtestType.split("_").join("-") + "s"}`,
-    );
-    const { data } = await res.json();
-    const subtests: Subtest[] = new Array(data.length);
-    if (subtests.length !== 0) {
-      for (let i = 0; i < subtests.length; i++) {
-        subtests[i] = {
-          id: data[i].id,
-          name: data[i].name,
-          sequenceNumber: data[i].sequenceNumber,
-          isSubmitted: false,
-        };
+    const results = await Promise.all([
+      await db.getAllFromIndex("subtest", "sequenceNumber"),
+      await db.getAll("question"),
+      await fetch(
+        `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+      ),
+    ]);
+
+    const sortedSubtests = results[0];
+    const storedQuestions = results[1];
+
+    const response = (await results[2].json()) as SuccessResponse<
+      AssessmentResult[]
+    >;
+    let prevAssessmentResult: AssessmentResult | null = null;
+
+    if (response.data.length !== 0) {
+      for (let i = 0; i < response.data.length; i++) {
+        const assessmentResult = response.data[i];
+        if (assessmentResult.type === assessmentType) {
+          prevAssessmentResult = assessmentResult;
+          break;
+        }
       }
     }
 
-    return subtests;
+    if (prevAssessmentResult !== null) {
+      await fetch(
+        `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results/${prevAssessmentResult.id}`,
+        {
+          method: "DELETE",
+        },
+      );
+    }
+
+    const assessmentResult: Omit<AssessmentResult, "id" | "createdAt"> = {
+      learningJourneyID,
+      type: assessmentType,
+      attempt:
+        prevAssessmentResult === null ? 1 : prevAssessmentResult.attempt + 1,
+      assessedLearningMaterials: sortedSubtests.map((subtest) => {
+        const id = uuidv4();
+        return {
+          id,
+          learningMaterialID: subtest.id,
+          assessmentResponses: storedQuestions
+            .filter((question) => question.subtestID === subtest.id)
+            .map((question) => {
+              let isCorrect = false;
+              for (let i = 0; i < question.multipleChoice.length; i++) {
+                if (
+                  question.answeredAnswerChoiceID !==
+                  question.multipleChoice[i].id
+                ) {
+                  continue;
+                }
+
+                if (question.multipleChoice[i].isCorrectAnswer) {
+                  isCorrect = true;
+                }
+              }
+
+              return {
+                assessedLearningMaterialID: id,
+                questionID: question.id,
+                isCorrect,
+              };
+            }),
+        };
+      }),
+    };
+
+    await fetch(
+      `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(assessmentResult),
+      },
+    );
   } catch (error) {
-    throw new Error("Error when get subtests: ", { cause: error });
+    throw new Error("Error when create assessment result: ", {
+      cause: error,
+    });
   }
 }
 
 export {
+  createAssessmentResult,
   getSubtestQuestions,
   getSubtests,
   openAssessmentTrackerDB,

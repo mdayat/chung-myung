@@ -1,17 +1,14 @@
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import type { Material } from "@customTypes/material";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-interface Material {
-  id: string;
-  name: string;
-  description: string;
-}
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<Material[]> | FailedResponse>,
+  res: NextApiResponse<
+    SuccessResponse<Omit<Material, "number">[]> | FailedResponse
+  >,
 ) {
   res.setHeader("Content-Type", "application/json");
   if (req.method === "GET") {
@@ -26,14 +23,8 @@ export default async function handler(
         data: data!,
       });
     } catch (error) {
-      console.error(
-        new Error("Error when get all materials: ", { cause: error }),
-      );
-
-      res.status(500).json({
-        status: "failed",
-        message: "Server Error",
-      });
+      console.error(new Error("Error when get materials: ", { cause: error }));
+      res.status(500).json({ status: "failed", message: "Server Error" });
     }
   } else {
     handleInvalidMethod(res, ["GET"]);

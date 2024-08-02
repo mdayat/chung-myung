@@ -1,4 +1,4 @@
-import type { DeltaOps } from "@customTypes/question";
+import type { DeltaOperation } from "@customTypes/editor";
 import type {
   AssessmentTrackerDBSchema,
   Question,
@@ -180,8 +180,8 @@ export const AssessmentContent = memo(function AssessmentContent({
   );
 });
 
-function deltaToHTMLString(deltaOps: DeltaOps): string {
-  const deltaConverter = new QuillDeltaToHtmlConverter(deltaOps);
+function deltaToHTMLString(deltaOperations: DeltaOperation[]): string {
+  const deltaConverter = new QuillDeltaToHtmlConverter(deltaOperations);
   deltaConverter.afterRender((_, HTMLString) => {
     const HTMLDoc = new DOMParser().parseFromString(HTMLString, "text/html");
     const bodyEl = HTMLDoc.getElementsByTagName("body")[0];

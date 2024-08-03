@@ -1,8 +1,5 @@
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
-import {
-  type LearningJourney,
-  learningJourneySchema,
-} from "@customTypes/learningJourney";
+import { type LearningJourney } from "@customTypes/learningJourney";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -18,7 +15,7 @@ export default async function handler(
 
   // Check if "userID" is a valid UUID
   const userID = (req.query.userID ?? "") as string;
-  const parseResult = zod.string().uuid().safeParse(userID);
+  let parseResult = zod.string().uuid().safeParse(userID);
   if (parseResult.success === false) {
     console.error(
       new Error(`"userID" is not a valid UUID: `, { cause: parseResult.error }),
@@ -62,59 +59,41 @@ export default async function handler(
       res.status(500).json({ status: "failed", message: "Server Error" });
     }
   } else if (req.method === "POST") {
-    const parseResult = learningJourneySchema
-      .pick({
-        userID: true,
-        materialID: true,
-      })
-      .safeParse(req.body);
-
-    // Check if "userID" and "materialID" are valid UUIDs
+    // Check if "materialID" is a valid UUID
+    parseResult = zod.string().uuid().safeParse(req.body.materialID);
     if (parseResult.success === false) {
       console.error(
-        new Error(`"userID" or "materialID" are not valid UUIDs: `, {
+        new Error(`"materialID" is not a valid UUID: `, {
           cause: parseResult.error,
         }),
       );
 
       res
-        .status(404)
-        .json({ status: "failed", message: "User or Material Not Found" });
+        .status(400)
+        .json({ status: "failed", message: "Invalid JSON Schema" });
       return;
     }
 
-    // Check if "userID" and "materialID" exist
-    let results = [false, false];
+    // Check if "materialID" exists
     try {
-      results = await Promise.all([
-        isUserExist(parseResult.data.userID),
-        isMaterialExist(parseResult.data.materialID),
-      ]);
+      if ((await isMaterialExist(req.body.materialID)) === false) {
+        console.error(new Error(`Material with "materialID" is not found`));
+
+        res
+          .status(400)
+          .json({ status: "failed", message: "Invalid JSON Schema" });
+        return;
+      }
     } catch (error) {
       console.error(error);
       res.status(500).json({ status: "failed", message: "Server Error" });
       return;
     }
 
-    if (results[0] === false) {
-      console.error(new Error(`User with "userID" is not found`));
-      res.status(404).json({ status: "failed", message: "User Not Found" });
-      return;
-    }
-
-    if (results[1] === false) {
-      console.error(new Error(`Material with "materialID" is not found`));
-      res.status(404).json({ status: "failed", message: "Material Not Found" });
-      return;
-    }
-
     try {
       await supabase
         .from("learning_journey")
-        .insert({
-          user_id: parseResult.data.userID,
-          material_id: parseResult.data.materialID,
-        })
+        .insert({ user_id: userID, material_id: req.body.materialID })
         .throwOnError();
 
       res.status(201).json({ status: "success", data: null });

@@ -7,9 +7,7 @@ import { z as zod } from "zod";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<
-    SuccessResponse<LearningJourney | null> | FailedResponse
-  >,
+  res: NextApiResponse<SuccessResponse<LearningJourney> | FailedResponse>,
 ) {
   res.setHeader("Content-Type", "application/json");
 

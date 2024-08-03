@@ -1,27 +1,29 @@
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
+import type { Material } from "@customTypes/material";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z as zod } from "zod";
 
-interface Material {
-  id: string;
-  name: string;
-  description: string;
-}
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse<Material | null> | FailedResponse>,
+  res: NextApiResponse<
+    SuccessResponse<Omit<Material, "number">> | FailedResponse
+  >,
 ) {
   res.setHeader("Content-Type", "application/json");
-  const materialID = (req.query.materialID ?? "") as string;
 
-  const uuidSchema = zod.string().uuid();
-  const result = uuidSchema.safeParse(materialID);
-  if (result.success === false) {
-    console.error(new Error("Invalid Material ID: ", { cause: result.error }));
-    res.status(400).json({ status: "failed", message: "Invalid Material ID" });
+  // Check if "materialID" is a valid UUID
+  const materialID = (req.query.materialID ?? "") as string;
+  const parseResult = zod.string().uuid().safeParse(materialID);
+  if (parseResult.success === false) {
+    console.error(
+      new Error(`"materialID" is not a valid UUID: `, {
+        cause: parseResult.error,
+      }),
+    );
+
+    res.status(404).json({ status: "failed", message: "Material Not Found" });
     return;
   }
 
@@ -35,6 +37,8 @@ export default async function handler(
         .throwOnError();
 
       if (data === null) {
+        console.error(new Error(`Material with "materialID" is not found`));
+
         res
           .status(404)
           .json({ status: "failed", message: "Material Not Found" });
@@ -44,15 +48,12 @@ export default async function handler(
       res.status(200).json({ status: "success", data });
     } catch (error) {
       console.error(
-        new Error("Error when get a material based on its ID: ", {
+        new Error(`Error when get a material based on "materialID": `, {
           cause: error,
         }),
       );
 
-      res.status(500).json({
-        status: "failed",
-        message: "Server Error",
-      });
+      res.status(500).json({ status: "failed", message: "Server Error" });
     }
   } else {
     handleInvalidMethod(res, ["GET"]);

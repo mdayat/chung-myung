@@ -120,10 +120,7 @@ export default async function handler(
       res.status(201).json({ status: "success", data: null });
     } catch (error) {
       console.error(
-        new Error(
-          `Error when create a learning journey based on "userID" and "materialID": `,
-          { cause: error },
-        ),
+        new Error(`Error when create a learning journey: `, { cause: error }),
       );
 
       res.status(500).json({ status: "failed", message: "Server Error" });

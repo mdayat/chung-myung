@@ -15,7 +15,7 @@ export default async function handler(
 
   // Check if "userID" is a valid UUID
   const userID = (req.query.userID ?? "") as string;
-  let parseResult = zod.string().uuid().safeParse(userID);
+  const parseResult = zod.string().uuid().safeParse(userID);
   if (parseResult.success === false) {
     console.error(
       new Error(`"userID" is not a valid UUID: `, { cause: parseResult.error }),
@@ -60,7 +60,12 @@ export default async function handler(
     }
   } else if (req.method === "POST") {
     // Check if "materialID" is a valid UUID
-    parseResult = zod.string().uuid().safeParse(req.body.materialID);
+    const parseResult = zod
+      .object({
+        materialID: zod.string().uuid(),
+      })
+      .safeParse(req.body);
+
     if (parseResult.success === false) {
       console.error(
         new Error(`"materialID" is not a valid UUID: `, {

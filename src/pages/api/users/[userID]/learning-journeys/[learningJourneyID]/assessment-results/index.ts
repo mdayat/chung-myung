@@ -139,7 +139,9 @@ export default async function handler(
 
     if (parseResult.success === false) {
       console.error(
-        new Error(`Invalid JSON Schema: `, { cause: parseResult.error }),
+        new Error(`"req.body" does not match with the schema: `, {
+          cause: parseResult.error,
+        }),
       );
 
       res

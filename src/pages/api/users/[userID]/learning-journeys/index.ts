@@ -90,18 +90,69 @@ export default async function handler(
       return;
     }
 
+    // Insert new row for "learning_journey" table
+    // Get learning materials based on "materialID"
+    const subMaterialIDs: string[] = [];
+    let learningJourneyID = "";
+    try {
+      const results = await Promise.all([
+        supabase
+          .from("learning_journey")
+          .insert({ user_id: userID, material_id: req.body.materialID })
+          .select("id")
+          .single(),
+        supabase
+          .from("material_learning_material")
+          .select("type:learning_material_type, learning_material(id)")
+          .eq("material_id", req.body.materialID),
+      ]);
+
+      if (results[0].error !== null) {
+        throw new Error(`Error when create a learning journey: `, {
+          cause: results[0].error,
+        });
+      }
+
+      if (results[1].error !== null) {
+        throw new Error(
+          `Error when get learning materials based on "materialID": `,
+          { cause: results[1].error },
+        );
+      }
+
+      learningJourneyID = results[0].data.id;
+      for (const learningMaterial of results[1].data) {
+        if (learningMaterial.type === "prerequisite") continue;
+        subMaterialIDs.push(learningMaterial.learning_material!.id);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ status: "failed", message: "Server Error" });
+      return;
+    }
+
+    // Bulk insert for "studied_learning_material" table
     try {
       await supabase
-        .from("learning_journey")
-        .insert({ user_id: userID, material_id: req.body.materialID })
+        .from("studied_learning_material")
+        .insert(
+          subMaterialIDs.map((subMaterialID) => {
+            return {
+              learning_journey_id: learningJourneyID,
+              learning_material_id: subMaterialID,
+              is_studied: false,
+            };
+          }),
+        )
         .throwOnError();
-
       res.status(201).json({ status: "success", data: null });
     } catch (error) {
       console.error(
-        new Error(`Error when create a learning journey: `, { cause: error }),
+        new Error(
+          `Error when establish relationship between "learning_journey" and "learning_material" table: `,
+          { cause: error },
+        ),
       );
-
       res.status(500).json({ status: "failed", message: "Server Error" });
     }
   } else {

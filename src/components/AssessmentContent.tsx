@@ -131,7 +131,7 @@ export const AssessmentContent = memo(function AssessmentContent({
             __html: deltaToHTMLString(JSON.parse(currentQuestion.content)),
           }}
           id='question-container'
-          className='w-full text-xl text-neutral-700 [&_img]:my-6 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:object-cover [&_img]:object-center [&_ol]:ml-8 [&_ol]:mt-4 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:justify-between [&_ol]:gap-y-0.5 [&_ul]:ml-8 [&_ul]:mt-4 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:justify-between [&_ul]:gap-y-0.5'
+          className='w-full text-xl text-neutral-700 [&_img]:my-6 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:object-cover [&_img]:object-center [&_ol]:my-4 [&_ol]:ml-8 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:justify-between [&_ol]:gap-y-0.5 [&_ul]:my-4 [&_ul]:ml-8 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:justify-between [&_ul]:gap-y-0.5'
         ></div>
 
         <Dialog open={isImgPreviewOpened} onOpenChange={setIsImgPreviewOpened}>

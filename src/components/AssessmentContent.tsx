@@ -1,7 +1,7 @@
 import type { DeltaOperation } from "@customTypes/editor";
 import type {
+  AssessmentResponse,
   AssessmentTrackerDBSchema,
-  Question,
 } from "@utils/assessmentTracker";
 import type { IDBPDatabase } from "idb";
 import katex from "katex";
@@ -23,9 +23,9 @@ import { Dialog, DialogContent } from "./shadcn/Dialog";
 
 interface AssessmentContentProps {
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
-  currentQuestion: Question;
-  currentSubtestQuestions: Question[];
-  setCurrentSubtestQuestions: Dispatch<SetStateAction<Question[]>>;
+  currentQuestion: AssessmentResponse;
+  currentSubtestQuestions: AssessmentResponse[];
+  setCurrentSubtestQuestions: Dispatch<SetStateAction<AssessmentResponse[]>>;
 }
 
 export const AssessmentContent = memo(function AssessmentContent({
@@ -45,7 +45,7 @@ export const AssessmentContent = memo(function AssessmentContent({
         if (question.id === currentQuestion.id) {
           return {
             ...question,
-            answeredAnswerChoiceID: event.currentTarget.id,
+            selectedChoiceID: event.currentTarget.id,
           };
         }
 
@@ -57,7 +57,7 @@ export const AssessmentContent = memo(function AssessmentContent({
       try {
         await indexedDB!.put("question", {
           ...currentQuestion,
-          answeredAnswerChoiceID: event.currentTarget.id,
+          selectedChoiceID: event.currentTarget.id,
         });
       } catch (error) {
         // Log the error properly
@@ -68,7 +68,7 @@ export const AssessmentContent = memo(function AssessmentContent({
             if (question.id === currentQuestion.id) {
               return {
                 ...question,
-                answeredAnswerChoiceID: "",
+                selectedChoiceID: "",
               };
             }
 
@@ -159,7 +159,7 @@ export const AssessmentContent = memo(function AssessmentContent({
                 id={answerChoice.id}
                 className='flex cursor-pointer items-center gap-x-4 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3.5'
               >
-                {answerChoice.id === currentQuestion.answeredAnswerChoiceID ? (
+                {answerChoice.id === currentQuestion.selectedChoiceID ? (
                   <RadioButtonCheckedIcon className='h-6 w-6 shrink-0 fill-secondary-600' />
                 ) : (
                   <RadioButtonUncheckedIcon className='h-6 w-6 shrink-0 fill-neutral-400' />

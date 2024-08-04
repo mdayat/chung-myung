@@ -1,4 +1,4 @@
-import type { Question } from "@utils/assessmentTracker";
+import type { AssessmentResponse } from "@utils/assessmentTracker";
 import {
   type Dispatch,
   memo,
@@ -56,7 +56,7 @@ function AssessmentHeader({
 }
 
 interface NavListProps {
-  currentSubtestQuestions: Question[];
+  currentSubtestQuestions: AssessmentResponse[];
   currentQuestionIndex: number;
   setCurrentQuestionIndex: Dispatch<SetStateAction<number>>;
 }
@@ -71,7 +71,7 @@ const NavList = memo(function NavList({
       {currentSubtestQuestions.map((question, index) => {
         const isCurrentQuestion =
           currentSubtestQuestions[currentQuestionIndex].id === question.id;
-        const isAnswered = question.answeredAnswerChoiceID !== "";
+        const isAnswered = question.selectedChoiceID !== "";
 
         let navItemColor = "";
         if (isCurrentQuestion) {

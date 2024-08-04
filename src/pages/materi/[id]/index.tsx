@@ -6,6 +6,7 @@ import { WarningIcon } from "@components/icons/WarningIcon";
 import { MateriCard } from "@components/MateriCard";
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
+import { FailedResponse, SuccessResponse } from "@customTypes/api";
 import Gambar from "@public/Coba.jpg";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,19 +15,25 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 interface SubmateriData {
+  status: string;
+
   id: string;
   name: string;
   description: string;
   learningModuleURL: string;
   type: "prerequisite" | "sub_material";
-  sequenceNumber: number;
+  number: number;
 }
 
 interface DetailMateri {
-  type: string;
+  id: string;
   name: string;
   description: string;
   learningModuleURL: string;
+  type: string;
+  number: number;
+
+  status: string;
 }
 
 const DetailMateri = () => {
@@ -35,49 +42,50 @@ const DetailMateri = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  const { id, type } = router.query;
-
-  const fetchDetailMateri = async () => {
-    const formattedType: string | undefined = Array.isArray(type)
-      ? type[0]
-      : type;
-    setIsLoading(true);
-    try {
-      const responseDetailMateri = await fetch(
-        `http://localhost:3000/api/materials/f64fb490-778d-4719-8d01-18f49a3b55a4/${formattedType?.split("_").join("-") + "s"}/${id}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const responseSubmateri = await fetch(
-        "http://localhost:3000/api/materials/f64fb490-778d-4719-8d01-18f49a3b55a4/sub-materials",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      if (!responseDetailMateri.ok || !responseSubmateri.ok) {
-        throw new Error("Something Went Wrong");
-      }
-      const detailMateri = await responseDetailMateri.json();
-      const subMateri = await responseSubmateri.json();
-      setDetailMateri(detailMateri.data);
-      setSubMateri(subMateri.data);
-    } catch (error) {
-      throw new Error("Something Went Wrong");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { id } = router.query;
 
   useEffect(() => {
     if (!router.isReady) return;
-    fetchDetailMateri();
-  }, [router.isReady, id]);
+    setIsLoading(true);
+    // ENV Disesuaikan Dengan Port Masing2 Dev
+    (async () => {
+      try {
+        const materialID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
+        const DetailMateriResponse = (await (
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}api/materials/${materialID}/learning-materials/${id}`,
+          )
+        ).json()) as SuccessResponse<DetailMateri> | FailedResponse;
 
+        const SubMateriResponse = (await (
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}api/materials/${materialID}/learning-materials`,
+          )
+        ).json()) as SuccessResponse<SubmateriData[]> | FailedResponse;
+        console.log(SubMateriResponse);
+
+        if (
+          DetailMateriResponse.status === "failed" ||
+          SubMateriResponse.status === "failed"
+        ) {
+          // do something when failed
+          return;
+        }
+        setSubMateri(SubMateriResponse.data);
+        setDetailMateri(DetailMateriResponse.data);
+      } catch (error) {
+        console.error(
+          new Error(
+            "Error when get all learning materials based on material ID: ",
+            { cause: error },
+          ),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [router.isReady, id]);
+  console.log(detailMateri);
   return (
     <div className='px-8 pt-20'>
       <div onClick={router.back} className='hover:cursor-pointer'>
@@ -90,6 +98,7 @@ const DetailMateri = () => {
           Kembali
         </Typography>
       </div>
+      <p>huhuhu</p>
       <div className='mt-5 flex'>
         <div className='relative'>
           {detailMateri?.type === "prerequisite" ? (
@@ -149,20 +158,20 @@ const DetailMateri = () => {
         </Typography>
         <div className='flex flex-wrap gap-4'>
           {!isLoading && subMateri ? (
-            subMateri?.map(
-              (data: { name: string; id: string; type: string }) => {
+            subMateri
+              ?.filter((data: SubmateriData) => data.type === "sub_material")
+              .map((data: SubmateriData) => {
                 return (
                   <Link
+                    key={data.id}
                     href={{
                       pathname: `/materi/${data.id}`,
-                      query: { type: data.type },
                     }}
                   >
                     <MateriCard name={data.name} type={data.type} />
                   </Link>
                 );
-              },
-            )
+              })
           ) : (
             <div className='mt-10 flex w-full justify-center'>
               <LoaderSpinner className='h-16 w-16' />

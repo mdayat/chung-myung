@@ -18,7 +18,7 @@ interface LearningMaterial {
   description: string;
   learningModuleURL: string;
   type: "prerequisite" | "sub_material";
-  sequenceNumber: number;
+  number: number;
 }
 
 const Materi: NextPageWithLayout = () => {
@@ -33,9 +33,10 @@ const Materi: NextPageWithLayout = () => {
     (async () => {
       try {
         const materialID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
+        // ENV Disesuaikan Dengan Port Masing2 Dev
         const learningMaterialsResponse = (await (
           await fetch(
-            `http://localhost:3000/api/materials/${materialID}/learning-materials`,
+            `${process.env.NEXT_PUBLIC_API_URL}api/materials/${materialID}/learning-materials`,
           )
         ).json()) as SuccessResponse<LearningMaterial[]> | FailedResponse;
 
@@ -126,9 +127,9 @@ const Materi: NextPageWithLayout = () => {
         {!isLoading && learningMaterials ? (
           learningMaterials?.map((data: LearningMaterial) => (
             <Link
+              key={data.id}
               href={{
-                pathname: `/learningMaterials/${data.id}`,
-                query: { type: data.type },
+                pathname: `materi/${data.id}`,
               }}
             >
               <MateriCard name={data.name} type={data.type} />

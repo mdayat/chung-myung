@@ -21,6 +21,8 @@ import {
 import { Typography } from "@components/shadcn/Typography";
 import MaskotHeadImages from "@public/maskot-head.png";
 import {
+  type AssessedLearningMaterial,
+  type AssessmentResponse,
   type AssessmentTrackerDBSchema,
   createAssessmentResult,
   getSubtestQuestions,
@@ -28,8 +30,6 @@ import {
   openAssessmentTrackerDB,
   putManyQuestion,
   putManySubtest,
-  type Question,
-  type Subtest,
 } from "@utils/assessmentTracker";
 import { karla, nunito } from "@utils/fonts";
 import { type IDBPDatabase } from "idb";
@@ -51,11 +51,11 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const [isSubtestFinished, setIsSubtestFinished] = useState(false);
   const [isAssessmentTimeout, setIsAssessmentTimeout] = useState(false);
 
-  const [subtests, setSubtests] = useState<Subtest[]>([]);
+  const [subtests, setSubtests] = useState<AssessedLearningMaterial[]>([]);
   const [currentSubtestIndex, setCurrentSubtestIndex] = useState(0);
 
   const [currentSubtestQuestions, setCurrentSubtestQuestions] = useState<
-    Question[]
+    AssessmentResponse[]
   >([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
@@ -242,7 +242,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
-              "sequenceNumber",
+              "number",
             );
             setSubtests(sortedSubtests);
 
@@ -264,7 +264,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           } else {
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
-              "sequenceNumber",
+              "number",
             );
             setSubtests(sortedSubtests);
 
@@ -464,9 +464,9 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   );
 };
 
-function isAllQuestionAnswered(questions: Question[]): boolean {
+function isAllQuestionAnswered(questions: AssessmentResponse[]): boolean {
   for (let i = 0; i < questions.length; i++) {
-    if (questions[i].answeredAnswerChoiceID === "") {
+    if (questions[i].selectedChoiceID === "") {
       return false;
     }
   }

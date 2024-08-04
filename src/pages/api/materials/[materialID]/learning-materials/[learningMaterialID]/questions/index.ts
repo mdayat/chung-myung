@@ -60,32 +60,55 @@ export default function handler(
     }
 
     // Check if "materialID" and "learningMaterialID" exist
-    let results = [false, false];
     try {
-      results = await Promise.all([
-        isMaterialExist(materialID),
-        isLearningMaterialExist(learningMaterialID),
+      const results = await Promise.all([
+        supabase
+          .from("material")
+          .select("id")
+          .eq("id", materialID)
+          .maybeSingle(),
+        supabase
+          .from("learning_material")
+          .select("id")
+          .eq("id", learningMaterialID)
+          .maybeSingle(),
       ]);
+
+      if (results[0].error !== null) {
+        throw new Error(`Error when get a material based on "materialID": `, {
+          cause: results[0].error,
+        });
+      }
+
+      if (results[1].error !== null) {
+        throw new Error(
+          `Error when get a learning material based on "learningMaterialID": `,
+          { cause: results[1].error },
+        );
+      }
+
+      if (results[0].data === null) {
+        console.error(new Error(`Material with "materialID" is not found`));
+
+        res
+          .status(404)
+          .json({ status: "failed", message: "Material Not Found" });
+        return;
+      }
+
+      if (results[1].data === null) {
+        console.error(
+          new Error(`Learning Material with "learningMaterialID" is not found`),
+        );
+
+        res
+          .status(404)
+          .json({ status: "failed", message: "Learning Material Not Found" });
+        return;
+      }
     } catch (error) {
       console.error(error);
       res.status(500).json({ status: "failed", message: "Server Error" });
-      return;
-    }
-
-    if (results[0] === false) {
-      console.error(new Error(`Material with "materialID" is not found`));
-      res.status(404).json({ status: "failed", message: "Material Not Found" });
-      return;
-    }
-
-    if (results[1] === false) {
-      console.error(
-        new Error(`Learning Material with "learningMaterialID" is not found`),
-      );
-
-      res
-        .status(404)
-        .json({ status: "failed", message: "Learning Material Not Found" });
       return;
     }
 
@@ -393,42 +416,5 @@ function replaceImageTagWithURL(
     if (hasImageKey && imageTag === insert.image) {
       insert.image = imageURL;
     }
-  }
-}
-
-async function isMaterialExist(materialID: string): Promise<boolean> {
-  try {
-    const { data } = await supabase
-      .from("material")
-      .select("id")
-      .eq("id", materialID)
-      .maybeSingle()
-      .throwOnError();
-
-    return data !== null;
-  } catch (error) {
-    throw new Error(`Error when get a material based on "materialID": `, {
-      cause: error,
-    });
-  }
-}
-
-async function isLearningMaterialExist(
-  learningMaterialID: string,
-): Promise<boolean> {
-  try {
-    const { data } = await supabase
-      .from("learning_material")
-      .select("id")
-      .eq("id", learningMaterialID)
-      .maybeSingle()
-      .throwOnError();
-
-    return data !== null;
-  } catch (error) {
-    throw new Error(
-      `Error when get a learning material based on "learningMaterialID": `,
-      { cause: error },
-    );
   }
 }

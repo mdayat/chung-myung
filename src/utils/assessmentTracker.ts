@@ -1,30 +1,24 @@
 import type { SuccessResponse } from "@customTypes/api";
-import type { Enums as DBEnums } from "@customTypes/database";
+import type { AssessmentResult } from "@customTypes/assessmentResult";
+import type { LearningMaterial } from "@customTypes/learningMaterial";
+import type { Question } from "@customTypes/question";
 import { type DBSchema, type IDBPDatabase, openDB } from "idb";
 import { v4 as uuidv4 } from "uuid";
 
-import type { AssessmentResult } from "../pages/api/users/[userID]/learning-journeys/[learningJourneyID]/assessment-results";
-
-interface Subtest {
-  id: string;
-  name: string;
-  sequenceNumber: number;
+type AssessedLearningMaterial = Pick<
+  LearningMaterial,
+  "id" | "name" | "number"
+> & {
   isSubmitted: boolean;
-}
+};
 
-interface AnswerChoice {
-  id: string;
-  content: string;
-  isCorrectAnswer: boolean;
-}
-
-interface Question {
-  id: string;
+type AssessmentResponse = Pick<
+  Question,
+  "id" | "content" | "multipleChoice"
+> & {
   subtestID: string;
-  content: string;
-  answeredAnswerChoiceID: string;
-  multipleChoice: AnswerChoice[];
-}
+  selectedChoiceID: string;
+};
 
 interface AssessmentTrackerDBSchema extends DBSchema {
   assessmentTimer: {
@@ -32,12 +26,12 @@ interface AssessmentTrackerDBSchema extends DBSchema {
     value: number;
   };
   subtest: {
-    value: Subtest;
+    value: AssessedLearningMaterial;
     key: string;
-    indexes: { sequenceNumber: number };
+    indexes: { number: number };
   };
   question: {
-    value: Question;
+    value: AssessmentResponse;
     key: string;
     indexes: { subtestID: string };
   };
@@ -57,7 +51,7 @@ async function openAssessmentTrackerDB(): Promise<
         const subtestObjectStore = db.createObjectStore("subtest", {
           keyPath: "id",
         });
-        subtestObjectStore.createIndex("sequenceNumber", "sequenceNumber");
+        subtestObjectStore.createIndex("number", "number");
 
         const questionObjectStore = db.createObjectStore("question", {
           keyPath: "id",
@@ -72,7 +66,7 @@ async function openAssessmentTrackerDB(): Promise<
 }
 
 async function putManySubtest(
-  subtests: Omit<Subtest, "isSubmitted">[],
+  subtests: Omit<AssessedLearningMaterial, "isSubmitted">[],
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
 ) {
   const tx = db.transaction("subtest", "readwrite");
@@ -82,7 +76,7 @@ async function putManySubtest(
         return tx.store.put({
           id: subtest.id,
           name: subtest.name,
-          sequenceNumber: subtest.sequenceNumber,
+          number: subtest.number,
           isSubmitted: false,
         });
       }),
@@ -95,7 +89,7 @@ async function putManySubtest(
 }
 
 async function putManyQuestion(
-  questions: Omit<Question, "subtestID" | "answeredAnswerChoiceID">[],
+  questions: Omit<AssessmentResponse, "selectedChoiceID" | "subtestID">[],
   subtestID: string,
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
 ) {
@@ -107,8 +101,8 @@ async function putManyQuestion(
           id: question.id,
           subtestID,
           content: question.content,
-          answeredAnswerChoiceID: "",
           multipleChoice: question.multipleChoice,
+          selectedChoiceID: "",
         });
       }),
     );
@@ -119,24 +113,15 @@ async function putManyQuestion(
   }
 }
 
-interface LearningMaterial {
-  id: string;
-  name: string;
-  description: string;
-  learningModuleURL: string;
-  type: DBEnums<"learning_material_type">;
-  sequenceNumber: number;
-}
-
 async function getSubtests(
   materialID: string,
   subtestType: "prerequisite" | "sub_material",
-): Promise<Subtest[]> {
+): Promise<AssessedLearningMaterial[]> {
   try {
     const res = await fetch(`/api/materials/${materialID}/learning-materials`);
     const { data } = (await res.json()) as SuccessResponse<LearningMaterial[]>;
 
-    const subtests: Subtest[] = new Array(data.length);
+    const subtests: AssessedLearningMaterial[] = new Array(data.length);
     if (data.length !== 0) {
       for (let i = 0; i < data.length; i++) {
         if (data[i].type !== subtestType) {
@@ -146,7 +131,7 @@ async function getSubtests(
         subtests[i] = {
           id: data[i].id,
           name: data[i].name,
-          sequenceNumber: data[i].sequenceNumber,
+          number: data[i].number,
           isSubmitted: false,
         };
       }
@@ -158,34 +143,24 @@ async function getSubtests(
   }
 }
 
-interface QuestionAPIResponse {
-  id: string;
-  content: string;
-  explanation: string;
-  taxonomyBloom: string;
-  multipleChoice: { id: string; content: string; isCorrectAnswer: boolean }[];
-}
-
 async function getSubtestQuestions(
   materialID: string,
   subtestID: string,
-): Promise<Question[]> {
+): Promise<AssessmentResponse[]> {
   try {
     const res = await fetch(
       `/api/materials/${materialID}/learning-materials/${subtestID}/questions`,
     );
-    const { data } = (await res.json()) as SuccessResponse<
-      QuestionAPIResponse[]
-    >;
+    const { data } = (await res.json()) as SuccessResponse<Question[]>;
 
-    const questions: Question[] = new Array(data.length);
+    const questions: AssessmentResponse[] = new Array(data.length);
     if (data.length !== 0) {
       for (let i = 0; i < data.length; i++) {
         questions[i] = {
           id: data[i].id,
           content: data[i].content,
           multipleChoice: data[i].multipleChoice,
-          answeredAnswerChoiceID: "",
+          selectedChoiceID: "",
           subtestID,
         };
       }
@@ -197,6 +172,19 @@ async function getSubtestQuestions(
   }
 }
 
+interface AssessmentResultCreation
+  extends Omit<AssessmentResult, "id" | "createdAt"> {
+  assessedLearningMaterials: {
+    id: string;
+    learningMaterialID: string;
+    assessmentResponses: {
+      assessedLearningMaterialID: string;
+      questionID: string;
+      isCorrect: boolean;
+    }[];
+  }[];
+}
+
 async function createAssessmentResult(
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
   userID: string,
@@ -205,7 +193,7 @@ async function createAssessmentResult(
 ) {
   try {
     const results = await Promise.all([
-      await db.getAllFromIndex("subtest", "sequenceNumber"),
+      await db.getAllFromIndex("subtest", "number"),
       await db.getAll("question"),
       await fetch(
         `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
@@ -239,13 +227,15 @@ async function createAssessmentResult(
       );
     }
 
-    const assessmentResult: Omit<AssessmentResult, "id" | "createdAt"> = {
-      learningJourneyID,
+    const unmasteredLearningMaterialIDs: string[] = [];
+    const assessmentResult: AssessmentResultCreation = {
       type: assessmentType,
       attempt:
         prevAssessmentResult === null ? 1 : prevAssessmentResult.attempt + 1,
       assessedLearningMaterials: sortedSubtests.map((subtest) => {
+        let isUnmastered = false;
         const id = uuidv4();
+
         return {
           id,
           learningMaterialID: subtest.id,
@@ -255,15 +245,19 @@ async function createAssessmentResult(
               let isCorrect = false;
               for (let i = 0; i < question.multipleChoice.length; i++) {
                 if (
-                  question.answeredAnswerChoiceID !==
-                  question.multipleChoice[i].id
+                  question.selectedChoiceID !== question.multipleChoice[i].id
                 ) {
                   continue;
                 }
 
-                if (question.multipleChoice[i].isCorrectAnswer) {
+                if (question.multipleChoice[i].isCorrect) {
                   isCorrect = true;
                 }
+              }
+
+              if (isUnmastered === false && isCorrect === false) {
+                unmasteredLearningMaterialIDs.push(subtest.id);
+                isUnmastered = true;
               }
 
               return {
@@ -275,6 +269,33 @@ async function createAssessmentResult(
         };
       }),
     };
+
+    if (
+      assessmentResult.attempt === 3 &&
+      assessmentType === "asesmen_kesiapan_belajar"
+    ) {
+      Promise.all([
+        fetch(
+          `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(assessmentResult),
+          },
+        ),
+        fetch(`/api/users/${userID}/learning-journeys/${learningJourneyID}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prerequisiteIDs: unmasteredLearningMaterialIDs,
+          }),
+        }),
+      ]);
+    }
 
     await fetch(
       `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
@@ -301,4 +322,8 @@ export {
   putManyQuestion,
   putManySubtest,
 };
-export type { AssessmentTrackerDBSchema, Question, Subtest };
+export type {
+  AssessedLearningMaterial,
+  AssessmentResponse,
+  AssessmentTrackerDBSchema,
+};

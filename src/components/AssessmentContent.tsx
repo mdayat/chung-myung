@@ -1,7 +1,7 @@
 import type { DeltaOperation } from "@customTypes/editor";
 import type {
+  AssessmentResponse,
   AssessmentTrackerDBSchema,
-  Question,
 } from "@utils/assessmentTracker";
 import type { IDBPDatabase } from "idb";
 import katex from "katex";
@@ -23,9 +23,9 @@ import { Dialog, DialogContent } from "./shadcn/Dialog";
 
 interface AssessmentContentProps {
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
-  currentQuestion: Question;
-  currentSubtestQuestions: Question[];
-  setCurrentSubtestQuestions: Dispatch<SetStateAction<Question[]>>;
+  currentQuestion: AssessmentResponse;
+  currentSubtestQuestions: AssessmentResponse[];
+  setCurrentSubtestQuestions: Dispatch<SetStateAction<AssessmentResponse[]>>;
 }
 
 export const AssessmentContent = memo(function AssessmentContent({
@@ -45,7 +45,7 @@ export const AssessmentContent = memo(function AssessmentContent({
         if (question.id === currentQuestion.id) {
           return {
             ...question,
-            answeredAnswerChoiceID: event.currentTarget.id,
+            selectedChoiceID: event.currentTarget.id,
           };
         }
 
@@ -57,7 +57,7 @@ export const AssessmentContent = memo(function AssessmentContent({
       try {
         await indexedDB!.put("question", {
           ...currentQuestion,
-          answeredAnswerChoiceID: event.currentTarget.id,
+          selectedChoiceID: event.currentTarget.id,
         });
       } catch (error) {
         // Log the error properly
@@ -68,7 +68,7 @@ export const AssessmentContent = memo(function AssessmentContent({
             if (question.id === currentQuestion.id) {
               return {
                 ...question,
-                answeredAnswerChoiceID: "",
+                selectedChoiceID: "",
               };
             }
 
@@ -131,7 +131,7 @@ export const AssessmentContent = memo(function AssessmentContent({
             __html: deltaToHTMLString(JSON.parse(currentQuestion.content)),
           }}
           id='question-container'
-          className='w-full text-xl text-neutral-700 [&_img]:my-6 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:object-cover [&_img]:object-center [&_ol]:ml-8 [&_ol]:mt-4 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:justify-between [&_ol]:gap-y-0.5 [&_ul]:ml-8 [&_ul]:mt-4 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:justify-between [&_ul]:gap-y-0.5'
+          className='w-full text-xl text-neutral-700 [&_img]:my-6 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:object-cover [&_img]:object-center [&_ol]:my-4 [&_ol]:ml-8 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:justify-between [&_ol]:gap-y-0.5 [&_ul]:my-4 [&_ul]:ml-8 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:justify-between [&_ul]:gap-y-0.5'
         ></div>
 
         <Dialog open={isImgPreviewOpened} onOpenChange={setIsImgPreviewOpened}>
@@ -159,7 +159,7 @@ export const AssessmentContent = memo(function AssessmentContent({
                 id={answerChoice.id}
                 className='flex cursor-pointer items-center gap-x-4 rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3.5'
               >
-                {answerChoice.id === currentQuestion.answeredAnswerChoiceID ? (
+                {answerChoice.id === currentQuestion.selectedChoiceID ? (
                   <RadioButtonCheckedIcon className='h-6 w-6 shrink-0 fill-secondary-600' />
                 ) : (
                   <RadioButtonUncheckedIcon className='h-6 w-6 shrink-0 fill-neutral-400' />

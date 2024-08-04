@@ -1,8 +1,5 @@
 import type { FailedResponse, SuccessResponse } from "@customTypes/api";
-import {
-  type LearningJourney,
-  learningJourneySchema,
-} from "@customTypes/learningJourney";
+import { type LearningJourney } from "@customTypes/learningJourney";
 import { supabase } from "@lib/supabase";
 import { handleInvalidMethod } from "@utils/middlewares";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -62,67 +59,105 @@ export default async function handler(
       res.status(500).json({ status: "failed", message: "Server Error" });
     }
   } else if (req.method === "POST") {
-    const parseResult = learningJourneySchema
-      .pick({
-        userID: true,
-        materialID: true,
+    // Check if "materialID" is a valid UUID
+    const parseResult = zod
+      .object({
+        materialID: zod.string().uuid(),
       })
       .safeParse(req.body);
 
-    // Check if "userID" and "materialID" are valid UUIDs
     if (parseResult.success === false) {
       console.error(
-        new Error(`"userID" or "materialID" are not valid UUIDs: `, {
+        new Error(`"materialID" is not a valid UUID: `, {
           cause: parseResult.error,
         }),
       );
 
       res
-        .status(404)
-        .json({ status: "failed", message: "User or Material Not Found" });
+        .status(400)
+        .json({ status: "failed", message: "Invalid JSON Schema" });
       return;
     }
 
-    // Check if "userID" and "materialID" exist
-    let results = [false, false];
+    // Check if "materialID" exists
     try {
-      results = await Promise.all([
-        isUserExist(parseResult.data.userID),
-        isMaterialExist(parseResult.data.materialID),
-      ]);
+      if ((await isMaterialExist(req.body.materialID)) === false) {
+        console.error(new Error(`Material with "materialID" is not found`));
+
+        res
+          .status(400)
+          .json({ status: "failed", message: "Invalid JSON Schema" });
+        return;
+      }
     } catch (error) {
       console.error(error);
       res.status(500).json({ status: "failed", message: "Server Error" });
       return;
     }
 
-    if (results[0] === false) {
-      console.error(new Error(`User with "userID" is not found`));
-      res.status(404).json({ status: "failed", message: "User Not Found" });
+    // Insert new row for "learning_journey" table
+    // Get learning materials based on "materialID"
+    const subMaterialIDs: string[] = [];
+    let learningJourneyID = "";
+    try {
+      const results = await Promise.all([
+        supabase
+          .from("learning_journey")
+          .insert({ user_id: userID, material_id: req.body.materialID })
+          .select("id")
+          .single(),
+        supabase
+          .from("material_learning_material")
+          .select("type:learning_material_type, learning_material(id)")
+          .eq("material_id", req.body.materialID),
+      ]);
+
+      if (results[0].error !== null) {
+        throw new Error(`Error when create a learning journey: `, {
+          cause: results[0].error,
+        });
+      }
+
+      if (results[1].error !== null) {
+        throw new Error(
+          `Error when get learning materials based on "materialID": `,
+          { cause: results[1].error },
+        );
+      }
+
+      learningJourneyID = results[0].data.id;
+      for (const learningMaterial of results[1].data) {
+        if (learningMaterial.type === "prerequisite") continue;
+        subMaterialIDs.push(learningMaterial.learning_material!.id);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ status: "failed", message: "Server Error" });
       return;
     }
 
-    if (results[1] === false) {
-      console.error(new Error(`Material with "materialID" is not found`));
-      res.status(404).json({ status: "failed", message: "Material Not Found" });
-      return;
-    }
-
+    // Bulk insert for "studied_learning_material" table
     try {
       await supabase
-        .from("learning_journey")
-        .insert({
-          user_id: parseResult.data.userID,
-          material_id: parseResult.data.materialID,
-        })
+        .from("studied_learning_material")
+        .insert(
+          subMaterialIDs.map((subMaterialID) => {
+            return {
+              learning_journey_id: learningJourneyID,
+              learning_material_id: subMaterialID,
+              is_studied: false,
+            };
+          }),
+        )
         .throwOnError();
-
       res.status(201).json({ status: "success", data: null });
     } catch (error) {
       console.error(
-        new Error(`Error when create a learning journey: `, { cause: error }),
+        new Error(
+          `Error when establish relationship between "learning_journey" and "learning_material" table: `,
+          { cause: error },
+        ),
       );
-
       res.status(500).json({ status: "failed", message: "Server Error" });
     }
   } else {

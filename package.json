@@ -13,9 +13,14 @@
     "prettier:check": "prettier --check \"**/*.{ts,tsx,js,md,mdx,css,yaml}\"",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "docker:build": "docker build . -t emteka/app:latest",
+    "docker:run": "docker run --rm -p 0.0.0.0:3000:3000 -it --name emteka-app emteka/app:latest",
+    "docker:stop": "docker stop emteka-app"
   },
   "dependencies": {
+    "husky": "^9.0.11",
+    "prisma": "^5.14.0",
     "@prisma/client": "5.14.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-progress": "^1.1.0",
@@ -59,13 +64,11 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unused-imports": "^4.0.1",
     "globals": "^15.8.0",
-    "husky": "^9.0.11",
     "jsdom": "^24.0.0",
     "lint-staged": "^15.2.7",
     "postcss": "^8",
     "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
-    "prisma": "^5.14.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5",
     "typescript-eslint": "^7.17.0",
@@ -80,5 +83,6 @@
     "*/**/*.{json,css,md}": [
       "prettier --write"
     ]
-  }
+  },
+  "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e"
 }

@@ -1,7 +1,7 @@
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
 import MaskotHeadImages from "@public/maskot-head.png";
-import type { Subtest } from "@utils/assessmentTracker";
+import type { AssessedLearningMaterial } from "@utils/assessmentTracker";
 import Image from "next/image";
 import type { PropsWithChildren } from "react";
 
@@ -15,7 +15,7 @@ interface RestAreaProps {
   timer: number;
   subtestsLength: number;
   completedSubtestIndex: number;
-  nextSubtest: Subtest;
+  nextSubtest: AssessedLearningMaterial;
   nextSubtestQuestionsLength: number;
   handleClickNextSubtest: () => void;
 }

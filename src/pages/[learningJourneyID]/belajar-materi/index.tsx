@@ -62,11 +62,12 @@ const BelajarMateri: NextPageWithLayout = () => {
           const learningMaterial = responses[i].data
             .data as LearningMaterialWithStatus;
 
-          for (const {
-            learningMaterialID,
-            isStudied,
-          } of learningJourneyResponse.data.studiedLearningMaterials) {
-            if (learningMaterialID !== learningMaterial.id) continue;
+          for (const studiedLearningMaterial of learningJourneyResponse.data
+            .studiedLearningMaterials) {
+            if (
+              studiedLearningMaterial.learningMaterialID !== learningMaterial.id
+            )
+              continue;
 
             learningMaterialsWithStatus[i - 1] = {
               id: learningMaterial.id,
@@ -75,7 +76,7 @@ const BelajarMateri: NextPageWithLayout = () => {
               type: learningMaterial.type,
               number: learningMaterial.number,
               learningModuleURL: learningMaterial.learningModuleURL,
-              isStudied: isStudied,
+              isStudied: studiedLearningMaterial.isStudied,
             };
             continue learningMaterialsLoop;
           }

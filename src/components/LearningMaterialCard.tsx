@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { type MouseEvent, useRef } from "react";
 
+import { CheckCircleIcon } from "./icons/CheckCircleIcon";
 import { WarningIcon } from "./icons/WarningIcon";
 import { Typography } from "./shadcn/Typography";
 
@@ -72,12 +73,20 @@ export function LearningMaterialCard({
         {name}
       </Typography>
 
-      <Typography
-        variant='b4'
-        className='absolute bottom-4 left-3 text-neutral-400'
-      >
-        {isStudied ? "Sudah Dipelajari" : "Belum Dipelajari"}
-      </Typography>
+      <div className='absolute bottom-4 left-3 flex items-center justify-center gap-x-1'>
+        {isStudied ? (
+          <>
+            <CheckCircleIcon className='h-5 w-5 fill-success-600' />
+            <Typography variant='b4' className='text-success-600'>
+              Sudah dipelajari
+            </Typography>
+          </>
+        ) : (
+          <Typography variant='b4' className='mx-auto'>
+            Belum dipelajari
+          </Typography>
+        )}
+      </div>
     </div>
   );
 }

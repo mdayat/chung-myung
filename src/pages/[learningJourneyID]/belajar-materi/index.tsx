@@ -152,7 +152,7 @@ const BelajarMateri: NextPageWithLayout = () => {
         totalStudiedLearningMaterials={totalStudiedLearningMaterials}
       />
 
-      <div className='mx-auto mt-8 flex w-full max-w-[calc(1366px-256px)] flex-wrap items-center justify-center gap-8'>
+      <div className='mx-auto mt-8 flex w-full max-w-[calc(1366px-256px)] flex-wrap items-center justify-center gap-8 pb-8'>
         {sortLearningMaterialByType(learningMaterials).map(
           (learningMaterial) => {
             return (

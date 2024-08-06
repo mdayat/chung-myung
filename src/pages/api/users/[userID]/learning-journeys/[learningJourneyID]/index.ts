@@ -200,8 +200,130 @@ export default async function handler(
 
       res.status(500).json({ status: "failed", message: "Server Error" });
     }
+  } else if (req.method === "PUT") {
+    const studiedLearningMaterialSchema = zod.object({
+      learningMaterialID: zod.string().uuid(),
+      isStudied: zod.boolean(),
+    });
+
+    const parseResult = studiedLearningMaterialSchema.safeParse(req.body);
+    if (parseResult.success === false) {
+      console.error(
+        new Error("Body payload doesn't match with the schema: ", {
+          cause: parseResult.error,
+        }),
+      );
+
+      res
+        .status(400)
+        .json({ status: "failed", message: "Invalid JSON Schema" });
+      return;
+    }
+
+    // Check if "userID", "learningJourneyID", and "learningMaterialID" exist
+    try {
+      const results = await Promise.all([
+        supabase.from("user").select("id").eq("id", userID).maybeSingle(),
+        supabase
+          .from("learning_journey")
+          .select("id")
+          .eq("id", learningJourneyID)
+          .maybeSingle(),
+        supabase
+          .from("learning_material")
+          .select("id")
+          .eq("id", parseResult.data.learningMaterialID),
+      ]);
+
+      if (results[0].error !== null) {
+        throw new Error(`Error when get a user based on "userID": `, {
+          cause: results[0].error,
+        });
+      }
+
+      if (results[1].error !== null) {
+        throw new Error(
+          `Error when get a learning journey based on "learningJourneyID": `,
+          { cause: results[1].error },
+        );
+      }
+
+      if (results[2].error !== null) {
+        throw new Error(
+          `Error when get a learning material based on "learningMaterialID": `,
+          { cause: results[2].error },
+        );
+      }
+
+      if (results[0].data === null) {
+        console.error(new Error(`User with "userID" is not found`));
+        res.status(404).json({ status: "failed", message: "User Not Found" });
+        return;
+      }
+
+      if (results[1].data === null) {
+        console.error(
+          new Error(`Learning Journey with "learningJourneyID" is not found`),
+        );
+
+        res
+          .status(404)
+          .json({ status: "failed", message: "Learning Journey Not Found" });
+        return;
+      }
+
+      if (results[2].data === null) {
+        console.error(
+          new Error(`Learning Material with "learningMaterialID" is not found`),
+        );
+
+        res
+          .status(400)
+          .json({ status: "failed", message: "Invalid JSON Schema" });
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ status: "failed", message: "Server Error" });
+      return;
+    }
+
+    try {
+      const { data } = await supabase
+        .from("studied_learning_material")
+        .update({ is_studied: parseResult.data.isStudied })
+        .eq("learning_journey_id", learningJourneyID)
+        .eq("learning_material_id", parseResult.data.learningMaterialID)
+        .select("learning_material_id")
+        .maybeSingle()
+        .throwOnError();
+
+      if (data === null) {
+        console.error(
+          new Error(
+            `Studied Learning Material with "learningMaterialID" is not found`,
+          ),
+        );
+
+        res
+          .status(400)
+          .json({ status: "failed", message: "Invalid JSON Schema" });
+        return;
+      }
+
+      res.status(200).json({ status: "success", data: null });
+    } catch (error) {
+      console.error(
+        new Error(
+          `Error when update "studied_learning_material" based on "learningJourneyID" and "learningMaterialID": `,
+          { cause: error },
+        ),
+      );
+
+      res.status(500).json({ status: "failed", message: "Server Error" });
+    }
   } else {
-    handleInvalidMethod(res, ["GET", "POST"]);
+    handleInvalidMethod(res, ["GET", "POST", "PUT"]);
   }
 }
 

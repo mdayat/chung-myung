@@ -65,7 +65,12 @@ export function BelajarMateriHeader({
           </div>
 
           <div className='z-0 flex flex-col gap-y-4'>
-            <Button disabled className='ml-auto w-fit'>
+            <Button
+              disabled={
+                totalStudiedLearningMaterials !== totalLearningMaterials
+              }
+              className='ml-auto w-fit'
+            >
               Assesmen Akhir <ChevronRightIcon className='h-6 w-6' />
             </Button>
 

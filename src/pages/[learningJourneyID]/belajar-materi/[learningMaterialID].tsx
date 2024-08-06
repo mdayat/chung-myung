@@ -1,6 +1,3 @@
-// TODO
-// 1. Update to sudah dipelajari
-
 import { CheckCircleIcon } from "@components/icons/CheckCircleIcon";
 import { ChevronLeftIcon } from "@components/icons/ChevronLeftIcon";
 import { LoaderSpinner } from "@components/icons/LoaderSpinner";
@@ -20,7 +17,13 @@ import axios, { type AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type ReactElement, useEffect, useMemo, useState } from "react";
+import {
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import type { NextPageWithLayout } from "../../_app";
 
@@ -75,6 +78,51 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
     return learningMaterial;
   }, [learningMaterials, router]);
 
+  const updateLearningMaterialStatus = useCallback(async () => {
+    if (currentLearningMaterial.isStudied) return;
+    const learningJourneyID = window.location.pathname.split("/")[1];
+    const learningMaterialID = getLearningMaterialIDFromURL();
+
+    // Optimistic update
+    setLearningMaterials(
+      learningMaterials.map((learningMaterial) => {
+        if (learningMaterial.id !== learningMaterialID) {
+          return learningMaterial;
+        }
+        return { ...learningMaterial, isStudied: true };
+      }),
+    );
+
+    try {
+      await axios.put(
+        `/api/users/${USER_ID}/learning-journeys/${learningJourneyID}`,
+        { learningMaterialID, isStudied: true },
+        { headers: { "Content-Type": "application/json" } },
+      );
+    } catch (err) {
+      // Rollback when update failed
+      setLearningMaterials(
+        learningMaterials.map((learningMaterial) => {
+          if (learningMaterial.id !== learningMaterialID) {
+            return learningMaterial;
+          }
+          return { ...learningMaterial, isStudied: false };
+        }),
+      );
+
+      const error = err as AxiosError;
+      if (error.response) {
+        // retry the request
+      } else if (error.request) {
+        // retry the request
+      } else {
+        console.error(
+          new Error("Something is wrong with Axios: ", { cause: error }),
+        );
+      }
+    }
+  }, [currentLearningMaterial, learningMaterials]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -87,9 +135,7 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
 
         // Check if "learningMaterialID" exist and mark the index
         let isExist = false;
-        const splittedPathname = window.location.pathname.split("/");
-        const learningMaterialID =
-          splittedPathname[splittedPathname.length - 1];
+        const learningMaterialID = getLearningMaterialIDFromURL();
         for (
           let i = 0;
           i < learningJourneyResponse.data.studiedLearningMaterials.length;
@@ -201,7 +247,7 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
         <ProfileMenu withIcon withUsername />
       </Navbar>
 
-      <div className='mx-auto mt-[84px] w-full max-w-[calc(1366px-256px)]'>
+      <div className='mx-auto mt-[84px] w-full max-w-[calc(1366px-256px)] pb-8'>
         <Link
           href={`/${window.location.pathname.split("/")[1]}/belajar-materi`}
           className='mb-6 flex h-fit w-fit items-center justify-start gap-x-2'
@@ -285,6 +331,7 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
 
             <Button asChild>
               <Link
+                onClick={updateLearningMaterialStatus}
                 href={currentLearningMaterial.learningModuleURL}
                 target='_blank'
                 rel='noopener'
@@ -324,8 +371,10 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
 function sortLearningMaterialByType(
   learningMaterials: LearningMaterialWithStatus[],
 ): LearningMaterialWithStatus[] {
+  const learningMaterialID = getLearningMaterialIDFromURL();
   const sortedLearningMaterials: LearningMaterialWithStatus[] = [];
   for (const learningMaterial of learningMaterials) {
+    if (learningMaterial.id === learningMaterialID) continue;
     if (learningMaterial.type === "prerequisite") {
       sortedLearningMaterials.unshift(learningMaterial);
     } else {
@@ -333,6 +382,11 @@ function sortLearningMaterialByType(
     }
   }
   return sortedLearningMaterials;
+}
+
+function getLearningMaterialIDFromURL(): string {
+  const splittedPathname = window.location.pathname.split("/");
+  return splittedPathname[splittedPathname.length - 1];
 }
 
 BelajarMateriDetail.getLayout = function getLayout(page: ReactElement) {

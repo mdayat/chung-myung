@@ -25,7 +25,7 @@ export function LearningMaterialCard({
   }
 
   function handleCardOnHover(event: MouseEvent<HTMLDivElement>) {
-    anchorRef.current?.focus();
+    anchorRef.current?.focus({ preventScroll: true });
     event.currentTarget.addEventListener("click", handleClickCard, {
       once: true,
     });

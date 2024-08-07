@@ -8,13 +8,30 @@ import {
 } from "@components/shadcn/Dialog";
 import { Typography } from "@components/shadcn/Typography";
 import Link from "next/link";
-import { useState } from "react";
+import { type MouseEvent, useRef, useState } from "react";
 
 export function AssessmentRulesPopup() {
+  const anchorRef = useRef<HTMLAnchorElement>(null);
   const [isChecked, setIsChecked] = useState(false);
 
   function toggleAssessmentRules() {
     setIsChecked(!isChecked);
+  }
+
+  function handleClickButton() {
+    anchorRef.current?.click();
+  }
+
+  function handleButtonOnHover(event: MouseEvent<HTMLButtonElement>) {
+    anchorRef.current?.focus({ preventScroll: true });
+    event.currentTarget.addEventListener("click", handleClickButton, {
+      once: true,
+    });
+  }
+
+  function handleButtonOnBlur(event: MouseEvent<HTMLButtonElement>) {
+    anchorRef.current?.blur();
+    event.currentTarget.removeEventListener("click", handleClickButton);
   }
 
   return (
@@ -39,26 +56,13 @@ export function AssessmentRulesPopup() {
       <ol className='mb-4 ml-6 list-decimal'>
         <li>
           <Typography variant='b3' className='text-neutral-500'>
-            Asesmen ini akan menguji kemampuan anda pada materi prasyarat dari
-            Bidang Ruang
+            Kamu memiliki 3 kali kesempatan untuk mengerjakan asesmen ini.
           </Typography>
         </li>
         <li>
           <Typography variant='b3' className='text-neutral-500'>
-            Materi Bidang Ruang memiliki 3 sub-materi dan setiap sub-materi
-            memiliki 9 soal.
-          </Typography>
-        </li>
-        <li>
-          <Typography variant='b3' className='text-neutral-500'>
-            Anda harus mendapatkan nilai sempurna atau anda harus belajar materi
-            prasyarat yang anda belum kuasai
-          </Typography>
-        </li>
-        <li>
-          <Typography variant='b3' className='text-neutral-500'>
-            Selama asesmen, dilarang menggunakan bahan referensi eksternal atau
-            mencari jawaban dari luar Emteka.
+            Kerjakan dengan jujur agar hasilnya benar-benar mencerminkan
+            pemahaman kamu.
           </Typography>
         </li>
       </ol>
@@ -81,11 +85,13 @@ export function AssessmentRulesPopup() {
 
       <DialogFooter>
         <Button
+          onMouseEnter={handleButtonOnHover}
+          onMouseLeave={handleButtonOnBlur}
           disabled={isChecked === false}
           className='block w-full text-center'
-          asChild
         >
-          <Link href='/asesmen-kesiapan-belajar'>Mulai Asesmen</Link>
+          Mulai Asesmen
+          <Link ref={anchorRef} href='/asesmen-kesiapan-belajar'></Link>
         </Button>
       </DialogFooter>
     </>

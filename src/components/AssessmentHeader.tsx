@@ -45,7 +45,7 @@ function AssessmentHeader({
           </p>
 
           <Typography variant='b3' weight='bold' className='text-neutral-700'>
-            Subtes
+            Materi Prasyarat
           </Typography>
         </div>
       </div>
@@ -114,7 +114,7 @@ interface AssessmentTimerProps {
 function AssessmentTimer({ currentSubtestTimer }: AssessmentTimerProps) {
   const isUnderFiveMinutes = currentSubtestTimer < 300;
   const hours = Math.floor(currentSubtestTimer / (60 * 60));
-  const minutes = Math.floor(currentSubtestTimer / 60);
+  const minutes = Math.floor((currentSubtestTimer / 60) % 60);
   const seconds = Math.floor(currentSubtestTimer % 60);
 
   return (

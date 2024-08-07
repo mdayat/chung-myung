@@ -22,13 +22,16 @@ import { RadioButtonUncheckedIcon } from "./icons/RadioButtonUncheckedIcon";
 import { Dialog, DialogContent } from "./shadcn/Dialog";
 
 interface AssessmentContentProps {
+  assessmentFooterID: string;
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
   currentQuestion: AssessmentResponse;
   currentSubtestQuestions: AssessmentResponse[];
   setCurrentSubtestQuestions: Dispatch<SetStateAction<AssessmentResponse[]>>;
 }
 
+const assessmentContentID = "assessment-content";
 export const AssessmentContent = memo(function AssessmentContent({
+  assessmentFooterID,
   indexedDB,
   currentQuestion,
   currentSubtestQuestions,
@@ -80,7 +83,39 @@ export const AssessmentContent = memo(function AssessmentContent({
   }
 
   // Attach event handler on click to show image preview
+  // Add intersection observer to determine button position
   useEffect(() => {
+    const assessmentContentEl = document.getElementById(
+      assessmentContentID,
+    ) as HTMLDivElement;
+    const assessmentFooterEl = document.getElementById(
+      assessmentFooterID,
+    ) as HTMLDivElement;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            assessmentFooterEl.classList.remove("opacity-0");
+            assessmentFooterEl.classList.add(
+              "fixed",
+              "bottom-8",
+              "w-[calc(1366px-160px)]",
+            );
+            observer.unobserve(assessmentContentEl);
+          } else {
+            assessmentFooterEl.classList.remove("opacity-0");
+            observer.unobserve(assessmentContentEl);
+          }
+        }
+      },
+      {
+        rootMargin: "0px",
+        threshold: 1.0,
+      },
+    );
+    observer.observe(assessmentContentEl);
+
     const questionContainer = document.getElementById(
       "question-container",
     ) as HTMLDivElement;
@@ -106,13 +141,20 @@ export const AssessmentContent = memo(function AssessmentContent({
     }
 
     return () => {
+      assessmentFooterEl.classList.add("opacity-0");
+      assessmentFooterEl.classList.remove(
+        "fixed",
+        "bottom-8",
+        "w-[calc(1366px-160px)]",
+      );
+
       if (imgEls.length !== 0) {
         for (let i = 0; i < imgEls.length; i++) {
           imgEls[i].removeEventListener("click", onClickHandlers[i]);
         }
       }
     };
-  }, []);
+  }, [currentQuestion, assessmentFooterID]);
 
   return (
     <>
@@ -125,13 +167,13 @@ export const AssessmentContent = memo(function AssessmentContent({
         />
       </Head>
 
-      <div className='flex justify-between gap-x-6'>
+      <div id={assessmentContentID} className='flex justify-between gap-x-6'>
         <div
           dangerouslySetInnerHTML={{
             __html: deltaToHTMLString(JSON.parse(currentQuestion.content)),
           }}
           id='question-container'
-          className='w-full text-xl text-neutral-700 [&_img]:my-6 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:object-cover [&_img]:object-center [&_ol]:my-4 [&_ol]:ml-8 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:justify-between [&_ol]:gap-y-0.5 [&_ul]:my-4 [&_ul]:ml-8 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:justify-between [&_ul]:gap-y-0.5'
+          className='w-full text-xl text-neutral-700 [&_img]:h-[280px] [&_img]:w-[280px] [&_img]:cursor-pointer [&_img]:object-cover [&_img]:object-center [&_ol]:my-4 [&_ol]:ml-8 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:justify-between [&_ol]:gap-y-0.5 [&_ul]:my-4 [&_ul]:ml-8 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:justify-between [&_ul]:gap-y-0.5'
         ></div>
 
         <Dialog open={isImgPreviewOpened} onOpenChange={setIsImgPreviewOpened}>

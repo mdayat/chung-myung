@@ -1,3 +1,8 @@
+// TODO
+// 1. Unfinished card popup yg sesuai dengan tipe asesmen
+// 2. Update indexedb agar tau tipe asesmen untuk menentukan poin 1
+// 3. Update Asesmen beserta children-nya sesuai dengan tipe asesmen
+
 import { AssessmentContent } from "@components/AssessmentContent";
 import {
   AssessmentHeader,
@@ -42,6 +47,7 @@ const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 const LEARNING_JOURNEY_ID = "94c33b3b-f38a-4906-a000-a85ca4f26539";
 const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
 
+const assessmentFooterID = "assessment-footer";
 const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   const [timer, setTimer] = useState<number | null>(null);
   const [indexedDB, setIndexedDB] =
@@ -260,7 +266,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
             setCurrentSubtestQuestions(storedQuestions);
 
             await db.put("assessmentTimer", 10, "timer");
-            setTimer(1000);
+            setTimer(356400);
           } else {
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
@@ -350,7 +356,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
         <ProfileMenu />
       </Navbar>
 
-      <div className='mx-auto mt-[calc(64px+32px)] w-full max-w-[calc(1366px-160px)]'>
+      <div className='mx-auto mt-[calc(64px+32px)] w-full max-w-[calc(1366px-160px)] pb-8'>
         <AssessmentHeader
           subtestsLength={subtests.length}
           currentSubtestIndex={currentSubtestIndex + 1}
@@ -369,13 +375,17 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
         </AssessmentHeader>
 
         <AssessmentContent
+          assessmentFooterID={assessmentFooterID}
           indexedDB={indexedDB!}
           currentQuestion={currentSubtestQuestions[currentQuestionIndex]}
           currentSubtestQuestions={currentSubtestQuestions}
           setCurrentSubtestQuestions={setCurrentSubtestQuestions}
         />
 
-        <div className='mt-8 flex items-center justify-end gap-x-8'>
+        <div
+          id={assessmentFooterID}
+          className='mt-8 flex items-center justify-end gap-x-8 opacity-0'
+        >
           <Button
             onClick={handleClickPrevQuestion}
             disabled={currentQuestionIndex === 0}

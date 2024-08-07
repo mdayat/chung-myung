@@ -1,7 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: "standalone",
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: process.env.NEXT_PUBLIC_IMAGE_HOST,
+        port: "",
+      },
+    ],
+  },
   async headers() {
     return [
       {

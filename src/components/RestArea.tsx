@@ -1,5 +1,6 @@
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
+import type { AssessmentType } from "@customTypes/assessmentResult";
 import MaskotHeadImages from "@public/maskot-head.png";
 import type { AssessedLearningMaterial } from "@utils/assessmentTracker";
 import Image from "next/image";
@@ -12,6 +13,7 @@ import { TimerIcon } from "./icons/TimerIcon";
 import { Progress } from "./shadcn/Progress";
 
 interface RestAreaProps {
+  assessmentType: AssessmentType;
   timer: number;
   subtestsLength: number;
   completedSubtestIndex: number;
@@ -21,6 +23,7 @@ interface RestAreaProps {
 }
 
 function RestArea({
+  assessmentType,
   timer,
   subtestsLength,
   completedSubtestIndex,
@@ -48,7 +51,10 @@ function RestArea({
             weight='bold'
             className='text-neutral-0'
           >
-            Subtes selesai dikerjakan
+            {assessmentType === "asesmen_kesiapan_belajar"
+              ? "Materi Prasyarat"
+              : "Sub-Materi"}
+            &nbsp; selesai dikerjakan
           </Typography>
         </div>
 
@@ -82,7 +88,11 @@ function RestArea({
           weight='bold'
           className='mb-6 text-center text-neutral-500'
         >
-          Otomatis ke subtes selanjutnya dalam
+          Otomatis ke&nbsp;
+          {assessmentType === "asesmen_kesiapan_belajar"
+            ? "Materi Prasyarat"
+            : "Sub-Materi"}
+          &nbsp;selanjutnya dalam
         </Typography>
 
         <div className='mb-4 flex items-center justify-center gap-x-1'>
@@ -103,7 +113,14 @@ function RestArea({
         <Progress value={timer} max={20} className='mb-6' />
 
         <div className='mb-8 flex items-center justify-between gap-x-6'>
-          <NextSubtestInfo title='Judul Subtes' description={nextSubtest.name}>
+          <NextSubtestInfo
+            title={`Judul ${
+              assessmentType === "asesmen_kesiapan_belajar"
+                ? "Materi Prasyarat"
+                : "Sub-Materi"
+            }`}
+            description={nextSubtest.name}
+          >
             <AssignmentIcon />
           </NextSubtestInfo>
 
@@ -120,7 +137,11 @@ function RestArea({
         </div>
 
         <Button onClick={handleClickNextSubtest} className='mx-auto block'>
-          Lanjutkan Subtes Selanjutnya
+          Lanjutkan&nbsp;
+          {assessmentType === "asesmen_kesiapan_belajar"
+            ? "Materi Prasyarat"
+            : "Sub-Materi"}
+          &nbsp; Selanjutnya
         </Button>
       </div>
     </>

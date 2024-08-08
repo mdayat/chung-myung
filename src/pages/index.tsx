@@ -11,11 +11,16 @@ import {
   DialogTrigger,
 } from "@components/shadcn/Dialog";
 import { Typography } from "@components/shadcn/Typography";
+import type { SuccessResponse } from "@customTypes/api";
+import type { AssessmentType } from "@customTypes/assessmentResult";
+import type { LearningJourney } from "@customTypes/learningJourney";
 import MaskotBodyImage from "@public/maskot-body.png";
 import {
+  type AssessmentDetail,
   type AssessmentTrackerDBSchema,
   openAssessmentTrackerDB,
 } from "@utils/assessmentTracker";
+import axios, { type AxiosError } from "axios";
 import { deleteDB, type IDBPDatabase } from "idb";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -27,32 +32,67 @@ const UnfinishedAssessmentCard = dynamic(() =>
   ),
 );
 
+const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [indexedDB, setIndexedDB] =
     useState<IDBPDatabase<AssessmentTrackerDBSchema>>();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasUnfinishedAssessment, setHasUnfinishedAssessment] = useState(false);
+  const [unfinishedAssessmentDetail, setUnfinishedAssessmentDetail] =
+    useState<Omit<AssessmentDetail, "timer"> | null>(null);
+  const [learningJourneyID, setLearningJourneyID] = useState("");
 
   useEffect(() => {
-    if ("indexedDB" in window === false) {
-      alert("your browser doesn't support indexedDB");
-    } else {
-      (async () => {
+    (async () => {
+      let learningJourneyID = "";
+      try {
+        const { data: learningJourneysResponse } = await axios.get<
+          SuccessResponse<LearningJourney[]>
+        >(`/api/users/${USER_ID}/learning-journeys`);
+        if (learningJourneysResponse.data.length !== 0) {
+          learningJourneyID = learningJourneysResponse.data[0].id;
+          setLearningJourneyID(learningJourneyID);
+        }
+      } catch (err) {
+        const error = err as AxiosError;
+        if (error.response) {
+          // retry the request
+        } else if (error.request) {
+          // retry the request
+        } else {
+          console.error(
+            new Error("Something is wrong with Axios: ", { cause: error }),
+          );
+        }
+      }
+
+      // Ambil data assessment results
+
+      if ("indexedDB" in window === false) {
+        alert("your browser doesn't support indexedDB");
+      } else {
         try {
           const db = await openAssessmentTrackerDB();
-          const subtests = await db.getAll("subtest");
-          if (subtests.length !== 0) {
-            setIndexedDB(db);
-            setHasUnfinishedAssessment(true);
+          setIndexedDB(db);
+
+          const assessmentDetail = await db.getAll("assessmentDetail");
+          if (assessmentDetail.length === 0) {
+            return;
           }
+
+          setUnfinishedAssessmentDetail(assessmentDetail[0]);
         } catch (error) {
-          // Log the error properly
-          console.log(error);
+          console.error(
+            new Error(
+              "Error when check if there is an unfinished assessment: ",
+              { cause: error },
+            ),
+          );
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
-      })();
-    }
+      }
+    })();
   }, []);
 
   return (
@@ -95,12 +135,12 @@ function Home() {
                 className='mb-6 text-neutral-500'
               >
                 Mari mulai belajar! Ikuti asesmen kesiapan belajar, pelajari
-                materi yang kami sediakan, dan selesaikan dengan final asesmen.
+                materi yang kami sediakan, dan selesaikan dengan asesmen akhir.
               </Typography>
 
               <DialogTrigger asChild>
                 <Button
-                  disabled={isLoading || hasUnfinishedAssessment}
+                  disabled={isLoading || unfinishedAssessmentDetail !== null}
                   type='button'
                   className='mb-2 w-fit'
                 >
@@ -117,14 +157,16 @@ function Home() {
           </div>
 
           <DialogContent>
-            <AssessmentRulesPopup />
+            <AssessmentRulesPopup indexedDB={indexedDB!} />
           </DialogContent>
         </Dialog>
 
-        {hasUnfinishedAssessment ? (
+        {unfinishedAssessmentDetail !== null ? (
           <UnfinishedAssessmentCard
+            learningJourneyID={learningJourneyID}
             indexedDB={indexedDB!}
-            setHasUnfinishedAssessment={setHasUnfinishedAssessment}
+            assessmentDetail={unfinishedAssessmentDetail}
+            setUnfinishedAssessmentDetail={setUnfinishedAssessmentDetail}
           />
         ) : (
           <></>
@@ -133,9 +175,9 @@ function Home() {
         <div className='mt-8 grid grid-cols-2 gap-x-8'>
           <AssessmentResultCard
             isLoading={isLoading}
-            type='asesmen-kesiapan-belajar'
+            type='asesmen_kesiapan_belajar'
           />
-          <AssessmentResultCard isLoading={isLoading} type='asesmen-akhir' />
+          <AssessmentResultCard isLoading={isLoading} type='asesmen_akhir' />
         </div>
       </div>
     </div>
@@ -143,7 +185,7 @@ function Home() {
 }
 
 interface AssessmentResultCardProps {
-  type: "asesmen-kesiapan-belajar" | "asesmen-akhir";
+  type: AssessmentType;
   isLoading: boolean;
 }
 
@@ -152,7 +194,7 @@ function AssessmentResultCard({ type, isLoading }: AssessmentResultCardProps) {
     <div className='relative z-0 overflow-hidden rounded-3xl bg-neutral-25 px-5 py-[26px] shadow-[0_4px_16px_0_rgba(0,0,0,0.15)]'>
       <BlurredCircle className='absolute -left-9 -top-9 -z-10 h-28 w-28' />
       <div className='flex h-full items-center justify-between gap-x-10'>
-        {type === "asesmen-kesiapan-belajar" ? (
+        {type === "asesmen_kesiapan_belajar" ? (
           <EmojiFlagsIcon className='h-8 w-8 shrink-0 self-start fill-secondary-600' />
         ) : (
           <SchoolIcon className='h-8 w-8 shrink-0 self-start fill-secondary-600' />
@@ -166,13 +208,13 @@ function AssessmentResultCard({ type, isLoading }: AssessmentResultCardProps) {
               weight='bold'
               className='mb-2 text-neutral-700'
             >
-              {type === "asesmen-kesiapan-belajar"
+              {type === "asesmen_kesiapan_belajar"
                 ? "Hasil Asesmen Kesiapan Belajar"
-                : "Hasil Final Asesmen"}
+                : "Hasil Asesmen Akhir"}
             </Typography>
 
             <Typography as='h3' variant='b3' className='text-neutral-500'>
-              {type === "asesmen-kesiapan-belajar"
+              {type === "asesmen_kesiapan_belajar"
                 ? "Lihat kembali hasil asesmen kesiapan belajar yang telah kamu kerjakan."
                 : "Lihat kembali bukti dari perjuanganmu belajar di Emteka."}
             </Typography>

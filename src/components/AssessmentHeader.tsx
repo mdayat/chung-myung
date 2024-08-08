@@ -1,3 +1,4 @@
+import type { AssessmentType } from "@customTypes/assessmentResult";
 import type { AssessmentResponse } from "@utils/assessmentTracker";
 import {
   type Dispatch,
@@ -11,12 +12,14 @@ import { TimerIcon } from "./icons/TimerIcon";
 import { Typography } from "./shadcn/Typography";
 
 interface AssessmentHeaderProps extends PropsWithChildren {
+  assessmentType: AssessmentType;
   subtestsLength: number;
   currentSubtestName: string;
   currentSubtestIndex: number;
 }
 
 function AssessmentHeader({
+  assessmentType,
   currentSubtestIndex,
   currentSubtestName,
   subtestsLength,
@@ -45,7 +48,9 @@ function AssessmentHeader({
           </p>
 
           <Typography variant='b3' weight='bold' className='text-neutral-700'>
-            Materi Prasyarat
+            {assessmentType === "asesmen_kesiapan_belajar"
+              ? "Materi Prasyarat"
+              : "Sub-Materi"}
           </Typography>
         </div>
       </div>

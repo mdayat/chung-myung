@@ -10,6 +10,7 @@ const assessmentResultSchema = zod.object({
   createdAt: zod.string(),
 });
 type AssessmentResult = zod.infer<typeof assessmentResultSchema>;
+type AssessmentType = zod.infer<typeof assessmentResultSchema.shape.type>;
 
 export { assessmentResultSchema };
-export type { AssessmentResult };
+export type { AssessmentResult, AssessmentType };

@@ -1,29 +1,38 @@
 import type { SuccessResponse } from "@customTypes/api";
-import type { AssessmentResult } from "@customTypes/assessmentResult";
-import type { LearningMaterial } from "@customTypes/learningMaterial";
+import type {
+  AssessmentResult,
+  AssessmentType,
+} from "@customTypes/assessmentResult";
+import type {
+  LearningMaterial,
+  LearningMaterialType,
+} from "@customTypes/learningMaterial";
 import type { Question } from "@customTypes/question";
 import { type DBSchema, type IDBPDatabase, openDB } from "idb";
 import { v4 as uuidv4 } from "uuid";
 
-type AssessedLearningMaterial = Pick<
-  LearningMaterial,
-  "id" | "name" | "number"
-> & {
-  isSubmitted: boolean;
-};
+interface AssessmentDetail {
+  id: string;
+  type: AssessmentType;
+  timer: number;
+}
 
-type AssessmentResponse = Pick<
-  Question,
-  "id" | "content" | "multipleChoice"
-> & {
+interface AssessedLearningMaterial
+  extends Pick<LearningMaterial, "id" | "name" | "number"> {
+  isSubmitted: boolean;
+}
+
+interface AssessmentResponse
+  extends Pick<Question, "id" | "content" | "multipleChoice"> {
   subtestID: string;
   selectedChoiceID: string;
-};
+}
 
 interface AssessmentTrackerDBSchema extends DBSchema {
-  assessmentTimer: {
-    key: "timer";
-    value: number;
+  assessmentDetail: {
+    value: AssessmentDetail;
+    key: string;
+    indexes: { type: number };
   };
   subtest: {
     value: AssessedLearningMaterial;
@@ -46,17 +55,20 @@ async function openAssessmentTrackerDB(): Promise<
   try {
     const db = await openDB<AssessmentTrackerDBSchema>(DB_NAME, DB_VERSION, {
       upgrade: (db) => {
-        db.createObjectStore("assessmentTimer");
+        db.createObjectStore("assessmentDetail", { keyPath: "id" }).createIndex(
+          "type",
+          "type",
+        );
 
-        const subtestObjectStore = db.createObjectStore("subtest", {
-          keyPath: "id",
-        });
-        subtestObjectStore.createIndex("number", "number");
+        db.createObjectStore("subtest", { keyPath: "id" }).createIndex(
+          "number",
+          "number",
+        );
 
-        const questionObjectStore = db.createObjectStore("question", {
-          keyPath: "id",
-        });
-        questionObjectStore.createIndex("subtestID", "subtestID");
+        db.createObjectStore("question", { keyPath: "id" }).createIndex(
+          "subtestID",
+          "subtestID",
+        );
       },
     });
     return db;
@@ -115,7 +127,7 @@ async function putManyQuestion(
 
 async function getSubtests(
   materialID: string,
-  subtestType: "prerequisite" | "sub_material",
+  subtestType: LearningMaterialType,
 ): Promise<AssessedLearningMaterial[]> {
   try {
     const res = await fetch(`/api/materials/${materialID}/learning-materials`);
@@ -185,11 +197,10 @@ interface AssessmentResultCreation
   }[];
 }
 
-async function createAssessmentResult(
+async function createAKBResult(
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
   userID: string,
   learningJourneyID: string,
-  assessmentType: "asesmen_kesiapan_belajar" | "asesmen_akhir",
 ) {
   try {
     const results = await Promise.all([
@@ -209,27 +220,25 @@ async function createAssessmentResult(
     let prevAssessmentResult: AssessmentResult | null = null;
 
     if (response.data.length !== 0) {
-      for (let i = 0; i < response.data.length; i++) {
-        const assessmentResult = response.data[i];
-        if (assessmentResult.type === assessmentType) {
-          prevAssessmentResult = assessmentResult;
-          break;
+      for (const assessmentResult of response.data) {
+        if (assessmentResult.type !== "asesmen_kesiapan_belajar") {
+          continue;
         }
+        prevAssessmentResult = assessmentResult;
+        break;
       }
     }
 
     if (prevAssessmentResult !== null) {
       await fetch(
         `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results/${prevAssessmentResult.id}`,
-        {
-          method: "DELETE",
-        },
+        { method: "DELETE" },
       );
     }
 
     const unmasteredLearningMaterialIDs: string[] = [];
     const assessmentResult: AssessmentResultCreation = {
-      type: assessmentType,
+      type: "asesmen_kesiapan_belajar",
       attempt:
         prevAssessmentResult === null ? 1 : prevAssessmentResult.attempt + 1,
       assessedLearningMaterials: sortedSubtests.map((subtest) => {
@@ -270,52 +279,107 @@ async function createAssessmentResult(
       }),
     };
 
-    if (
-      assessmentResult.attempt === 3 &&
-      assessmentType === "asesmen_kesiapan_belajar"
-    ) {
+    if (assessmentResult.attempt === 3) {
       Promise.all([
         fetch(
           `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(assessmentResult),
           },
         ),
         fetch(`/api/users/${userID}/learning-journeys/${learningJourneyID}`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prerequisiteIDs: unmasteredLearningMaterialIDs,
           }),
         }),
       ]);
+    } else {
+      await fetch(
+        `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(assessmentResult),
+        },
+      );
     }
+  } catch (error) {
+    throw new Error("Error when create akb result: ", {
+      cause: error,
+    });
+  }
+}
+
+async function createAsesmenAkhirResult(
+  db: IDBPDatabase<AssessmentTrackerDBSchema>,
+  userID: string,
+  learningJourneyID: string,
+) {
+  try {
+    const results = await Promise.all([
+      await db.getAllFromIndex("subtest", "number"),
+      await db.getAll("question"),
+    ]);
+
+    const sortedSubtests = results[0];
+    const storedQuestions = results[1];
+
+    const assessmentResult: AssessmentResultCreation = {
+      type: "asesmen_akhir",
+      attempt: 1,
+      assessedLearningMaterials: sortedSubtests.map((subtest) => {
+        const id = uuidv4();
+        return {
+          id,
+          learningMaterialID: subtest.id,
+          assessmentResponses: storedQuestions
+            .filter((question) => question.subtestID === subtest.id)
+            .map((question) => {
+              let isCorrect = false;
+              for (let i = 0; i < question.multipleChoice.length; i++) {
+                if (
+                  question.selectedChoiceID !== question.multipleChoice[i].id
+                ) {
+                  continue;
+                }
+
+                if (question.multipleChoice[i].isCorrect) {
+                  isCorrect = true;
+                }
+              }
+
+              return {
+                assessedLearningMaterialID: id,
+                questionID: question.id,
+                isCorrect,
+              };
+            }),
+        };
+      }),
+    };
 
     await fetch(
       `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(assessmentResult),
       },
     );
   } catch (error) {
-    throw new Error("Error when create assessment result: ", {
+    throw new Error("Error when create asesmen akhir result: ", {
       cause: error,
     });
   }
 }
 
 export {
-  createAssessmentResult,
+  createAKBResult,
+  createAsesmenAkhirResult,
   getSubtestQuestions,
   getSubtests,
   openAssessmentTrackerDB,
@@ -324,6 +388,7 @@ export {
 };
 export type {
   AssessedLearningMaterial,
+  AssessmentDetail,
   AssessmentResponse,
   AssessmentTrackerDBSchema,
 };

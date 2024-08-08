@@ -8,7 +8,8 @@ import { z as zod } from "zod";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    SuccessResponse<LearningJourney[] | null> | FailedResponse
+    | SuccessResponse<LearningJourney[] | { learningJourneyID: string }>
+    | FailedResponse
   >,
 ) {
   res.setHeader("Content-Type", "application/json");
@@ -48,7 +49,7 @@ export default async function handler(
         .eq("user_id", userID)
         .throwOnError();
 
-      res.status(200).json({ status: "success", data });
+      res.status(200).json({ status: "success", data: data! });
     } catch (error) {
       console.error(
         new Error(`Error when get learning journeys based on "userID": `, {
@@ -127,7 +128,7 @@ export default async function handler(
 
       learningJourneyID = results[0].data.id;
       for (const learningMaterial of results[1].data) {
-        if (learningMaterial.type === "prerequisite") continue;
+        if (learningMaterial.type !== "sub_material") continue;
         subMaterialIDs.push(learningMaterial.learning_material!.id);
       }
     } catch (error) {
@@ -150,7 +151,7 @@ export default async function handler(
           }),
         )
         .throwOnError();
-      res.status(201).json({ status: "success", data: null });
+      res.status(201).json({ status: "success", data: { learningJourneyID } });
     } catch (error) {
       console.error(
         new Error(

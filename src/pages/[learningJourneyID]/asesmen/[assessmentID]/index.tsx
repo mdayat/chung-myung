@@ -1,8 +1,3 @@
-// TODO
-// 1. Unfinished card popup yg sesuai dengan tipe asesmen
-// 2. Update indexedb agar tau tipe asesmen untuk menentukan poin 1
-// 3. Update Asesmen beserta children-nya sesuai dengan tipe asesmen
-
 import { AssessmentContent } from "@components/AssessmentContent";
 import {
   AssessmentHeader,
@@ -24,12 +19,14 @@ import {
   DialogTrigger,
 } from "@components/shadcn/Dialog";
 import { Typography } from "@components/shadcn/Typography";
+import type { AssessmentType } from "@customTypes/assessmentResult";
 import MaskotHeadImages from "@public/maskot-head.png";
 import {
   type AssessedLearningMaterial,
   type AssessmentResponse,
   type AssessmentTrackerDBSchema,
-  createAssessmentResult,
+  createAKBResult,
+  createAsesmenAkhirResult,
   getSubtestQuestions,
   getSubtests,
   openAssessmentTrackerDB,
@@ -41,14 +38,14 @@ import { type IDBPDatabase } from "idb";
 import Image from "next/image";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
-import type { NextPageWithLayout } from "./_app";
+import type { NextPageWithLayout } from "../../../_app";
 
 const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 const LEARNING_JOURNEY_ID = "94c33b3b-f38a-4906-a000-a85ca4f26539";
 const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
 
 const assessmentFooterID = "assessment-footer";
-const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
+const Asesmen: NextPageWithLayout = () => {
   const [timer, setTimer] = useState<number | null>(null);
   const [indexedDB, setIndexedDB] =
     useState<IDBPDatabase<AssessmentTrackerDBSchema>>();
@@ -65,6 +62,10 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   >([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
+  const [assessmentType, setAssessmentType] = useState<AssessmentType>(
+    "asesmen_kesiapan_belajar",
+  );
+
   const isLastQuestion =
     currentQuestionIndex === currentSubtestQuestions.length - 1;
 
@@ -72,17 +73,20 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     try {
       const isLastSubtest = subtests.length - 1 === currentSubtestIndex;
       if (isLastSubtest) {
-        await createAssessmentResult(
-          indexedDB!,
-          USER_ID,
-          LEARNING_JOURNEY_ID,
-          "asesmen_kesiapan_belajar",
-        );
+        if (assessmentType === "asesmen_kesiapan_belajar") {
+          await createAKBResult(indexedDB!, USER_ID, LEARNING_JOURNEY_ID);
+        } else {
+          await createAsesmenAkhirResult(
+            indexedDB!,
+            USER_ID,
+            LEARNING_JOURNEY_ID,
+          );
+        }
 
         Promise.all([
           await indexedDB!.clear("subtest"),
           await indexedDB!.clear("question"),
-          await indexedDB!.clear("assessmentTimer"),
+          await indexedDB!.clear("assessmentDetail"),
         ]);
 
         window.location.replace(window.location.origin);
@@ -120,7 +124,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [indexedDB, subtests, currentSubtestIndex]);
+  }, [indexedDB, subtests, currentSubtestIndex, assessmentType]);
 
   function handleClickNextQuestion() {
     setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -131,12 +135,15 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
   }
 
   const handleClickNextSubtest = useCallback(async () => {
-    setIsSubtestFinished(false);
     try {
-      setTimer((await indexedDB!.get("assessmentTimer", "timer")) ?? 0);
+      const assessmentDetail = await indexedDB!.get(
+        "assessmentDetail",
+        getAssessmentIDFromURL(),
+      );
+      setTimer(assessmentDetail!.timer ?? 0);
+      setIsSubtestFinished(false);
     } catch (error) {
       console.error(error);
-      setIsSubtestFinished(true);
     }
   }, [indexedDB]);
 
@@ -186,17 +193,20 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
         (async () => {
           try {
-            await createAssessmentResult(
-              indexedDB!,
-              USER_ID,
-              LEARNING_JOURNEY_ID,
-              "asesmen_kesiapan_belajar",
-            );
+            if (assessmentType === "asesmen_kesiapan_belajar") {
+              await createAKBResult(indexedDB!, USER_ID, LEARNING_JOURNEY_ID);
+            } else {
+              await createAsesmenAkhirResult(
+                indexedDB!,
+                USER_ID,
+                LEARNING_JOURNEY_ID,
+              );
+            }
 
             Promise.all([
               await indexedDB!.clear("subtest"),
               await indexedDB!.clear("question"),
-              await indexedDB!.clear("assessmentTimer"),
+              await indexedDB!.clear("assessmentDetail"),
             ]);
           } catch (error) {
             console.error(error);
@@ -207,7 +217,15 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           setTimer(timer! - 1);
           (async () => {
             try {
-              await indexedDB!.put("assessmentTimer", timer! - 1, "timer");
+              // Update timer value
+              const assessmentDetail = await indexedDB!.get(
+                "assessmentDetail",
+                getAssessmentIDFromURL(),
+              );
+              await indexedDB!.put("assessmentDetail", {
+                ...assessmentDetail!,
+                timer: assessmentDetail!.timer! - 1,
+              });
             } catch (error) {
               setTimer(timer! + 1);
               console.error(error);
@@ -225,6 +243,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
     isAssessmentTimeout,
     isSubtestFinished,
     timer,
+    assessmentType,
     handleClickNextSubtest,
   ]);
 
@@ -237,12 +256,37 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
           const db = await openAssessmentTrackerDB();
           setIndexedDB(db);
 
+          // Check if assessmentID from URL is valid by comparing with the one from indexeddb
+          const assessmentID = await db.getKey(
+            "assessmentDetail",
+            getAssessmentIDFromURL(),
+          );
+          if (assessmentID === undefined) {
+            window.location.replace(window.location.origin);
+            return;
+          }
+
+          const assessmentDetail = await db.get(
+            "assessmentDetail",
+            assessmentID,
+          );
+          setAssessmentType(assessmentDetail!.type);
+
           // Check if user has unfinished assessment or not
           const subtests = await db.getAll("subtest");
           if (subtests.length === 0) {
+            // Set timer value
+            await db.put("assessmentDetail", {
+              ...assessmentDetail!,
+              timer: 356400,
+            });
+            setTimer(356400);
+
             const prerequisites = await getSubtests(
               MATERIAL_ID,
-              "prerequisite",
+              assessmentDetail!.type === "asesmen_kesiapan_belajar"
+                ? "prerequisite"
+                : "sub_material",
             );
             await putManySubtest(prerequisites, db);
 
@@ -264,10 +308,8 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               sortedSubtests[0].id,
             );
             setCurrentSubtestQuestions(storedQuestions);
-
-            await db.put("assessmentTimer", 10, "timer");
-            setTimer(356400);
           } else {
+            setTimer(assessmentDetail?.timer ?? 0);
             const sortedSubtests = await db.getAllFromIndex(
               "subtest",
               "number",
@@ -305,7 +347,6 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
               );
               setCurrentSubtestQuestions(storedQuestions);
             }
-            setTimer((await db.get("assessmentTimer", "timer")) ?? 0);
           }
           setIsLoading(false);
         } catch (error) {
@@ -338,6 +379,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
         </Navbar>
 
         <RestArea
+          assessmentType={assessmentType}
           handleClickNextSubtest={handleClickNextSubtest}
           timer={timer!}
           subtestsLength={subtests.length}
@@ -358,6 +400,7 @@ const AsesmenKesiapanBelajar: NextPageWithLayout = () => {
 
       <div className='mx-auto mt-[calc(64px+32px)] w-full max-w-[calc(1366px-160px)] pb-8'>
         <AssessmentHeader
+          assessmentType={assessmentType}
           subtestsLength={subtests.length}
           currentSubtestIndex={currentSubtestIndex + 1}
           currentSubtestName={subtests[currentSubtestIndex].name}
@@ -534,7 +577,12 @@ function TimeIsUpPopup({ timer }: TimeIsUpPopupProps) {
   );
 }
 
-AsesmenKesiapanBelajar.getLayout = function getLayout(page: ReactElement) {
+function getAssessmentIDFromURL(): string {
+  const splittedURL = window.location.pathname.split("/");
+  return splittedURL[splittedURL.length - 1];
+}
+
+Asesmen.getLayout = function getLayout(page: ReactElement) {
   return (
     <main className={`${karla.variable} ${nunito.variable} font-karla`}>
       {page}
@@ -542,4 +590,4 @@ AsesmenKesiapanBelajar.getLayout = function getLayout(page: ReactElement) {
   );
 };
 
-export default AsesmenKesiapanBelajar;
+export default Asesmen;

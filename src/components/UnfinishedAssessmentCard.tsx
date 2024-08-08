@@ -2,7 +2,10 @@ import { WarningIcon } from "@components/icons/WarningIcon";
 import { Button } from "@components/shadcn/Button";
 import { Typography } from "@components/shadcn/Typography";
 import MaskotHeadImages from "@public/maskot-head.png";
-import type { AssessmentTrackerDBSchema } from "@utils/assessmentTracker";
+import type {
+  AssessmentDetail,
+  AssessmentTrackerDBSchema,
+} from "@utils/assessmentTracker";
 import type { IDBPDatabase } from "idb";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,24 +24,34 @@ import {
 } from "./shadcn/Dialog";
 
 interface UnfinishedAssessmentCardProps {
+  learningJourneyID: string;
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
-  setHasUnfinishedAssessment: Dispatch<SetStateAction<boolean>>;
+  assessmentDetail: Omit<AssessmentDetail, "timer">;
+  setUnfinishedAssessmentDetail: Dispatch<
+    SetStateAction<Omit<AssessmentDetail, "timer"> | null>
+  >;
 }
 
 export function UnfinishedAssessmentCard({
+  assessmentDetail,
+  learningJourneyID,
   indexedDB,
-  setHasUnfinishedAssessment,
+  setUnfinishedAssessmentDetail,
 }: UnfinishedAssessmentCardProps) {
-  async function retakeAssessment() {
+  async function resetAssessment() {
     try {
-      await Promise.all([
-        indexedDB.clear("subtest"),
-        indexedDB.clear("question"),
+      Promise.all([
+        await indexedDB!.clear("subtest"),
+        await indexedDB!.clear("question"),
+        await indexedDB!.clear("assessmentDetail"),
       ]);
-      setHasUnfinishedAssessment(false);
+      setUnfinishedAssessmentDetail(null);
     } catch (error) {
-      // Log the error properly
-      console.log(error);
+      console.error(
+        new Error(`Error when click "Mulai Ulang Asesmen" button: `, {
+          cause: error,
+        }),
+      );
     }
   }
 
@@ -60,7 +73,10 @@ export function UnfinishedAssessmentCard({
               weight='bold'
               className='mb-1 text-[#590009]'
             >
-              Asesmen Kesiapan Belajar Kamu Belum Terselesaikan!
+              {assessmentDetail.type === "asesmen_kesiapan_belajar"
+                ? "Asesmen Kesiapan Belajar"
+                : "Asesmen Akhir"}
+              &nbsp;Kamu Belum Terselesaikan!
             </Typography>
 
             <Typography variant='b3' className='text-neutral-500'>
@@ -77,7 +93,9 @@ export function UnfinishedAssessmentCard({
           </DialogTrigger>
 
           <Button size='small' className='shrink-0' asChild>
-            <Link href='/asesmen-kesiapan-belajar'>Lanjutkan Asesmen</Link>
+            <Link href={`/${learningJourneyID}/asesmen/${assessmentDetail.id}`}>
+              Lanjutkan Asesmen
+            </Link>
           </Button>
         </div>
       </div>
@@ -120,7 +138,7 @@ export function UnfinishedAssessmentCard({
 
           <DialogClose asChild>
             <Button
-              onClick={retakeAssessment}
+              onClick={resetAssessment}
               variant='primary'
               className='block w-full text-center'
             >

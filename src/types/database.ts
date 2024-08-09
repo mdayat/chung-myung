@@ -81,6 +81,7 @@ export type Database = {
           created_at: string;
           id: string;
           learning_journey_id: string;
+          score: number;
           type: Database["public"]["Enums"]["assessment_type"];
         };
         Insert: {
@@ -88,6 +89,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           learning_journey_id: string;
+          score: number;
           type: Database["public"]["Enums"]["assessment_type"];
         };
         Update: {
@@ -95,6 +97,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           learning_journey_id?: string;
+          score?: number;
           type?: Database["public"]["Enums"]["assessment_type"];
         };
         Relationships: [

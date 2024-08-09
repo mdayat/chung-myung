@@ -7,6 +7,7 @@ const assessmentResultSchema = zod.object({
     zod.literal("asesmen_akhir"),
   ]),
   attempt: zod.number().lte(3),
+  score: zod.number().lte(100),
   createdAt: zod.string(),
 });
 type AssessmentResult = zod.infer<typeof assessmentResultSchema>;

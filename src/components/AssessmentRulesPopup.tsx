@@ -55,7 +55,9 @@ export function AssessmentRulesPopup({ indexedDB }: AssessmentRulesPopupProps) {
     try {
       const assessmentID = uuidv4();
       await indexedDB.put("assessmentDetail", {
+        learningJourneyID,
         id: assessmentID,
+        materialID: MATERIAL_ID,
         type: "asesmen_kesiapan_belajar",
         timer: 0,
       });

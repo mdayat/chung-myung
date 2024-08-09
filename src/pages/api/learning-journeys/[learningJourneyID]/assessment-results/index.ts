@@ -58,7 +58,7 @@ export default async function handler(
       const { data } = await supabase
         .from("assessment_result")
         .select(
-          "id, learningJourneyID:learning_journey_id, type, attempt, createdAt:created_at",
+          "id, learningJourneyID:learning_journey_id, type, attempt, score, createdAt:created_at",
         )
         .eq("learning_journey_id", learningJourneyID)
         .throwOnError();
@@ -85,6 +85,7 @@ export default async function handler(
 
     const parseResult = zod
       .object({
+        score: assessmentResultSchema.shape.score,
         type: assessmentResultSchema.shape.type,
         attempt: assessmentResultSchema.shape.attempt,
         assessedLearningMaterials: zod.array(
@@ -209,6 +210,7 @@ export default async function handler(
           learning_journey_id: learningJourneyID,
           type: parseResult.data.type,
           attempt: parseResult.data.attempt,
+          score: parseResult.data.score,
         })
         .select("id")
         .single()

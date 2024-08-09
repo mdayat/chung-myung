@@ -65,8 +65,6 @@ function Home() {
         }
       }
 
-      // Ambil data assessment results
-
       if ("indexedDB" in window === false) {
         alert("your browser doesn't support indexedDB");
       } else {

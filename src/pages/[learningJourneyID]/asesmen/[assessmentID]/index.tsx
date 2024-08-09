@@ -19,10 +19,10 @@ import {
   DialogTrigger,
 } from "@components/shadcn/Dialog";
 import { Typography } from "@components/shadcn/Typography";
-import type { AssessmentType } from "@customTypes/assessmentResult";
 import MaskotHeadImages from "@public/maskot-head.png";
 import {
   type AssessedLearningMaterial,
+  type AssessmentDetail,
   type AssessmentResponse,
   type AssessmentTrackerDBSchema,
   createAKBResult,
@@ -36,15 +36,14 @@ import {
 import { karla, nunito } from "@utils/fonts";
 import { type IDBPDatabase } from "idb";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
 import type { NextPageWithLayout } from "../../../_app";
 
-const LEARNING_JOURNEY_ID = "94c33b3b-f38a-4906-a000-a85ca4f26539";
-const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
-
 const assessmentFooterID = "assessment-footer";
 const Asesmen: NextPageWithLayout = () => {
+  const router = useRouter();
   const [timer, setTimer] = useState<number | null>(null);
   const [indexedDB, setIndexedDB] =
     useState<IDBPDatabase<AssessmentTrackerDBSchema>>();
@@ -61,9 +60,13 @@ const Asesmen: NextPageWithLayout = () => {
   >([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const [assessmentType, setAssessmentType] = useState<AssessmentType>(
-    "asesmen_kesiapan_belajar",
-  );
+  const [assessmentDetail, setAssessmentDetail] = useState<
+    Pick<AssessmentDetail, "materialID" | "type" | "learningJourneyID">
+  >({
+    learningJourneyID: "",
+    materialID: "",
+    type: "asesmen_kesiapan_belajar",
+  });
 
   const isLastQuestion =
     currentQuestionIndex === currentSubtestQuestions.length - 1;
@@ -72,23 +75,25 @@ const Asesmen: NextPageWithLayout = () => {
     try {
       const isLastSubtest = subtests.length - 1 === currentSubtestIndex;
       if (isLastSubtest) {
-        if (assessmentType === "asesmen_kesiapan_belajar") {
-          await createAKBResult(indexedDB!, LEARNING_JOURNEY_ID);
+        if (assessmentDetail.type === "asesmen_kesiapan_belajar") {
+          await createAKBResult(indexedDB!, assessmentDetail.learningJourneyID);
         } else {
-          await createAsesmenAkhirResult(indexedDB!, LEARNING_JOURNEY_ID);
+          await createAsesmenAkhirResult(
+            indexedDB!,
+            assessmentDetail.learningJourneyID,
+          );
         }
 
-        Promise.all([
-          await indexedDB!.clear("subtest"),
-          await indexedDB!.clear("question"),
-          await indexedDB!.clear("assessmentDetail"),
-        ]);
-
-        window.location.replace(window.location.origin);
+        // Promise.all([
+        //   await indexedDB!.clear("subtest"),
+        //   await indexedDB!.clear("question"),
+        //   await indexedDB!.clear("assessmentDetail"),
+        // ]);
+        // router.replace(window.location.origin);
       } else {
         const currentSubtest = subtests[currentSubtestIndex];
         const nextSubtestQuestions = await getSubtestQuestions(
-          MATERIAL_ID,
+          assessmentDetail.materialID,
           subtests[currentSubtestIndex + 1].id,
         );
 
@@ -119,7 +124,7 @@ const Asesmen: NextPageWithLayout = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [indexedDB, subtests, currentSubtestIndex, assessmentType]);
+  }, [indexedDB, subtests, currentSubtestIndex, assessmentDetail, router]);
 
   function handleClickNextQuestion() {
     setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -154,7 +159,6 @@ const Asesmen: NextPageWithLayout = () => {
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-
     // Decrease the timer for "RestArea", and
     // get out from "RestArea" when the timer is up and start the next subtest.
     if (isSubtestFinished) {
@@ -171,7 +175,7 @@ const Asesmen: NextPageWithLayout = () => {
     // show "RestArea" when the timer is up.
     if (isAssessmentTimeout) {
       if (timer === 0) {
-        window.location.replace(window.location.origin);
+        router.replace(window.location.origin);
       } else {
         timeout = setTimeout(() => {
           setTimer(timer! - 1);
@@ -188,10 +192,16 @@ const Asesmen: NextPageWithLayout = () => {
 
         (async () => {
           try {
-            if (assessmentType === "asesmen_kesiapan_belajar") {
-              await createAKBResult(indexedDB!, LEARNING_JOURNEY_ID);
+            if (assessmentDetail.type === "asesmen_kesiapan_belajar") {
+              await createAKBResult(
+                indexedDB!,
+                assessmentDetail.learningJourneyID,
+              );
             } else {
-              await createAsesmenAkhirResult(indexedDB!, LEARNING_JOURNEY_ID);
+              await createAsesmenAkhirResult(
+                indexedDB!,
+                assessmentDetail.learningJourneyID,
+              );
             }
 
             Promise.all([
@@ -234,34 +244,42 @@ const Asesmen: NextPageWithLayout = () => {
     isAssessmentTimeout,
     isSubtestFinished,
     timer,
-    assessmentType,
+    assessmentDetail,
+    router,
     handleClickNextSubtest,
   ]);
 
   useEffect(() => {
-    if ("indexedDB" in window === false) {
-      alert("your browser doesn't support indexedDB");
-    } else {
-      (async () => {
+    if (router.isReady === false) return;
+
+    (async () => {
+      if ("indexedDB" in window === false) {
+        alert("your browser doesn't support indexedDB");
+      } else {
         try {
           const db = await openAssessmentTrackerDB();
           setIndexedDB(db);
 
-          // Check if assessmentID from URL is valid by comparing with the one from indexeddb
-          const assessmentID = await db.getKey(
-            "assessmentDetail",
-            getAssessmentIDFromURL(),
-          );
-          if (assessmentID === undefined) {
-            window.location.replace(window.location.origin);
-            return;
-          }
-
+          // Check if "assessmentID" and "learningJourneyID" form URL are match with indexeddb
+          const assessmentID = getAssessmentIDFromURL();
+          const learningJourneyID = window.location.pathname.split("/")[1];
           const assessmentDetail = await db.get(
             "assessmentDetail",
             assessmentID,
           );
-          setAssessmentType(assessmentDetail!.type);
+          if (
+            assessmentDetail === undefined ||
+            learningJourneyID !== assessmentDetail.learningJourneyID
+          ) {
+            router.replace(window.location.origin);
+            return;
+          }
+
+          setAssessmentDetail({
+            learningJourneyID,
+            materialID: assessmentDetail.materialID,
+            type: assessmentDetail.type,
+          });
 
           // Check if user has unfinished assessment or not
           const subtests = await db.getAll("subtest");
@@ -274,7 +292,7 @@ const Asesmen: NextPageWithLayout = () => {
             setTimer(356400);
 
             const prerequisites = await getSubtests(
-              MATERIAL_ID,
+              assessmentDetail.materialID,
               assessmentDetail!.type === "asesmen_kesiapan_belajar"
                 ? "prerequisite"
                 : "sub_material",
@@ -288,7 +306,7 @@ const Asesmen: NextPageWithLayout = () => {
             setSubtests(sortedSubtests);
 
             const subtestQuestions = await getSubtestQuestions(
-              MATERIAL_ID,
+              assessmentDetail.materialID,
               sortedSubtests[0].id,
             );
             await putManyQuestion(subtestQuestions, sortedSubtests[0].id, db);
@@ -326,7 +344,7 @@ const Asesmen: NextPageWithLayout = () => {
               setCurrentSubtestQuestions(storedQuestions);
             } else {
               const subtestQuestions = await getSubtestQuestions(
-                MATERIAL_ID,
+                assessmentDetail.materialID,
                 currentSubtest.id,
               );
               await putManyQuestion(subtestQuestions, currentSubtest.id, db);
@@ -344,9 +362,9 @@ const Asesmen: NextPageWithLayout = () => {
           // Log the error properly
           console.error(error);
         }
-      })();
-    }
-  }, []);
+      }
+    })();
+  }, [router]);
 
   if (isLoading) {
     return (
@@ -370,7 +388,7 @@ const Asesmen: NextPageWithLayout = () => {
         </Navbar>
 
         <RestArea
-          assessmentType={assessmentType}
+          assessmentType={assessmentDetail.type}
           handleClickNextSubtest={handleClickNextSubtest}
           timer={timer!}
           subtestsLength={subtests.length}
@@ -391,7 +409,7 @@ const Asesmen: NextPageWithLayout = () => {
 
       <div className='mx-auto mt-[calc(64px+32px)] w-full max-w-[calc(1366px-160px)] pb-8'>
         <AssessmentHeader
-          assessmentType={assessmentType}
+          assessmentType={assessmentDetail.type}
           subtestsLength={subtests.length}
           currentSubtestIndex={currentSubtestIndex + 1}
           currentSubtestName={subtests[currentSubtestIndex].name}
@@ -496,7 +514,7 @@ const Asesmen: NextPageWithLayout = () => {
 
           <Dialog
             open={isAssessmentTimeout}
-            onOpenChange={() => window.location.replace(window.location.origin)}
+            onOpenChange={() => router.replace(window.location.origin)}
           >
             <DialogContent>
               <TimeIsUpPopup timer={timer!} />

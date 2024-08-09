@@ -13,6 +13,8 @@ import { v4 as uuidv4 } from "uuid";
 
 interface AssessmentDetail {
   id: string;
+  learningJourneyID: string;
+  materialID: string;
   type: AssessmentType;
   timer: number;
 }
@@ -236,7 +238,11 @@ async function createAKBResult(
     }
 
     const unmasteredLearningMaterialIDs: string[] = [];
+    let totalQuestions = 0;
+    let totalCorrectQuestions = 0;
+
     const assessmentResult: AssessmentResultCreation = {
+      score: 0,
       type: "asesmen_kesiapan_belajar",
       attempt:
         prevAssessmentResult === null ? 1 : prevAssessmentResult.attempt + 1,
@@ -251,6 +257,8 @@ async function createAKBResult(
             .filter((question) => question.subtestID === subtest.id)
             .map((question) => {
               let isCorrect = false;
+              totalQuestions += 1;
+
               for (let i = 0; i < question.multipleChoice.length; i++) {
                 if (
                   question.selectedChoiceID !== question.multipleChoice[i].id
@@ -260,6 +268,7 @@ async function createAKBResult(
 
                 if (question.multipleChoice[i].isCorrect) {
                   isCorrect = true;
+                  totalCorrectQuestions += 1;
                 }
               }
 
@@ -277,6 +286,10 @@ async function createAKBResult(
         };
       }),
     };
+
+    assessmentResult.score = Math.round(
+      (totalCorrectQuestions / totalQuestions) * 100,
+    );
 
     if (assessmentResult.attempt === 3) {
       Promise.all([
@@ -326,7 +339,11 @@ async function createAsesmenAkhirResult(
     const sortedSubtests = results[0];
     const storedQuestions = results[1];
 
+    let totalQuestions = 0;
+    let totalCorrectQuestions = 0;
+
     const assessmentResult: AssessmentResultCreation = {
+      score: 0,
       type: "asesmen_akhir",
       attempt: 1,
       assessedLearningMaterials: sortedSubtests.map((subtest) => {
@@ -338,6 +355,8 @@ async function createAsesmenAkhirResult(
             .filter((question) => question.subtestID === subtest.id)
             .map((question) => {
               let isCorrect = false;
+              totalQuestions += 1;
+
               for (let i = 0; i < question.multipleChoice.length; i++) {
                 if (
                   question.selectedChoiceID !== question.multipleChoice[i].id
@@ -347,6 +366,7 @@ async function createAsesmenAkhirResult(
 
                 if (question.multipleChoice[i].isCorrect) {
                   isCorrect = true;
+                  totalCorrectQuestions += 1;
                 }
               }
 
@@ -359,6 +379,10 @@ async function createAsesmenAkhirResult(
         };
       }),
     };
+
+    assessmentResult.score = Math.round(
+      (totalCorrectQuestions / totalQuestions) * 100,
+    );
 
     await fetch(
       `/api/learning-journeys/${learningJourneyID}/assessment-results`,

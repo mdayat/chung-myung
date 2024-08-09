@@ -173,6 +173,7 @@ model assessment_result {
   learning_journey_id String           @db.Uuid
   type                assessment_type
   attempt             Int              @db.SmallInt
+  score               Int              @db.SmallInt
   created_at          DateTime         @default(now()) @db.Timestamptz()
 
   assessed_learning_materials assessed_learning_material[]

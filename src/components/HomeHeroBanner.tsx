@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export function HomeHeroBanner() {
   return (
-    <div className='relative'>
+    <div className='relative mt-16'>
       <Image
         src={EmtekaBannerImage}
         alt='Emteka Banner'

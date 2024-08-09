@@ -3,7 +3,9 @@ import { BlurredCircle } from "@components/BlurredCircle";
 import { HomeHeroBanner } from "@components/HomeHeroBanner";
 import { ChevronRightIcon } from "@components/icons/ChevronRightIcon";
 import { EmojiFlagsIcon } from "@components/icons/EmojiFlagsIcon";
+import { LoaderSpinner } from "@components/icons/LoaderSpinner";
 import { SchoolIcon } from "@components/icons/SchoolIcon";
+import { HelpMenu, Navbar, ProfileMenu } from "@components/Navbar";
 import { Button } from "@components/shadcn/Button";
 import {
   Dialog,
@@ -12,7 +14,10 @@ import {
 } from "@components/shadcn/Dialog";
 import { Typography } from "@components/shadcn/Typography";
 import type { SuccessResponse } from "@customTypes/api";
-import type { AssessmentType } from "@customTypes/assessmentResult";
+import type {
+  AssessmentResult,
+  AssessmentType,
+} from "@customTypes/assessmentResult";
 import type { LearningJourney } from "@customTypes/learningJourney";
 import MaskotBodyImage from "@public/maskot-body.png";
 import {
@@ -20,11 +25,15 @@ import {
   type AssessmentTrackerDBSchema,
   openAssessmentTrackerDB,
 } from "@utils/assessmentTracker";
+import { karla, nunito } from "@utils/fonts";
 import axios, { type AxiosError } from "axios";
 import { deleteDB, type IDBPDatabase } from "idb";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { type ReactElement, useEffect, useState } from "react";
+
+import type { NextPageWithLayout } from "./_app";
 
 const UnfinishedAssessmentCard = dynamic(() =>
   import("@components/UnfinishedAssessmentCard").then(
@@ -32,17 +41,22 @@ const UnfinishedAssessmentCard = dynamic(() =>
   ),
 );
 
-function Home() {
+const Home: NextPageWithLayout = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [indexedDB, setIndexedDB] =
     useState<IDBPDatabase<AssessmentTrackerDBSchema>>();
 
+  const [akbResult, setAkbResult] = useState<AssessmentResult | null>(null);
+  const [asesmenAkhirResult, setAsesmenAkhirResult] =
+    useState<AssessmentResult | null>(null);
+
+  const [learningJourneyID, setLearningJourneyID] = useState("");
   const [unfinishedAssessmentDetail, setUnfinishedAssessmentDetail] =
     useState<Omit<AssessmentDetail, "timer"> | null>(null);
-  const [learningJourneyID, setLearningJourneyID] = useState("");
 
   useEffect(() => {
     (async () => {
+      // Check if user has learning journeys
       let learningJourneyID = "";
       try {
         const { data: learningJourneysResponse } = await axios.get<
@@ -50,7 +64,7 @@ function Home() {
         >("/api/learning-journeys");
         if (learningJourneysResponse.data.length !== 0) {
           learningJourneyID = learningJourneysResponse.data[0].id;
-          setLearningJourneyID(learningJourneyID);
+          setLearningJourneyID(learningJourneysResponse.data[0].id);
         }
       } catch (err) {
         const error = err as AxiosError;
@@ -65,6 +79,37 @@ function Home() {
         }
       }
 
+      // Check if user has assessment results based on a learning journey
+      let asesmenAkhirResult: AssessmentResult | null = null;
+      if (learningJourneyID !== "") {
+        try {
+          const { data: assessmentResultsResponse } = await axios.get<
+            SuccessResponse<AssessmentResult[]>
+          >(`/api/learning-journeys/${learningJourneyID}/assessment-results`);
+          if (assessmentResultsResponse.data.length !== 0) {
+            for (const assessmentResult of assessmentResultsResponse.data) {
+              if (assessmentResult.type === "asesmen_kesiapan_belajar") {
+                setAkbResult(assessmentResult);
+              } else {
+                setAsesmenAkhirResult(assessmentResult);
+                asesmenAkhirResult = assessmentResult;
+              }
+            }
+          }
+        } catch (err) {
+          const error = err as AxiosError;
+          if (error.response) {
+            // retry the request
+          } else if (error.request) {
+            // retry the request
+          } else {
+            console.error(
+              new Error("Something is wrong with Axios: ", { cause: error }),
+            );
+          }
+        }
+      }
+
       if ("indexedDB" in window === false) {
         alert("your browser doesn't support indexedDB");
       } else {
@@ -72,12 +117,13 @@ function Home() {
           const db = await openAssessmentTrackerDB();
           setIndexedDB(db);
 
-          const assessmentDetail = await db.getAll("assessmentDetail");
-          if (assessmentDetail.length === 0) {
-            return;
-          }
+          if (learningJourneyID === "") return;
+          if (asesmenAkhirResult !== null) return;
 
-          setUnfinishedAssessmentDetail(assessmentDetail[0]);
+          const assessmentDetail = await db.getAll("assessmentDetail");
+          if (assessmentDetail.length !== 0) {
+            setUnfinishedAssessmentDetail(assessmentDetail[0]);
+          }
         } catch (error) {
           console.error(
             new Error(
@@ -92,8 +138,24 @@ function Home() {
     })();
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className='absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center'>
+        <LoaderSpinner className='mb-6 h-16 w-16' />
+        <Typography as='h2' variant='h5' weight='bold' className='mb-2'>
+          Tunggu sebentar ya!
+        </Typography>
+      </div>
+    );
+  }
+
   return (
-    <div className='mt-16'>
+    <>
+      <Navbar>
+        <HelpMenu />
+        <ProfileMenu withIcon />
+      </Navbar>
+
       <HomeHeroBanner />
 
       <button
@@ -135,16 +197,29 @@ function Home() {
                 materi yang kami sediakan, dan selesaikan dengan asesmen akhir.
               </Typography>
 
-              <DialogTrigger asChild>
-                <Button
-                  disabled={isLoading || unfinishedAssessmentDetail !== null}
-                  type='button'
-                  className='mb-2 w-fit'
-                >
-                  Mulai Asesmen Kesiapan Belajar
-                  <ChevronRightIcon />
+              {asesmenAkhirResult !== null ||
+              (akbResult !== null && akbResult.score === 100) ||
+              (akbResult !== null && akbResult.attempt === 3) ? (
+                <Button asChild type='button' className='mb-2 w-fit'>
+                  <Link href={`/${learningJourneyID}/belajar-materi`}>
+                    Belajar Materi
+                    <ChevronRightIcon />
+                  </Link>
                 </Button>
-              </DialogTrigger>
+              ) : (
+                <DialogTrigger asChild>
+                  <Button
+                    disabled={
+                      akbResult !== null || unfinishedAssessmentDetail !== null
+                    }
+                    type='button'
+                    className='mb-2 w-fit'
+                  >
+                    Mulai Asesmen Kesiapan Belajar
+                    <ChevronRightIcon />
+                  </Button>
+                </DialogTrigger>
+              )}
 
               <Typography variant='caption' className='text-neutral-400'>
                 &#x2a;Saat ini, kamu hanya bisa belajar materi Bidang Ruang.
@@ -154,13 +229,16 @@ function Home() {
           </div>
 
           <DialogContent>
-            <AssessmentRulesPopup indexedDB={indexedDB!} />
+            <AssessmentRulesPopup
+              indexedDB={indexedDB!}
+              learningJourneyID={learningJourneyID}
+            />
           </DialogContent>
         </Dialog>
 
         {unfinishedAssessmentDetail !== null ? (
           <UnfinishedAssessmentCard
-            learningJourneyID={learningJourneyID}
+            learningJourneyID={unfinishedAssessmentDetail.learningJourneyID}
             indexedDB={indexedDB!}
             assessmentDetail={unfinishedAssessmentDetail}
             setUnfinishedAssessmentDetail={setUnfinishedAssessmentDetail}
@@ -177,9 +255,9 @@ function Home() {
           <AssessmentResultCard isLoading={isLoading} type='asesmen_akhir' />
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 interface AssessmentResultCardProps {
   type: AssessmentType;
@@ -229,5 +307,13 @@ function AssessmentResultCard({ type, isLoading }: AssessmentResultCardProps) {
     </div>
   );
 }
+
+Home.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <main className={`${karla.variable} ${nunito.variable} font-karla`}>
+      {page}
+    </main>
+  );
+};
 
 export default Home;

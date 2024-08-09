@@ -117,7 +117,7 @@ export default function handler(
         const { data } = await supabase
           .from("material_question")
           .select(
-            "question(*, multiple_choice!multiple_choice_question_id_fkey(id, content, isCorrect:is_correct))",
+            "materialID:material_id, learningMaterialID:learning_material_id, question(*, multiple_choice!multiple_choice_question_id_fkey(id, content, isCorrect:is_correct))",
           )
           .eq("material_id", materialID)
           .eq("learning_material_id", learningMaterialID)
@@ -128,6 +128,8 @@ export default function handler(
           for (let i = 0; i < questions.length; i++) {
             questions[i] = {
               id: data![i].question!.id,
+              materialID: data![i].materialID,
+              learningMaterialID: data![i].learningMaterialID,
               content: data![i].question!.content,
               explanation: data![i].question!.explanation,
               taxonomyBloom: data![i].question!.taxonomy_bloom,

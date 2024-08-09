@@ -1,5 +1,8 @@
 import { z as zod } from "zod";
 
+import { learningMaterialSchema } from "./learningMaterial";
+import { materialSchema } from "./material";
+
 const multipleChoiceSchema = zod.object({
   id: zod.string().uuid(),
   content: zod.string(),
@@ -8,6 +11,8 @@ const multipleChoiceSchema = zod.object({
 
 const questionSchema = zod.object({
   id: zod.string().uuid(),
+  materialID: materialSchema.shape.id,
+  learningMaterialID: learningMaterialSchema.shape.id,
   content: zod.string(),
   explanation: zod.string(),
   taxonomyBloom: zod.union([

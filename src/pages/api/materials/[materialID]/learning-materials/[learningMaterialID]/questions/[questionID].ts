@@ -105,11 +105,13 @@ export default async function handler(
 
     try {
       const { data } = await supabase
-        .from("question")
+        .from("material_question")
         .select(
-          "id, content, explanation, taxonomyBloom:taxonomy_bloom, multipleChoice:multiple_choice(id, content, isCorrect:is_correct)",
+          "materialID:material_id, learningMaterialID:learning_material_id, question(*, multiple_choice!multiple_choice_question_id_fkey(id, content, isCorrect:is_correct))",
         )
-        .eq("id", questionID)
+        .eq("material_id", materialID)
+        .eq("learning_material_id", learningMaterialID)
+        .eq("question_id", questionID)
         .maybeSingle()
         .throwOnError();
 
@@ -122,7 +124,18 @@ export default async function handler(
         return;
       }
 
-      res.status(200).json({ status: "success", data });
+      res.status(200).json({
+        status: "success",
+        data: {
+          id: data.question!.id,
+          materialID: data.materialID,
+          learningMaterialID: data.learningMaterialID,
+          content: data.question!.content,
+          explanation: data.question!.explanation,
+          taxonomyBloom: data.question!.taxonomy_bloom,
+          multipleChoice: data.question!.multiple_choice,
+        },
+      });
     } catch (error) {
       console.error(
         new Error(`Error when get a question based on "questionID": `, {

@@ -14,9 +14,9 @@
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "postinstall": "prisma generate",
-    "docker:build": "docker build . -t emteka/app:latest",
-    "docker:run": "docker run --rm -p 0.0.0.0:3000:3000 -it --name emteka-app emteka/app:latest",
-    "docker:stop": "docker stop emteka-app"
+    "docker:release:build": "docker build . -t emteka/app-release:latest && docker run -v ./release/:/release/ --env-file .envdocker.local --rm -it --name emteka-app-release emteka/app-release:latest",
+    "docker:release:run": "docker build ./release/standalone -t emteka/app:latest && docker run --env-file .envdocker.local --rm -p 3000:80 -it --name emteka-app emteka/app:latest",
+    "docker:release:stop": "docker stop emteka-app"
   },
   "dependencies": {
     "@prisma/client": "5.14.0",

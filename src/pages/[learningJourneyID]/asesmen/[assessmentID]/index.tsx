@@ -40,7 +40,6 @@ import { type ReactElement, useCallback, useEffect, useState } from "react";
 
 import type { NextPageWithLayout } from "../../../_app";
 
-const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 const LEARNING_JOURNEY_ID = "94c33b3b-f38a-4906-a000-a85ca4f26539";
 const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
 
@@ -74,13 +73,9 @@ const Asesmen: NextPageWithLayout = () => {
       const isLastSubtest = subtests.length - 1 === currentSubtestIndex;
       if (isLastSubtest) {
         if (assessmentType === "asesmen_kesiapan_belajar") {
-          await createAKBResult(indexedDB!, USER_ID, LEARNING_JOURNEY_ID);
+          await createAKBResult(indexedDB!, LEARNING_JOURNEY_ID);
         } else {
-          await createAsesmenAkhirResult(
-            indexedDB!,
-            USER_ID,
-            LEARNING_JOURNEY_ID,
-          );
+          await createAsesmenAkhirResult(indexedDB!, LEARNING_JOURNEY_ID);
         }
 
         Promise.all([
@@ -194,13 +189,9 @@ const Asesmen: NextPageWithLayout = () => {
         (async () => {
           try {
             if (assessmentType === "asesmen_kesiapan_belajar") {
-              await createAKBResult(indexedDB!, USER_ID, LEARNING_JOURNEY_ID);
+              await createAKBResult(indexedDB!, LEARNING_JOURNEY_ID);
             } else {
-              await createAsesmenAkhirResult(
-                indexedDB!,
-                USER_ID,
-                LEARNING_JOURNEY_ID,
-              );
+              await createAsesmenAkhirResult(indexedDB!, LEARNING_JOURNEY_ID);
             }
 
             Promise.all([

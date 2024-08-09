@@ -13,21 +13,9 @@ export default async function handler(
 ) {
   res.setHeader("Content-Type", "application/json");
 
-  // Check if "userID" is a valid UUID
-  const userID = (req.query.userID ?? "") as string;
-  let parseResult = zod.string().uuid().safeParse(userID);
-  if (parseResult.success === false) {
-    console.error(
-      new Error(`"userID" is not a valid UUID: `, { cause: parseResult.error }),
-    );
-
-    res.status(404).json({ status: "failed", message: "User Not Found" });
-    return;
-  }
-
   // Check if "learningJourneyID" is a valid UUID
   const learningJourneyID = (req.query.learningJourneyID ?? "") as string;
-  parseResult = zod.string().uuid().safeParse(learningJourneyID);
+  const parseResult = zod.string().uuid().safeParse(learningJourneyID);
   if (parseResult.success === false) {
     console.error(
       new Error(`"learningJourneyID" is not a valid UUID: `, {
@@ -42,19 +30,6 @@ export default async function handler(
   }
 
   if (req.method === "GET") {
-    // Check if "userID" exists
-    try {
-      if ((await isUserExist(userID)) === false) {
-        console.error(new Error(`User with "userID" is not found`));
-        res.status(404).json({ status: "failed", message: "User Not Found" });
-        return;
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ status: "failed", message: "Server Error" });
-      return;
-    }
-
     try {
       const { data } = await supabase
         .from("learning_journey")
@@ -107,10 +82,9 @@ export default async function handler(
       return;
     }
 
-    // Check if "userID", "learningJourneyID", and "prerequisiteIDs" exist
+    // Check if "learningJourneyID" and "prerequisiteIDs" exist
     try {
       const results = await Promise.all([
-        supabase.from("user").select("id").eq("id", userID).maybeSingle(),
         supabase
           .from("learning_journey")
           .select("id")
@@ -123,32 +97,20 @@ export default async function handler(
       ]);
 
       if (results[0].error !== null) {
-        throw new Error(`Error when get a user based on "userID": `, {
-          cause: results[0].error,
-        });
+        throw new Error(
+          `Error when get a learning journey based on "learningJourneyID": `,
+          { cause: results[0].error },
+        );
       }
 
       if (results[1].error !== null) {
         throw new Error(
-          `Error when get a learning journey based on "learningJourneyID": `,
+          `Error when get learning materials based on "prerequisiteIDs": `,
           { cause: results[1].error },
         );
       }
 
-      if (results[2].error !== null) {
-        throw new Error(
-          `Error when get learning materials based on "prerequisiteIDs": `,
-          { cause: results[2].error },
-        );
-      }
-
       if (results[0].data === null) {
-        console.error(new Error(`User with "userID" is not found`));
-        res.status(404).json({ status: "failed", message: "User Not Found" });
-        return;
-      }
-
-      if (results[1].data === null) {
         console.error(
           new Error(`Learning Journey with "learningJourneyID" is not found`),
         );
@@ -160,8 +122,8 @@ export default async function handler(
       }
 
       if (
-        results[2].data === null ||
-        results[2].data.length < parseResult.data.prerequisiteIDs.length
+        results[1].data === null ||
+        results[1].data.length < parseResult.data.prerequisiteIDs.length
       ) {
         console.error(
           new Error(`Learning Materials with "prerequisiteIDs" are not found`),
@@ -220,10 +182,9 @@ export default async function handler(
       return;
     }
 
-    // Check if "userID", "learningJourneyID", and "learningMaterialID" exist
+    // Check if "learningJourneyID" and "learningMaterialID" exist
     try {
       const results = await Promise.all([
-        supabase.from("user").select("id").eq("id", userID).maybeSingle(),
         supabase
           .from("learning_journey")
           .select("id")
@@ -236,32 +197,20 @@ export default async function handler(
       ]);
 
       if (results[0].error !== null) {
-        throw new Error(`Error when get a user based on "userID": `, {
-          cause: results[0].error,
-        });
+        throw new Error(
+          `Error when get a learning journey based on "learningJourneyID": `,
+          { cause: results[0].error },
+        );
       }
 
       if (results[1].error !== null) {
         throw new Error(
-          `Error when get a learning journey based on "learningJourneyID": `,
+          `Error when get a learning material based on "learningMaterialID": `,
           { cause: results[1].error },
         );
       }
 
-      if (results[2].error !== null) {
-        throw new Error(
-          `Error when get a learning material based on "learningMaterialID": `,
-          { cause: results[2].error },
-        );
-      }
-
       if (results[0].data === null) {
-        console.error(new Error(`User with "userID" is not found`));
-        res.status(404).json({ status: "failed", message: "User Not Found" });
-        return;
-      }
-
-      if (results[1].data === null) {
         console.error(
           new Error(`Learning Journey with "learningJourneyID" is not found`),
         );
@@ -272,7 +221,7 @@ export default async function handler(
         return;
       }
 
-      if (results[2].data === null) {
+      if (results[1].data === null) {
         console.error(
           new Error(`Learning Material with "learningMaterialID" is not found`),
         );
@@ -288,6 +237,7 @@ export default async function handler(
       return;
     }
 
+    // Update the status of studied learning material
     try {
       const { data } = await supabase
         .from("studied_learning_material")
@@ -324,22 +274,5 @@ export default async function handler(
     }
   } else {
     handleInvalidMethod(res, ["GET", "POST", "PUT"]);
-  }
-}
-
-async function isUserExist(userID: string): Promise<boolean> {
-  try {
-    const { data } = await supabase
-      .from("user")
-      .select("id")
-      .eq("id", userID)
-      .maybeSingle()
-      .throwOnError();
-
-    return data !== null;
-  } catch (error) {
-    throw new Error(`Error when get a user based on "userID": `, {
-      cause: error,
-    });
   }
 }

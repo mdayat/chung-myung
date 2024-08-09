@@ -31,7 +31,6 @@ interface LearningMaterialWithStatus extends LearningMaterial {
   isStudied: boolean;
 }
 
-const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 const BelajarMateriDetail: NextPageWithLayout = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -95,7 +94,7 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
 
     try {
       await axios.put(
-        `/api/users/${USER_ID}/learning-journeys/${learningJourneyID}`,
+        `/api/learning-journeys/${learningJourneyID}`,
         { learningMaterialID, isStudied: true },
         { headers: { "Content-Type": "application/json" } },
       );
@@ -130,10 +129,10 @@ const BelajarMateriDetail: NextPageWithLayout = () => {
         const learningJourneyID = window.location.pathname.split("/")[1];
         const { data: learningJourneyResponse } = await axios.get<
           SuccessResponse<LearningJourney>
-        >(`/api/users/${USER_ID}/learning-journeys/${learningJourneyID}`);
+        >(`/api/learning-journeys/${learningJourneyID}`);
         setIsLearningJourneyExist(true);
 
-        // Check if "learningMaterialID" exist and mark the index
+        // Check if "learningMaterialID" exist
         let isExist = false;
         const learningMaterialID = getLearningMaterialIDFromURL();
         for (

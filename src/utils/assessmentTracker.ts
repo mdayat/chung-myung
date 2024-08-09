@@ -199,7 +199,6 @@ interface AssessmentResultCreation
 
 async function createAKBResult(
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
-  userID: string,
   learningJourneyID: string,
 ) {
   try {
@@ -207,7 +206,7 @@ async function createAKBResult(
       await db.getAllFromIndex("subtest", "number"),
       await db.getAll("question"),
       await fetch(
-        `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+        `/api/learning-journeys/${learningJourneyID}/assessment-results`,
       ),
     ]);
 
@@ -231,7 +230,7 @@ async function createAKBResult(
 
     if (prevAssessmentResult !== null) {
       await fetch(
-        `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results/${prevAssessmentResult.id}`,
+        `/api/learning-journeys/${learningJourneyID}/assessment-results/${prevAssessmentResult.id}`,
         { method: "DELETE" },
       );
     }
@@ -282,14 +281,14 @@ async function createAKBResult(
     if (assessmentResult.attempt === 3) {
       Promise.all([
         fetch(
-          `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+          `/api/learning-journeys/${learningJourneyID}/assessment-results`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(assessmentResult),
           },
         ),
-        fetch(`/api/users/${userID}/learning-journeys/${learningJourneyID}`, {
+        fetch(`/api/learning-journeys/${learningJourneyID}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -299,7 +298,7 @@ async function createAKBResult(
       ]);
     } else {
       await fetch(
-        `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+        `/api/learning-journeys/${learningJourneyID}/assessment-results`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -316,7 +315,6 @@ async function createAKBResult(
 
 async function createAsesmenAkhirResult(
   db: IDBPDatabase<AssessmentTrackerDBSchema>,
-  userID: string,
   learningJourneyID: string,
 ) {
   try {
@@ -363,7 +361,7 @@ async function createAsesmenAkhirResult(
     };
 
     await fetch(
-      `/api/users/${userID}/learning-journeys/${learningJourneyID}/assessment-results`,
+      `/api/learning-journeys/${learningJourneyID}/assessment-results`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

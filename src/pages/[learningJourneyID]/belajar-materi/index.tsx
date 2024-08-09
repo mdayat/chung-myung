@@ -17,7 +17,6 @@ interface LearningMaterialWithStatus extends LearningMaterial {
   isStudied: boolean;
 }
 
-const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 const BelajarMateri: NextPageWithLayout = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLearningJourneyExist, setIsLearningJourneyExist] = useState(false);
@@ -39,7 +38,7 @@ const BelajarMateri: NextPageWithLayout = () => {
         // Get a learning journey based on "learningJourneyID"
         const { data: learningJourneyResponse } = await axios.get<
           SuccessResponse<LearningJourney>
-        >(`/api/users/${USER_ID}/learning-journeys/${learningJourneyID}`);
+        >(`/api/learning-journeys/${learningJourneyID}`);
         setIsLearningJourneyExist(true);
 
         // Get a material and learning materials based on learning journey data

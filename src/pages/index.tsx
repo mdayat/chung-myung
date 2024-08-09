@@ -32,7 +32,6 @@ const UnfinishedAssessmentCard = dynamic(() =>
   ),
 );
 
-const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [indexedDB, setIndexedDB] =
@@ -48,7 +47,7 @@ function Home() {
       try {
         const { data: learningJourneysResponse } = await axios.get<
           SuccessResponse<LearningJourney[]>
-        >(`/api/users/${USER_ID}/learning-journeys`);
+        >("/api/learning-journeys");
         if (learningJourneysResponse.data.length !== 0) {
           learningJourneyID = learningJourneysResponse.data[0].id;
           setLearningJourneyID(learningJourneyID);

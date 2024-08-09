@@ -5,6 +5,7 @@ import { handleInvalidMethod } from "@utils/middlewares";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z as zod } from "zod";
 
+const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
@@ -13,32 +14,6 @@ export default async function handler(
   >,
 ) {
   res.setHeader("Content-Type", "application/json");
-
-  // Check if "userID" is a valid UUID
-  const userID = (req.query.userID ?? "") as string;
-  const parseResult = zod.string().uuid().safeParse(userID);
-  if (parseResult.success === false) {
-    console.error(
-      new Error(`"userID" is not a valid UUID: `, { cause: parseResult.error }),
-    );
-
-    res.status(404).json({ status: "failed", message: "User Not Found" });
-    return;
-  }
-
-  // Check if "userID" exists
-  try {
-    if ((await isUserExist(userID)) === false) {
-      console.error(new Error(`User with "userID" is not found`));
-      res.status(404).json({ status: "failed", message: "User Not Found" });
-      return;
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: "failed", message: "Server Error" });
-    return;
-  }
-
   if (req.method === "GET") {
     try {
       const { data } = await supabase
@@ -46,13 +21,13 @@ export default async function handler(
         .select(
           "id, userID:user_id, materialID:material_id, studiedLearningMaterials:studied_learning_material(learningMaterialID:learning_material_id, isStudied:is_studied)",
         )
-        .eq("user_id", userID)
+        .eq("user_id", USER_ID)
         .throwOnError();
 
       res.status(200).json({ status: "success", data: data! });
     } catch (error) {
       console.error(
-        new Error(`Error when get learning journeys based on "userID": `, {
+        new Error(`Error when get learning journeys based on user id: `, {
           cause: error,
         }),
       );
@@ -104,7 +79,7 @@ export default async function handler(
       const results = await Promise.all([
         supabase
           .from("learning_journey")
-          .insert({ user_id: userID, material_id: req.body.materialID })
+          .insert({ user_id: USER_ID, material_id: req.body.materialID })
           .select("id")
           .single(),
         supabase
@@ -163,23 +138,6 @@ export default async function handler(
     }
   } else {
     handleInvalidMethod(res, ["GET", "POST"]);
-  }
-}
-
-async function isUserExist(userID: string): Promise<boolean> {
-  try {
-    const { data } = await supabase
-      .from("user")
-      .select("id")
-      .eq("id", userID)
-      .maybeSingle()
-      .throwOnError();
-
-    return data !== null;
-  } catch (error) {
-    throw new Error(`Error when get a user based on "userID": `, {
-      cause: error,
-    });
   }
 }
 

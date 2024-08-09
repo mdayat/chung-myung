@@ -18,7 +18,6 @@ interface AssessmentRulesPopupProps {
   indexedDB: IDBPDatabase<AssessmentTrackerDBSchema>;
 }
 
-const USER_ID = "89168051-cd0d-4acf-8ce9-0fca8e3756d2";
 const MATERIAL_ID = "f64fb490-778d-4719-8d01-18f49a3b55a4";
 
 export function AssessmentRulesPopup({ indexedDB }: AssessmentRulesPopupProps) {
@@ -34,7 +33,7 @@ export function AssessmentRulesPopup({ indexedDB }: AssessmentRulesPopupProps) {
       const { data: learningJourneyIDResponse } = await axios.post<
         SuccessResponse<{ learningJourneyID: string }>
       >(
-        `/api/users/${USER_ID}/learning-journeys`,
+        "/api/learning-journeys",
         { materialID: MATERIAL_ID },
         { headers: { "Content-Type": "application/json" } },
       );
